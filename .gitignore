@@ -1,0 +1,17 @@
+# Scratch / unsync conventions inherited from manual phase
+_scratch/
+**/scratch/
+_*
+*.scratch.md
+
+# macOS
+.DS_Store
+
+# Editor / OS
+*.swp
+*~
+
+# Python (when scripts are added under skills/.../scripts/)
+__pycache__/
+*.pyc
+.venv/
