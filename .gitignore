@@ -4,6 +4,9 @@ _scratch/
 _*
 *.scratch.md
 
+# Built plugin packages (output of `zip -r ... writing-cowork.plugin`)
+*.plugin
+
 # macOS
 .DS_Store
 
