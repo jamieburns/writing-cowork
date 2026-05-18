@@ -62,28 +62,54 @@ empty directories.
 
 ## .gitignore content
 
-The standard writing-cowork ignores:
+The standard writing-cowork ignores. Generic baseline — covers every writing
+project. Project-specific outputs (build artifacts, deliverables) are NOT
+included here; writers add them per-project.
 
 ```
 # Scratch / unsync conventions
-_scratch/
-**/scratch/
 _*
-!_admin_*.log
-!_admin_*.sh
+_scratch/
+**/_scratch/
+scratch/
+**/scratch/
 *.scratch.md
 
 # macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# iCloud Drive sentinels (vaults often live in iCloud)
+*.icloud
 
 # Editor / OS
-*.swp
 *~
+*.swp
+*.swo
+
+# Python (for any scripts that may live in process/data_management/)
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Obsidian — transient workspace state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/workspace.json.bak
+
+# Drift check artifacts (regenerable per-run)
+process/data_management/.drift_flag
+process/data_management/drift_reports/
 ```
 
-The `!_admin_*.log` and `!_admin_*.sh` exceptions allow Reconciliation-style
-admin logs at vault root. Genericize when porting if those filename
-conventions change.
+Note `_*` is broad — it ignores any file or directory whose name starts with
+underscore. Writers who want exceptions (e.g., `_admin_*.log` for tracked
+admin scripts) add `!_admin_*.log` style negations to their project's
+`.gitignore` per their own convention.
 
 ## Output on success
 
