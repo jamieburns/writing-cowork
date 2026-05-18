@@ -1,6 +1,6 @@
 {
   "name": "writing-cowork",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Multi-role cowork pattern (PM, substance, voice/tone, review) for long-form writing projects. Skills install scaffolds, manage drift, run reviews, and coordinate role handoffs across a project's git-tracked vault.",
   "author": {
     "name": "Jamie Burns"
