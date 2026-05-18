@@ -80,7 +80,7 @@ Read it first. Contains:
 - **Atomic file writes.** Skills that modify tracked files write to `<file>.tmp`, then `mv` to `<file>`. Avoids torn reads from concurrent operations (e.g., kanban view + skill update).
 - **Commit prefixes.** `[data-mgmt]` for librarian/PM mechanical work; `[lift]` for lift-sequence commits; `[voice]`, `[substance]`, `[reader-review]` for specialist context work; `[writer]` / `[obsidian]` for writer's direct edits; `[promotion]` for inbox arrivals.
 - **Scratch convention.** `_scratch/`, folders named `scratch/` at any depth, files prefixed `_`, files with `.scratch.md` extension — all gitignored.
-- **No-`--source` flag for `gh repo create`.** Use `gh repo create <slug> --private` then `git remote add origin` then `git push -u origin main`. The `--source=.` flag is incompatible with `--separate-git-dir` (phase 1 learning).
+- **No-`--source` flag for `gh repo create`; use HTTPS remote.** Use `gh repo create <slug> --private` then `git remote add origin https://github.com/<owner>/<slug>.git` then `git push -u origin main`. The `--source=.` flag is incompatible with `--separate-git-dir` (phase 1 learning). HTTPS remote (not SSH) is correct for this machine — `gh auth login` configures git's credential helper to inject the gh token on HTTPS pushes; no SSH key is set up by default. Do not substitute `git@github.com:<owner>/<slug>.git` (writing-cowork repo creation learning, 2026-05-17).
 
 ## Cowork-tools relationship
 
