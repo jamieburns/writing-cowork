@@ -77,7 +77,8 @@ invokable from chat for ad-hoc use; the orchestrator simply chains them.
 
 ## State file
 
-Persist progress at `~/.config/cowork/setup_state/<name>.json`. Create the
+Persist progress at `~/.config/cowork/writing-cowork/setup_state/<name>_setup_state.json`
+(the basename is self-identifying; do not strip the suffix). Create the
 parent dir if absent. The state file lives outside the vault so it survives
 any failure mode — including a partial `pm-init-vault`.
 
@@ -100,9 +101,14 @@ Format:
 }
 ```
 
-Update the file atomically — write to `<name>.json.tmp`, then `mv` to
-`<name>.json`. The atomic-write convention is inherited from the manual phase;
-the registry and other long-lived files use it to avoid torn reads.
+Track all 15 sub-skills individually in `completed_steps` (granular).
+Resume needs to know which specific sub-skill failed; user-facing narration
+gangs steps into groups but the state file does not.
+
+Update the file atomically — write to `<name>_setup_state.json.tmp`, then
+`mv` to `<name>_setup_state.json`. The atomic-write convention is inherited
+from the manual phase; the registry and other long-lived files use it to
+avoid torn reads.
 
 On success of the final step (`pm-register-project`), set `status: "complete"`.
 Keep the file — `pm-resume-setup` checks status before doing anything; a
@@ -110,31 +116,62 @@ completed file is a no-op signal, not stale state.
 
 ## Output
 
-While running, narrate progress in plain language (suitable for the user
-chat): one short line per step, indicating start and end. Example:
+Narrate progress in groups, not per-step. The 15 sub-skills fall into 7
+narration groups; gang the low-impact steps (file copies, touches) so the
+user-facing output stays scannable. The state file still tracks all 15
+sub-skills individually.
+
+Narration groups:
+
+| Group | Steps it covers | One-line narration |
+|-------|-----------------|-------------------|
+| 1 | `pm-init-vault` | Initialize vault skeleton |
+| 2 | `pm-init-git`, `pm-init-github` | Initialize git + create GitHub remote `<org>/<name>` |
+| 3 | `pm-install-charter`, `pm-install-handoff`, `pm-install-for-other-contexts`, `pm-place-lift-decisions` (when not skipped) | Install top-level docs (charter, handoff, for-other-contexts[, decisions]) |
+| 4 | `pm-install-hierarchy-and-ownership`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, drift-check config) |
+| 5 | `pm-init-voice-handoff`, `pm-init-voice-exceptions` | Install voice scaffolding (voice handoff, voice exceptions) |
+| 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos` | Initialize active planning files (reviewer tracking, roadmap, todos) |
+| 7 | `pm-register-project` | Register project in cowork registry |
+
+Group 2 is conditional: when `--git=none` the whole group is skipped and its
+narration line is suppressed (do not show "skipped"). When `--git=local` or
+`--git=existing`, narrate as "Initialize git" (omit the remote phrase). Group
+3's optional `pm-place-lift-decisions` is included inline only when
+`--decisions` is supplied; the bracketed `, decisions` appears in the
+narration only then.
+
+Group numbering is fixed at 7 in the standard case (all 15 sub-skills run);
+when groups are entirely skipped (only group 2 supports this), reduce the
+denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do not renumber
+mid-run.
+
+Example (full run):
 
 ```
 Setting up project: epistemology
 Vault path: ~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Epistemology
 Git mode: new-github
 
-[1/15] Initialize vault skeleton… done
-[2/15] Initialize git repo… done
-[3/15] Create GitHub remote jamieburns/epistemology… done
-...
-[15/15] Register project in cowork registry… done
+[1/7] Initialize vault skeleton… done
+[2/7] Initialize git + create GitHub remote jamieburns/epistemology… done
+[3/7] Install top-level docs (charter, handoff, for-other-contexts)… done
+[4/7] Install data-management scaffolding (file hierarchy, ownership table, drift-check config)… done
+[5/7] Install voice scaffolding (voice handoff, voice exceptions)… done
+[6/7] Initialize active planning files (reviewer tracking, roadmap, todos)… done
+[7/7] Register project in cowork registry… done
 
 Setup complete. Next: open the vault in Obsidian and read charter.md.
 ```
 
-On failure, emit the failing step number, the error message from the
-sub-skill, and the resume instruction:
+On failure, drop out of the group narration and name the specific sub-skill
+that failed — resume needs that detail. Format:
 
 ```
-[7/15] Install file hierarchy and ownership… FAILED
+[4/7] Install data-management scaffolding…
+  → pm-install-drift-check-config FAILED
 Error: <verbatim sub-skill error>
 
-State file at: ~/.config/cowork/setup_state/<name>.json
+State file at: ~/.config/cowork/writing-cowork/setup_state/<name>_setup_state.json
 To resume after fixing the cause: invoke pm-resume-setup with name=<name>.
 ```
 
