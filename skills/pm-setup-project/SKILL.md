@@ -57,8 +57,8 @@ return the failure message plus the resume instruction.
 | # | Sub-skill | Purpose | Skipped when |
 |---|-----------|---------|--------------|
 | 1 | `pm-init-vault` | Create folder skeleton with `.gitkeep` markers at the specified path | — |
-| 2 | `pm-init-git` | `git init -b main` inside the vault | `--git=none` or `--git=existing` |
-| 3 | `pm-init-github` | `gh repo create <org>/<name> --private`, add origin, push | `--git` is not `new-github` |
+| 2 | `pm-init-git` | `git init -b main` inside the vault (no commit; finalize step makes the single commit) | `--git=none` or `--git=existing` |
+| 3 | `pm-init-github` | `gh repo create <org>/<name> --private` and `git remote add origin <https-url>` (no push; finalize step pushes) | `--git` is not `new-github` |
 | 4 | `pm-install-charter` | Place `charter.md` from `templates/charter.md` | — |
 | 5 | `pm-install-handoff` | Place `handoff.md` from `templates/handoff.md` | — |
 | 6 | `pm-install-for-other-contexts` | Place `for_other_contexts.md` from template | — |
@@ -70,7 +70,8 @@ return the failure message plus the resume instruction.
 | 12 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
 | 13 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
 | 14 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
-| 15 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
+| 15 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
+| 16 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
 
 Skip rules apply at the orchestrator level. Each sub-skill is independently
 invokable from chat for ad-hoc use; the orchestrator simply chains them.
@@ -101,7 +102,7 @@ Format:
 }
 ```
 
-Track all 15 sub-skills individually in `completed_steps` (granular).
+Track all 16 sub-skills individually in `completed_steps` (granular).
 Resume needs to know which specific sub-skill failed; user-facing narration
 gangs steps into groups but the state file does not.
 
@@ -110,15 +111,15 @@ Update the file atomically — write to `<name>_setup_state.json.tmp`, then
 from the manual phase; the registry and other long-lived files use it to
 avoid torn reads.
 
-On success of the final step (`pm-register-project`), set `status: "complete"`.
+On success of the final step (`pm-register-project`, step 16), set `status: "complete"`.
 Keep the file — `pm-resume-setup` checks status before doing anything; a
 completed file is a no-op signal, not stale state.
 
 ## Output
 
-Narrate progress in groups, not per-step. The 15 sub-skills fall into 7
+Narrate progress in groups, not per-step. The 16 sub-skills fall into 8
 narration groups; gang the low-impact steps (file copies, touches) so the
-user-facing output stays scannable. The state file still tracks all 15
+user-facing output stays scannable. The state file still tracks all 16
 sub-skills individually.
 
 Narration groups:
@@ -131,34 +132,38 @@ Narration groups:
 | 4 | `pm-install-hierarchy-and-ownership`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, drift-check config) |
 | 5 | `pm-init-voice-handoff`, `pm-init-voice-exceptions` | Install voice scaffolding (voice handoff, voice exceptions) |
 | 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos` | Initialize active planning files (reviewer tracking, roadmap, todos) |
-| 7 | `pm-register-project` | Register project in cowork registry |
+| 7 | `pm-finalize-scaffold-commit` | Finalize scaffold (commit + push) |
+| 8 | `pm-register-project` | Register project in cowork registry |
 
 Group 2 is conditional: when `--git=none` the whole group is skipped and its
 narration line is suppressed (do not show "skipped"). When `--git=local` or
 `--git=existing`, narrate as "Initialize git" (omit the remote phrase). Group
 3's optional `pm-place-lift-decisions` is included inline only when
 `--decisions` is supplied; the bracketed `, decisions` appears in the
-narration only then.
+narration only then. Group 7 is also conditional: skipped entirely when
+`--git=none` (no repo to commit to); narrated as "Finalize scaffold (commit)"
+— without "+ push" — when `--git=local` (no remote yet).
 
-Group numbering is fixed at 7 in the standard case (all 15 sub-skills run);
-when groups are entirely skipped (only group 2 supports this), reduce the
-denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do not renumber
-mid-run.
+Group numbering is fixed at 8 in the standard case (all 16 sub-skills run);
+when groups are entirely skipped (groups 2 and 7 are the only candidates),
+reduce the denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do
+not renumber mid-run.
 
-Example (full run):
+Example (full run, --git=new-github):
 
 ```
 Setting up project: epistemology
 Vault path: ~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Epistemology
 Git mode: new-github
 
-[1/7] Initialize vault skeleton… done
-[2/7] Initialize git + create GitHub remote jamieburns/epistemology… done
-[3/7] Install top-level docs (charter, handoff, for-other-contexts)… done
-[4/7] Install data-management scaffolding (file hierarchy, ownership table, drift-check config)… done
-[5/7] Install voice scaffolding (voice handoff, voice exceptions)… done
-[6/7] Initialize active planning files (reviewer tracking, roadmap, todos)… done
-[7/7] Register project in cowork registry… done
+[1/8] Initialize vault skeleton… done
+[2/8] Initialize git + create GitHub remote jamieburns/epistemology… done
+[3/8] Install top-level docs (charter, handoff, for-other-contexts)… done
+[4/8] Install data-management scaffolding (file hierarchy, ownership table, drift-check config)… done
+[5/8] Install voice scaffolding (voice handoff, voice exceptions)… done
+[6/8] Initialize active planning files (reviewer tracking, roadmap, todos)… done
+[7/8] Finalize scaffold (commit + push)… done
+[8/8] Register project in cowork registry… done
 
 Setup complete. Next: open the vault in Obsidian and read charter.md.
 ```
@@ -167,7 +172,7 @@ On failure, drop out of the group narration and name the specific sub-skill
 that failed — resume needs that detail. Format:
 
 ```
-[4/7] Install data-management scaffolding…
+[4/8] Install data-management scaffolding…
   → pm-install-drift-check-config FAILED
 Error: <verbatim sub-skill error>
 
