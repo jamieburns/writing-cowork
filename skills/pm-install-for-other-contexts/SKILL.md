@@ -17,7 +17,9 @@ metadata:
 # pm-install-for-other-contexts
 
 Copy `templates/for_other_contexts.md` from the plugin to
-`<vault>/for_other_contexts.md`, substituting standard placeholders.
+`<vault>/process/data_management/for_other_contexts.md`, substituting
+standard placeholders. Placement is `process/data_management/` (not vault
+root) per the convention.
 
 The for-other-contexts doc is the briefing surface for specialist chats
 (voice, substance, review) joining a project mid-stream. Distinct from
@@ -35,24 +37,28 @@ invocation.
 ## Preconditions
 
 1. Verify `<vault-path>` exists and is a directory.
-2. Verify `<vault-path>/for_other_contexts.md` does NOT already exist.
-3. Verify the plugin's `templates/for_other_contexts.md` exists.
+2. Verify `<vault-path>/process/data_management/` exists.
+3. Verify `<vault-path>/process/data_management/for_other_contexts.md`
+   does NOT already exist.
+4. Verify the plugin's `templates/for_other_contexts.md` exists.
 
 ## Execution
 
 1. Read template, substitute `{{name}}`, `{{title}}`, `{{date_iso}}`,
    `{{vault_path}}`.
-2. Atomic-write to `<vault-path>/for_other_contexts.md`.
+2. Atomic-write to
+   `<vault-path>/process/data_management/for_other_contexts.md`.
 
 ## Output on success
 
 ```
-Installed for_other_contexts.md at <vault-path>/for_other_contexts.md
+Installed for_other_contexts.md at <vault-path>/process/data_management/for_other_contexts.md
 ```
 
 ## Output on failure
 
-- `for_other_contexts.md already exists at vault root; remove it first or skip this step`
+- `data_management directory missing; run pm-init-vault first`
+- `for_other_contexts.md already exists at <vault>/process/data_management/for_other_contexts.md; remove it first or skip this step`
 - `templates/for_other_contexts.md not found in plugin install`
 
 ## Standalone use

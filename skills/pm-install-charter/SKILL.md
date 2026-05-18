@@ -14,8 +14,11 @@ metadata:
 
 # pm-install-charter
 
-Copy `templates/charter.md` from the plugin to `<vault>/charter.md`,
-substituting standard placeholders.
+Copy `templates/charter.md` from the plugin to
+`<vault>/process/data_management/charter.md`, substituting standard
+placeholders. Placement is `process/data_management/` (not vault root) to
+keep substantive writing artifacts visible at the root and group all
+process/PM documents together.
 
 ## Arguments
 
@@ -29,10 +32,13 @@ substituting standard placeholders.
 ## Preconditions
 
 1. Verify `<vault-path>` exists and is a directory.
-2. Verify `<vault-path>/charter.md` does NOT already exist. If it does,
-   abort with `charter.md already exists at vault root; remove it first or
-   skip this step`.
-3. Verify the plugin's `templates/charter.md` exists and is readable.
+2. Verify `<vault-path>/process/data_management/` exists (pm-init-vault
+   created it). If absent, abort with `data_management directory missing;
+   run pm-init-vault first`.
+3. Verify `<vault-path>/process/data_management/charter.md` does NOT
+   already exist. If it does, abort with `charter.md already exists at
+   <expected path>; remove it first or skip this step`.
+4. Verify the plugin's `templates/charter.md` exists and is readable.
 
 ## Execution
 
@@ -42,13 +48,14 @@ substituting standard placeholders.
    - `{{title}}` → resolved title
    - `{{date_iso}}` → today's date in YYYY-MM-DD format (UTC)
    - `{{vault_path}}` → absolute `<vault-path>`
-3. Write the result to `<vault-path>/charter.md` atomically:
-   write to `<vault-path>/charter.md.tmp`, then `mv` to `charter.md`.
+3. Write the result to `<vault-path>/process/data_management/charter.md`
+   atomically: write to `charter.md.tmp` in the same directory, then `mv`
+   to `charter.md`.
 
 ## Output on success
 
 ```
-Installed charter.md at <vault-path>/charter.md
+Installed charter.md at <vault-path>/process/data_management/charter.md
   Substituted: {{name}}={{name-value}}, {{title}}={{title-value}}, {{date_iso}}={{today}}
 ```
 
@@ -56,9 +63,10 @@ Installed charter.md at <vault-path>/charter.md
 
 Specific error plus the most likely fix. Examples:
 
-- `charter.md already exists at vault root; remove it first or skip this step`
+- `data_management directory missing; run pm-init-vault first`
+- `charter.md already exists at <vault>/process/data_management/charter.md; remove it first or skip this step`
 - `templates/charter.md not found in plugin install (plugin may be corrupted; reinstall)`
-- `permission denied writing to <vault-path>`
+- `permission denied writing to <vault-path>/process/data_management/`
 
 Do not partial-write. If the atomic-write `mv` fails, the `.tmp` file is left
 in place; subsequent runs of this skill will detect it and abort with a

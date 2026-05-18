@@ -62,16 +62,19 @@ return the failure message plus the resume instruction.
 | 4 | `pm-install-charter` | Place `charter.md` from `templates/charter.md` | — |
 | 5 | `pm-install-handoff` | Place `handoff.md` from `templates/handoff.md` | — |
 | 6 | `pm-install-for-other-contexts` | Place `for_other_contexts.md` from template | — |
-| 7 | `pm-install-hierarchy-and-ownership` | Place `process/data_management/file_hierarchy.md` + initial `file_ownership.md` | — |
-| 8 | `pm-install-drift-check-config` | Place `process/data_management/drift_check.yaml` from template, substituting project-specific values | — |
-| 9 | `pm-place-lift-decisions` | Copy the supplied decisions doc to vault root | `--decisions` not provided |
-| 10 | `pm-init-voice-handoff` | Place `process/active/voice_handoff.md` with placeholders | — |
-| 11 | `pm-init-voice-exceptions` | Create empty `process/active/voice_exceptions.md` | — |
-| 12 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
-| 13 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
-| 14 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
-| 15 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
-| 16 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
+| 7 | `pm-install-project-hub` | Place `project_hub.md` at vault root from template | — |
+| 8 | `pm-install-claim-dispute-protocol` | Place `claim_dispute_protocol.md` from template | — |
+| 9 | `pm-install-tagging-conventions` | Place `tagging_conventions.md` from template | — |
+| 10 | `pm-install-hierarchy-and-ownership` | Place `process/data_management/file_hierarchy.md` + initial `file_ownership.md` | — |
+| 11 | `pm-install-drift-check-config` | Place `process/data_management/drift_check.yaml` from template, substituting project-specific values | — |
+| 12 | `pm-place-lift-decisions` | Copy the supplied decisions doc to vault root | `--decisions` not provided |
+| 13 | `pm-init-voice-handoff` | Place `process/active/voice_handoff.md` with placeholders | — |
+| 14 | `pm-init-voice-exceptions` | Create empty `process/active/voice_exceptions.md` | — |
+| 15 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
+| 16 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
+| 17 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
+| 18 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
+| 19 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
 
 Skip rules apply at the orchestrator level. Each sub-skill is independently
 invokable from chat for ad-hoc use; the orchestrator simply chains them.
@@ -102,7 +105,7 @@ Format:
 }
 ```
 
-Track all 16 sub-skills individually in `completed_steps` (granular).
+Track all 19 sub-skills individually in `completed_steps` (granular).
 Resume needs to know which specific sub-skill failed; user-facing narration
 gangs steps into groups but the state file does not.
 
@@ -111,15 +114,15 @@ Update the file atomically — write to `<name>_setup_state.json.tmp`, then
 from the manual phase; the registry and other long-lived files use it to
 avoid torn reads.
 
-On success of the final step (`pm-register-project`, step 16), set `status: "complete"`.
+On success of the final step (`pm-register-project`, step 19), set `status: "complete"`.
 Keep the file — `pm-resume-setup` checks status before doing anything; a
 completed file is a no-op signal, not stale state.
 
 ## Output
 
-Narrate progress in groups, not per-step. The 16 sub-skills fall into 8
+Narrate progress in groups, not per-step. The 19 sub-skills fall into 8
 narration groups; gang the low-impact steps (file copies, touches) so the
-user-facing output stays scannable. The state file still tracks all 16
+user-facing output stays scannable. The state file still tracks all 19
 sub-skills individually.
 
 Narration groups:
@@ -128,7 +131,7 @@ Narration groups:
 |-------|-----------------|-------------------|
 | 1 | `pm-init-vault` | Initialize vault skeleton |
 | 2 | `pm-init-git`, `pm-init-github` | Initialize git + create GitHub remote `<org>/<name>` |
-| 3 | `pm-install-charter`, `pm-install-handoff`, `pm-install-for-other-contexts`, `pm-place-lift-decisions` (when not skipped) | Install top-level docs (charter, handoff, for-other-contexts[, decisions]) |
+| 3 | `pm-install-charter`, `pm-install-handoff`, `pm-install-for-other-contexts`, `pm-install-project-hub`, `pm-install-claim-dispute-protocol`, `pm-install-tagging-conventions`, `pm-place-lift-decisions` (when not skipped) | Install orienting docs (charter, handoff, for-other-contexts, project-hub, claim-dispute-protocol, tagging-conventions[, decisions]) |
 | 4 | `pm-install-hierarchy-and-ownership`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, drift-check config) |
 | 5 | `pm-init-voice-handoff`, `pm-init-voice-exceptions` | Install voice scaffolding (voice handoff, voice exceptions) |
 | 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos` | Initialize active planning files (reviewer tracking, roadmap, todos) |
@@ -144,7 +147,7 @@ narration only then. Group 7 is also conditional: skipped entirely when
 `--git=none` (no repo to commit to); narrated as "Finalize scaffold (commit)"
 — without "+ push" — when `--git=local` (no remote yet).
 
-Group numbering is fixed at 8 in the standard case (all 16 sub-skills run);
+Group numbering is fixed at 8 in the standard case (all 19 sub-skills run);
 when groups are entirely skipped (groups 2 and 7 are the only candidates),
 reduce the denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do
 not renumber mid-run.
@@ -158,7 +161,7 @@ Git mode: new-github
 
 [1/8] Initialize vault skeleton… done
 [2/8] Initialize git + create GitHub remote jamieburns/epistemology… done
-[3/8] Install top-level docs (charter, handoff, for-other-contexts)… done
+[3/8] Install orienting docs (charter, handoff, for-other-contexts, project-hub, claim-dispute-protocol, tagging-conventions)… done
 [4/8] Install data-management scaffolding (file hierarchy, ownership table, drift-check config)… done
 [5/8] Install voice scaffolding (voice handoff, voice exceptions)… done
 [6/8] Initialize active planning files (reviewer tracking, roadmap, todos)… done

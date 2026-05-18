@@ -1,0 +1,65 @@
+# Per-project drift_check.yaml — {{title}}
+#
+# Lives at {{vault_path}}/process/data_management/drift_check.yaml
+# Loaded by ~/code/cowork-tools/drift_check.py via the registry or --config.
+#
+# Generated {{date_iso}} by pm-install-drift-check-config (writing-cowork plugin).
+
+project_name: "{{title}}"
+vault: "{{vault_path}}"
+
+# Files written to (vault-relative)
+hub: project_hub.md
+ownership_table: process/data_management/file_ownership.md
+drift_flag: process/data_management/.drift_flag
+reports_dir: process/data_management/drift_reports
+
+# Inventory filters
+# - exclude_prefixes: top-level paths to skip entirely (no recursion into them)
+# - exclude_patterns: regex applied to vault-relative path strings
+exclude_prefixes:
+  - .git
+  - .obsidian
+  - process/snapshots
+  - process/data_management/drift_reports
+
+exclude_patterns:
+  - "(^|/)_"                # underscore-prefixed scratch
+  - "/scratch/"             # scratch folder anywhere
+  - "\\.scratch\\.md$"
+  - "\\.DS_Store$"
+  - "\\.icloud$"
+  - "__pycache__"
+  - "\\.py[co]$"
+  - "\\.drift_flag$"
+
+# Gitignored generated artifacts (regex). Surfaced informationally; not flagged as drift.
+# Add patterns when the project gains a build pipeline.
+generated_patterns: []
+
+# Build freshness
+# Enable when the project has a build pipeline; populate sources and outputs.
+build:
+  enabled: false
+  sources: []      # vault-relative paths to source markdown
+  outputs: []      # vault-relative paths to built deliverables
+  grace_seconds: 300
+
+# Cross-reference validation — vault-relative paths to core docs whose markdown
+# image/link refs must resolve
+xref_targets:
+  - project_hub.md
+
+# Inbox
+inbox:
+  buckets:
+    - promotion
+    - hub-updates
+  overdue_days: 14
+
+# Markers — keep stable unless you have a reason to vary
+markers:
+  attention_start: "<!-- DRIFT-ATTENTION-START -->"
+  attention_end:   "<!-- DRIFT-ATTENTION-END -->"
+  footer_start:    "<!-- DRIFT-FOOTER-START -->"
+  footer_end:      "<!-- DRIFT-FOOTER-END -->"
