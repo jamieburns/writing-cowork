@@ -32,6 +32,7 @@ exclude_patterns:
   - "__pycache__"
   - "\\.py[co]$"
   - "\\.drift_flag$"
+  - "(^|/)\\.gitkeep$"      # scaffold-empty-dir markers; not real content
 
 # Gitignored generated artifacts (regex). Surfaced informationally; not flagged as drift.
 # Add patterns when the project gains a build pipeline.

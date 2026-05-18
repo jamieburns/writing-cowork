@@ -55,24 +55,35 @@ the `writing-cowork/` subdirectory of the cowork config root.
 
 ## Execution
 
-1. Read `~/.config/cowork/registry.yaml`.
-2. Parse the YAML (PyYAML preferred; the cowork-tools installer ensures
-   it's present per cowork-tools README).
-3. Append a new entry to the `projects:` list:
+Use **text-append**, not YAML round-trip. The registry has a stable shape
+(a single top-level `projects:` list of dicts) where adding a new entry is
+purely additive — we never need to mutate existing entries or other top-level
+keys. Text-append preserves all comments (which YAML round-trip via PyYAML
+would strip) and avoids needing `ruamel.yaml` as a runtime dependency.
+
+1. Read `~/.config/cowork/registry.yaml` (existing content).
+2. Build the new entry text:
 
    ```yaml
-   - name: <name>
-     config: "<vault-path>/process/data_management/drift_check.yaml"
-     enabled: true
+
+     - name: <name>
+       config: "<vault-path>/process/data_management/drift_check.yaml"
+       enabled: true
    ```
 
-4. Write the result back to `~/.config/cowork/registry.yaml` atomically
-   (write to `registry.yaml.tmp`, then `mv`).
+   Note: leading blank line for readability; two-space indent matches the
+   convention used by the existing entries.
 
-Use YAML round-trip (e.g., `ruamel.yaml`) if available to preserve comments
-and ordering; if only stock `yaml` (PyYAML) is available, accept that
-comments will be lost on rewrite and surface that in the success output as
-a one-line note.
+3. Write `<existing-content> + <new-entry-text>` to
+   `~/.config/cowork/registry.yaml.tmp`.
+4. **Validate the result** by parsing it with PyYAML before committing the
+   write: `python3 -c "import yaml; yaml.safe_load(open('<tmp-path>'))"`.
+   If parsing fails, abort with the parse error — do NOT overwrite the
+   original file. The user inspects what went wrong before retrying.
+5. On valid parse, `mv registry.yaml.tmp registry.yaml`.
+
+This approach preserves comments, the `enabled: false` flag on individual
+entries with their inline comments, and any other writer-edited content.
 
 ## Output on success
 
@@ -82,20 +93,15 @@ Registered project <name> in ~/.config/cowork/registry.yaml
   enabled: true
 ```
 
-If comments were stripped during round-trip:
-
-```
-Registered project <name> in ~/.config/cowork/registry.yaml
-  config: <vault-path>/process/data_management/drift_check.yaml
-  enabled: true
-  Note: comments stripped (PyYAML round-trip); consider installing ruamel.yaml for comment preservation.
-```
+(Comments and existing entries are preserved by the text-append approach;
+no caveats needed in the success output.)
 
 ## Output on failure
 
 - `drift_check.yaml not found at <expected path>; run pm-install-drift-check-config first`
 - `project <name> is already registered in ~/.config/cowork/registry.yaml; remove that entry first or use a different name`
-- `~/.config/cowork/registry.yaml is invalid YAML: <parse error>. Inspect the file before retrying.`
+- `~/.config/cowork/registry.yaml is invalid YAML before append: <parse error>. Fix the existing file before retrying.`
+- `~/.config/cowork/registry.yaml.tmp would be invalid YAML after append: <parse error>. Aborted; original registry untouched.`
 - `permission denied writing to ~/.config/cowork/registry.yaml`
 
 ## Standalone use

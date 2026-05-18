@@ -46,7 +46,7 @@ process/PM documents together.
 2. Substitute these placeholders in the content:
    - `{{name}}` → `<name>` arg
    - `{{title}}` → resolved title
-   - `{{date_iso}}` → today's date in YYYY-MM-DD format (UTC)
+   - `{{date_iso}}` → today's date in YYYY-MM-DD format (local timezone)
    - `{{vault_path}}` → absolute `<vault-path>`
 3. Write the result to `<vault-path>/process/data_management/charter.md`
    atomically: write to `charter.md.tmp` in the same directory, then `mv`

@@ -152,6 +152,20 @@ when groups are entirely skipped (groups 2 and 7 are the only candidates),
 reduce the denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do
 not renumber mid-run.
 
+**Sub-skill output in orchestrated mode is suppressed.** Each sub-skill's
+"Output on success" block (e.g., "Installed charter.md at ...") is intended
+for standalone invocation. When invoked through pm-setup-project, only the
+group narration lines appear to the user; per-sub-skill output is captured
+in the state file's `completed_steps` entries but not surfaced to chat.
+Failure output still surfaces verbatim — error detail is what makes resume
+possible.
+
+**File writes use the Write file tool, not shell heredocs.** All sub-skills
+that produce file content (install/init/init-empty) should use Write (or
+equivalent atomic-write file tool) rather than `cat > file <<EOF`. This
+avoids escaping pitfalls when template content contains backticks, dollar
+signs, or other shell-active characters.
+
 Example (full run, --git=new-github):
 
 ```
@@ -202,7 +216,9 @@ Before invoking step 1, verify:
 1. The `gh` CLI is available on PATH if `--git=new-github`.
 2. The `git` CLI is available on PATH if `--git` is anything other than `none`.
 3. The plugin's `templates/` directory exists (it ships with the plugin).
-4. The registry directory `~/.config/cowork/` exists; create if absent.
+4. The state-file directory `~/.config/cowork/writing-cowork/setup_state/`
+   exists; create with `mkdir -p` if absent. (Also creates the parent
+   `~/.config/cowork/writing-cowork/` if needed.)
 
 If any check fails, report what's missing and abort. Do not write a state file
 for a pre-flight abort; state file only tracks runs that began step 1.

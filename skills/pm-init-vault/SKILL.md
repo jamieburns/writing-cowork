@@ -31,14 +31,22 @@ not part of the skeleton.
 
 Before doing anything, verify:
 
-1. The path's parent directory exists and is writable.
+1. The path's grandparent (or an ancestor directory) exists. The path's
+   immediate parent may or may not exist — pm-init-vault creates it with
+   `mkdir -p $(dirname <vault-path>)` as part of execution.
 2. If the path exists, it is a directory and is empty (ignoring `.DS_Store`).
    If not empty, abort with: `vault path exists and is non-empty; pm-init-vault
    is for new vaults only`.
 
 ## Directory skeleton
 
-Create the following structure, creating parent directories as needed:
+First ensure the vault's immediate parent directory exists:
+
+```bash
+mkdir -p "$(dirname <vault-path>)"
+```
+
+Then create the following structure, creating intermediate directories as needed:
 
 ```
 <vault-path>/
@@ -131,7 +139,7 @@ Vault skeleton created at /Users/jburns/.../Epistemology
 Specific, actionable error. Examples:
 
 - `vault path exists and is non-empty; pm-init-vault is for new vaults only`
-- `parent directory does not exist: <path>`
+- `cannot create parent directory <path>: <reason>` (e.g., the path's ancestor is unwritable)
 - `permission denied writing to <path>`
 
 Do not partial-create. If any mkdir or write fails partway, leave the
