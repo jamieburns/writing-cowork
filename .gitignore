@@ -18,3 +18,9 @@ _*
 __pycache__/
 *.pyc
 .venv/
+
+# Obsidian workspace state (dev repo isn't an Obsidian vault)
+.obsidian/
+
+# Accidental Obsidian vault that got created inside the dev repo on 2026-05-19
+WritingPlugin/
