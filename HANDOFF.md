@@ -1,7 +1,16 @@
 # writing-cowork — development handoff
 
 **Created:** 2026-05-13
+**Updated:** 2026-05-19 — MVP validated against Reconciliation Hypothesis. See "MVP gating outcome" below.
 **Purpose:** First-message context for any new Claude chat picking up writing-cowork plugin development. Self-contained — no need to read the chat history that produced this handoff.
+
+## MVP gating outcome (2026-05-19)
+
+**Status: MVP COMPLETE.** Plugin v0.1.3 validated against Reconciliation Hypothesis as canary. 48 skills (orchestrator + 19 setup sub-skills + 15 standalone Foundation + 11 Planning + 1 temporary workaround + 1 cowork-settings init) exercised across 4 chunks + 1 mini-chunk. Lock tag: `lock/2026-05-19-mvp-gating-complete`. Snapshot rollback point: `snapshot/2026-05-19-pre-mvp-gating`. Release tag: `release/v0.1.3-mvp-validated`.
+
+**8 non-blocking findings queued for v0.1.4** — see `_v014_spec.md` (gitignored) or the cumulative table in `_gating_checklist.md`. Top items: SKILL.md template-path resolution (use `${CLAUDE_PLUGIN_ROOT}`); fold `pm-enable-project` into `pm-migrate-to-shared-tool`; graceful fallback in `pm-process-inbox-item` when inbox source is untracked; align commit-prefix convention.
+
+**Phase 9 milestone** (in Reconciliation's new `process/active/roadmap.md`): migrate Reconciliation's legacy checkbox-format `todos.md` to plugin schema, enabling full Reconciliation coverage of task CRUD and per-project kanban skills. Tracked with 4 gate-checkboxes; planned-state.
 
 ---
 
