@@ -41,8 +41,8 @@ v1 scope).
 2. Verify `<vault-path>/process/active/` exists.
 3. Verify `<vault-path>/process/active/roadmap.md` does NOT already exist.
 4. Verify the appropriate template exists:
-   - `--shape=phase` → `templates/roadmap_phase.md`
-   - `--shape=now-next-later` → `templates/roadmap_now_next_later.md`
+   - `--shape=phase` → `${CLAUDE_PLUGIN_ROOT}/templates/roadmap_phase.md`
+   - `--shape=now-next-later` → `${CLAUDE_PLUGIN_ROOT}/templates/roadmap_now_next_later.md`
 
 ## Execution
 
@@ -65,7 +65,7 @@ Initialized roadmap.md at <vault-path>/process/active/roadmap.md
 
 - `process/active directory missing; run pm-init-vault first`
 - `roadmap.md already exists at <path>; remove it first or skip this step`
-- `templates/roadmap_<shape>.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/roadmap_<shape>.md not found in plugin install`
 - `invalid --shape value: <value>. Accepted: phase, now-next-later`
 
 ## Standalone use

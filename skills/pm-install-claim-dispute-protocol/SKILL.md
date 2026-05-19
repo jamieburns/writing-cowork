@@ -15,7 +15,7 @@ metadata:
 
 # pm-install-claim-dispute-protocol
 
-Copy `templates/claim_dispute_protocol.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/claim_dispute_protocol.md` from the plugin to
 `<vault>/process/data_management/claim_dispute_protocol.md`. The doc defines
 how the multi-context file-claim resolution works (Options A/B/C, default
 behavior, out-of-band writer edits, recording). Reference doc — only the
@@ -33,7 +33,7 @@ project name is substituted; the protocol itself is project-invariant.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/claim_dispute_protocol.md`
    does NOT already exist.
-4. Verify the plugin's `templates/claim_dispute_protocol.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/claim_dispute_protocol.md` exists.
 
 ## Execution
 
@@ -51,7 +51,7 @@ Installed claim_dispute_protocol.md at <vault-path>/process/data_management/clai
 
 - `data_management directory missing; run pm-init-vault first`
 - `claim_dispute_protocol.md already exists at <path>; remove it first or skip this step`
-- `templates/claim_dispute_protocol.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/claim_dispute_protocol.md not found in plugin install`
 
 ## Standalone use
 

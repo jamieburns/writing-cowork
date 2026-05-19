@@ -14,7 +14,7 @@ metadata:
 
 # pm-install-handoff
 
-Copy `templates/handoff.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` from the plugin to
 `<vault>/process/data_management/handoff.md`, substituting standard
 placeholders. Placement is `process/data_management/` (not vault root) per
 the convention that keeps vault root reserved for substantive writing
@@ -38,11 +38,11 @@ fill in project specifics over time.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/handoff.md` does NOT
    already exist.
-4. Verify the plugin's `templates/handoff.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` exists.
 
 ## Execution
 
-1. Read `templates/handoff.md` from the plugin's templates directory.
+1. Read `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` from the plugin's templates directory.
 2. Substitute `{{name}}`, `{{title}}`, `{{date_iso}}`, `{{vault_path}}`.
 3. Atomic-write to `<vault-path>/process/data_management/handoff.md`.
 
@@ -56,7 +56,7 @@ Installed handoff.md at <vault-path>/process/data_management/handoff.md
 
 - `data_management directory missing; run pm-init-vault first`
 - `handoff.md already exists at <vault>/process/data_management/handoff.md; remove it first or skip this step`
-- `templates/handoff.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md not found in plugin install`
 - `permission denied writing to <vault-path>/process/data_management/`
 
 ## Standalone use

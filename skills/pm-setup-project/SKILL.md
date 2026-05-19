@@ -60,8 +60,8 @@ return the failure message plus the resume instruction.
 | 2 | `pm-init-project-cowork-settings` | Write `<vault>/.claude/settings.json` enabling writing-cowork in this project | — |
 | 3 | `pm-init-git` | `git init -b main` inside the vault (no commit; finalize step makes the single commit) | `--git=none` or `--git=existing` |
 | 4 | `pm-init-github` | `gh repo create <org>/<name> --private` and `git remote add origin <https-url>` (no push; finalize step pushes) | `--git` is not `new-github` |
-| 5 | `pm-install-charter` | Place `charter.md` from `templates/charter.md` | — |
-| 6 | `pm-install-handoff` | Place `handoff.md` from `templates/handoff.md` | — |
+| 5 | `pm-install-charter` | Place `charter.md` from `${CLAUDE_PLUGIN_ROOT}/templates/charter.md` | — |
+| 6 | `pm-install-handoff` | Place `handoff.md` from `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` | — |
 | 7 | `pm-install-for-other-contexts` | Place `for_other_contexts.md` from template | — |
 | 8 | `pm-install-project-hub` | Place `project_hub.md` at vault root from template | — |
 | 9 | `pm-install-claim-dispute-protocol` | Place `claim_dispute_protocol.md` from template | — |
@@ -216,7 +216,7 @@ Before invoking step 1, verify:
 
 1. The `gh` CLI is available on PATH if `--git=new-github`.
 2. The `git` CLI is available on PATH if `--git` is anything other than `none`.
-3. The plugin's `templates/` directory exists (it ships with the plugin).
+3. The plugin's `${CLAUDE_PLUGIN_ROOT}/templates/` directory exists (it ships with the plugin).
 4. The state-file directory `~/.config/cowork/writing-cowork/setup_state/`
    exists; create with `mkdir -p` if absent. (Also creates the parent
    `~/.config/cowork/writing-cowork/` if needed.)

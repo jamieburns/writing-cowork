@@ -36,22 +36,39 @@ composite is cross-project, Cowork-rendered.
 
 ## Execution
 
-Per writing-cowork locked decision #11: always re-pull on view; no
-caching. The artifact's open should fetch fresh task data each time
-(via the Cowork artifact's `window.cowork.callMcpTool` mechanism to
-read each todos.md).
+Per writing-cowork locked decision #11: **always re-pull on view; no
+static snapshot.** The artifact must fetch fresh task data each time
+it's opened, not just once at creation time. This is enforced by the
+artifact's HTML calling `window.cowork.callMcpTool` (or
+`window.cowork.askClaude` if file-read happens through Claude rather
+than a direct MCP) on every open / reload, not by embedding static
+data in the HTML at creation.
 
-Render as a Cowork artifact (via `mcp__cowork__create_artifact` if
-available):
+1. Build the artifact HTML with these properties:
+   - On page load, the HTML calls `window.cowork.callMcpTool` (or
+     equivalent) to read each enabled project's `todos.md` from disk.
+   - For each project, detect the schema (plugin schema vs legacy
+     checkbox vs empty) — same detection as pm-list-tasks.
+   - Aggregate tasks across projects, group by status, render columns.
+   - For projects with non-schema todos.md (e.g., Reconciliation legacy
+     format), either render them as a separate "(legacy format)" column
+     OR omit them with a note in the artifact header. Pick one
+     consistently.
+   - Project name visible on every card.
+2. Apply user's `--status-filter` and `--project-filter` at render time
+   (within the artifact's JavaScript, against the freshly-fetched data).
+3. The Cowork artifact framework auto-caches reads transparently — the
+   `callMcpTool` results are cached per-open, refreshed on Reload button.
 
-1. Aggregate tasks across all registered projects.
-2. Group by status (or apply user's filters).
-3. Render as an HTML kanban with one card per task, columns per status,
-   project name visible on each card.
+Call `mcp__cowork__create_artifact` with the HTML. If that tool is
+unavailable, fall back to a static markdown table covering the same
+data (acknowledge the regression in the output: "Live-refresh
+unavailable in this Cowork build; rendered static snapshot.").
 
-If `mcp__cowork__create_artifact` is unavailable, fall back to a
-markdown table output covering the same data (less visually nice but
-functional).
+**The static-snapshot fallback is NOT the default behavior.** It's the
+last-resort path when the artifact framework isn't available. MVP
+gating found the skill defaulting to static; v0.1.4 fixes the default
+to live-refresh.
 
 ## Output on success
 

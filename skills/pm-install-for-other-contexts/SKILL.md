@@ -16,7 +16,7 @@ metadata:
 
 # pm-install-for-other-contexts
 
-Copy `templates/for_other_contexts.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/for_other_contexts.md` from the plugin to
 `<vault>/process/data_management/for_other_contexts.md`, substituting
 standard placeholders. Placement is `process/data_management/` (not vault
 root) per the convention.
@@ -40,7 +40,7 @@ invocation.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/for_other_contexts.md`
    does NOT already exist.
-4. Verify the plugin's `templates/for_other_contexts.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/for_other_contexts.md` exists.
 
 ## Execution
 
@@ -59,7 +59,7 @@ Installed for_other_contexts.md at <vault-path>/process/data_management/for_othe
 
 - `data_management directory missing; run pm-init-vault first`
 - `for_other_contexts.md already exists at <vault>/process/data_management/for_other_contexts.md; remove it first or skip this step`
-- `templates/for_other_contexts.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/for_other_contexts.md not found in plugin install`
 
 ## Standalone use
 

@@ -43,8 +43,8 @@ project-specific entries over time.
 3. Verify neither `file_hierarchy.md` nor `file_ownership.md` already
    exists in `process/data_management/`. If either does, abort with a
    specific message identifying which.
-4. Verify the plugin's `templates/file_hierarchy.md` and
-   `templates/file_ownership.md` both exist.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/file_hierarchy.md` and
+   `${CLAUDE_PLUGIN_ROOT}/templates/file_ownership.md` both exist.
 
 ## Execution
 
@@ -78,8 +78,8 @@ Installed data-management scaffolding at <vault-path>/process/data_management/
 - `data_management directory missing; run pm-init-vault first`
 - `file_hierarchy.md already exists at <path>; remove it first or skip this step`
 - `file_ownership.md already exists at <path>; remove it first or skip this step`
-- `templates/file_hierarchy.md not found in plugin install`
-- `templates/file_ownership.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/file_hierarchy.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/file_ownership.md not found in plugin install`
 
 ## Standalone use
 

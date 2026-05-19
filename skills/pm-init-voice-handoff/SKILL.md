@@ -36,7 +36,7 @@ first voice pass.
 2. Verify `<vault-path>/process/active/` exists (pm-init-vault created it).
 3. Verify `<vault-path>/process/active/voice_handoff.md` does NOT already
    exist.
-4. Verify the plugin's `templates/voice_handoff.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/voice_handoff.md` exists.
 
 ## Execution
 
@@ -54,7 +54,7 @@ Installed voice_handoff.md at <vault-path>/process/active/voice_handoff.md
 
 - `process/active directory missing; run pm-init-vault first`
 - `voice_handoff.md already exists at <path>; remove it first or skip this step`
-- `templates/voice_handoff.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/voice_handoff.md not found in plugin install`
 
 ## Standalone use
 

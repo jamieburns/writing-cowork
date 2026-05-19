@@ -57,7 +57,7 @@ Compose the milestone entry. For phase shape:
 
 **Gates:**
 
-- [ ] (gates to be defined)
+<!-- gates to be defined; replace this comment with - [ ] checkbox items as gates are decided -->
 
 **Status:** planned
 
@@ -72,6 +72,12 @@ section:
 ```
 
 Atomic-write the modified roadmap.md.
+
+The gates placeholder is intentionally a markdown comment, not a
+checkbox. This way `pm-show-roadmap`'s gate counter shows "0 of 0
+checked" (an absence) rather than "0 of 1 checked" (which would
+mis-represent the placeholder as an unmet gate). Once real gates are
+added, the comment line is replaced with `- [ ] <gate-text>` lines.
 
 ## Output on success
 

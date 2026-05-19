@@ -74,7 +74,14 @@ the migration is complete and exits cleanly.
 6. **Register the project.** Invoke pm-register-project for `<project>`
    if not already registered.
 
-7. **Commit the changes** with prefix `[data-mgmt]`.
+7. **Enable the project in the registry.** Invoke pm-enable-project for
+   `<project>` to flip `enabled: true` if it was `false` (typical for a
+   project that was registered during canary period before migration).
+   This is the whole point of migration — the shared launchd job should
+   pick the project up on its next run. Skipping this step leaves the
+   project migrated but disabled, which is the wrong end state.
+
+8. **Commit the changes** with prefix `[data-mgmt]`.
 
 ## Output on success
 

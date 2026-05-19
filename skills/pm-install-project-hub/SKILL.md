@@ -14,7 +14,7 @@ metadata:
 
 # pm-install-project-hub
 
-Copy `templates/project_hub.md` from the plugin to `<vault>/project_hub.md`
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/project_hub.md` from the plugin to `<vault>/project_hub.md`
 (vault root — this is the exception to the "minimum at root" rule because
 the hub is the navigation entry point and `drift_check.yaml`'s `hub:` field
 points at it).
@@ -34,11 +34,11 @@ navigation table, current work threads, recently completed, and see-also.
 
 1. Verify `<vault-path>` exists and is a directory.
 2. Verify `<vault-path>/project_hub.md` does NOT already exist.
-3. Verify the plugin's `templates/project_hub.md` exists.
+3. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/project_hub.md` exists.
 
 ## Execution
 
-1. Read `templates/project_hub.md` from the plugin.
+1. Read `${CLAUDE_PLUGIN_ROOT}/templates/project_hub.md` from the plugin.
 2. Substitute `{{name}}`, `{{title}}`, `{{date_iso}}`, `{{vault_path}}`.
 3. Atomic-write to `<vault-path>/project_hub.md`.
 
@@ -55,7 +55,7 @@ Installed project_hub.md at <vault-path>/project_hub.md
 ## Output on failure
 
 - `project_hub.md already exists at <vault-path>/project_hub.md; remove it first or skip this step`
-- `templates/project_hub.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/project_hub.md not found in plugin install`
 - `permission denied writing to <vault-path>`
 
 ## Standalone use

@@ -15,7 +15,7 @@ metadata:
 
 # pm-install-tagging-conventions
 
-Copy `templates/tagging_conventions.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/tagging_conventions.md` from the plugin to
 `<vault>/process/data_management/tagging_conventions.md`. The doc defines
 the three writing-cowork git tag namespaces (`release/`, `lock/`,
 `snapshot/`) and the workflows for each. Reference doc — only the project
@@ -33,7 +33,7 @@ name is substituted; the conventions themselves are project-invariant.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/tagging_conventions.md`
    does NOT already exist.
-4. Verify the plugin's `templates/tagging_conventions.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/tagging_conventions.md` exists.
 
 ## Execution
 
@@ -51,7 +51,7 @@ Installed tagging_conventions.md at <vault-path>/process/data_management/tagging
 
 - `data_management directory missing; run pm-init-vault first`
 - `tagging_conventions.md already exists at <path>; remove it first or skip this step`
-- `templates/tagging_conventions.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/tagging_conventions.md not found in plugin install`
 
 ## Standalone use
 

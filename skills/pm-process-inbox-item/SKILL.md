@@ -42,8 +42,13 @@ transfer in one skill.
 2. If placement is ambiguous (e.g., user says "decide for me"), prompt the
    user interactively for a target path. Do not silently choose.
 3. Move the artifact file(s) from `inbox/promotion/` to the resolved
-   target path. Use `git mv` if the project is git-tracked, otherwise
-   filesystem `mv`. Preserves file history.
+   target path. Detect whether the **source file** is git-tracked via
+   `git ls-files --error-unmatch <source>` (exit 0 if tracked, non-zero
+   if untracked). If tracked, use `git mv` to preserve history. If
+   untracked (common — inbox files are usually transient and never
+   committed), use plain `mv` + `git add <target>` on the destination.
+   Document which path was taken in the output. Do not let `git mv` fail
+   silently when the source is untracked; that's the bug from MVP gating.
 4. Add an entry to `<vault>/process/data_management/file_ownership.md`
    for the placed file (Status: working, Owner: data-mgmt).
 5. Move the cover-note itself to `<vault>/process/history/<date>_promotion_<source>.md`
@@ -84,7 +89,7 @@ Processed hub-update request from <source>:
 - `cover-note format unrecognized: expected 'Promotion request' or 'Hub update request' header`
 - `placement ambiguous and writer not reachable; held in inbox`
 - `referenced artifact <file> not found in inbox/promotion/`
-- `git mv failed: <error>`
+- `git mv failed: <error>` (only when source was tracked; untracked sources should fall back to `mv + git add` automatically)
 - `permission denied writing to <target>`
 
 ## Standalone use
