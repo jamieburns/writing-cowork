@@ -1,18 +1,18 @@
 ---
-name: pm-add-voice-exception
+name: voice-add-exception
 description: >
   This skill should be used when the user asks to "add a voice
   exception", "exempt this term from voice checks", "mark this term as
   intentional", or any variant of adding an entry to
-  voice_exceptions.md. Exceptions tell pm-run-mechanical-pass and
-  pm-audit-terminology to skip flagged terms.
+  voice_exceptions.md. Exceptions tell voice-run-mechanical-pass and
+  voice-audit-terminology to skip flagged terms.
 metadata:
   version: "0.1.0"
   role: voice
   subset: voice
 ---
 
-# pm-add-voice-exception
+# voice-add-exception
 
 Append a new row to `<vault>/process/active/voice_exceptions.md`. The
 row records an intentional voice variation that voice-pass skills
@@ -66,7 +66,7 @@ Added voice exception:
   Reason: <reason-or-"none">
   Added: <today>
 
-pm-run-mechanical-pass and pm-audit-terminology will now skip this
+voice-run-mechanical-pass and voice-audit-terminology will now skip this
 term in the specified scope.
 ```
 

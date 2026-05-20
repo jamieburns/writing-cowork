@@ -1,5 +1,5 @@
 ---
-name: pm-run-mechanical-pass
+name: voice-run-mechanical-pass
 description: >
   This skill should be used when the user asks to "run a mechanical pass",
   "do a typo / punctuation / grammar sweep", "mechanical voice pass",
@@ -13,7 +13,7 @@ metadata:
   subset: voice
 ---
 
-# pm-run-mechanical-pass
+# voice-run-mechanical-pass
 
 Run a mechanical voice pass over a scope of the vault. Catches: typos,
 punctuation issues, grammar errors, citation format drift, capitalization
@@ -22,7 +22,7 @@ paragraph-start). With `--strict`, also catches hyphenation-consistency
 drift (which produces a lot of noise; opt-in only).
 
 This is the "no judgment" pass — purely mechanical. Tone / register /
-substantive wording stays for `pm-recommend-wording` (separate skill).
+substantive wording stays for `voice-recommend-wording` (separate skill).
 
 ## Arguments
 

@@ -1,5 +1,5 @@
 ---
-name: pm-capture-voice-sample
+name: voice-capture-sample
 description: >
   This skill should be used when the user asks to "capture a voice
   sample", "set a voice baseline", "elicit a writing sample for voice
@@ -12,7 +12,7 @@ metadata:
   subset: voice
 ---
 
-# pm-capture-voice-sample
+# voice-capture-sample
 
 Elicit a fresh writing sample from the writer, save it as the project's
 voice baseline. The sample anchors future voice work — voice context
@@ -20,7 +20,7 @@ references it when making recommendations, and writers can use it as a
 sanity check for their own register drift.
 
 For projects that already have a sample (e.g., lifted from another
-project), use `pm-confirm-voice-sample` instead.
+project), use `voice-confirm-sample` instead.
 
 ## Arguments
 
@@ -42,7 +42,7 @@ project), use `pm-confirm-voice-sample` instead.
    directory exists.
 3. Verify the resolved sample path does NOT already exist. If it does,
    abort with `voice sample already exists at <path>; use
-   pm-confirm-voice-sample to confirm/refresh, or remove the existing
+   voice-confirm-sample to confirm/refresh, or remove the existing
    file first`. Do not overwrite.
 
 ## Execution
@@ -90,13 +90,13 @@ Captured voice sample at <path>:
   Date: <date>
 
 The voice context will reference this when making recommendations. Use
-pm-recommend-wording with --sample=<path> to anchor a recommendation to
+voice-recommend-wording with --sample=<path> to anchor a recommendation to
 this voice baseline.
 ```
 
 ## Output on failure
 
-- `voice sample already exists at <path>; use pm-confirm-voice-sample or remove first`
+- `voice sample already exists at <path>; use voice-confirm-sample or remove first`
 - `parent directory missing at <path>; create it or use --sample= with a valid path`
 - `writer declined to provide a sample (skip / later); no file written`
 - `permission denied writing to <path>`

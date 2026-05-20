@@ -1,5 +1,5 @@
 ---
-name: pm-shift-terminology
+name: voice-shift-terminology
 description: >
   This skill should be used when the user asks to "shift a term",
   "rename a term across the draft", "change <X> to <Y> in voice-edited
@@ -13,7 +13,7 @@ metadata:
   subset: voice
 ---
 
-# pm-shift-terminology
+# voice-shift-terminology
 
 Zone-aware X → Y rename across the vault. The challenge: a draft has
 sections at different states of voice-pass completion. Some sections
@@ -100,6 +100,6 @@ Shifted "<old>" → "<new>":
 
 ## Standalone use
 
-Typical flow: writer reads `pm-audit-terminology`'s report, picks a
-cluster, runs `pm-shift-terminology` for the chosen unification. Each
+Typical flow: writer reads `voice-audit-terminology`'s report, picks a
+cluster, runs `voice-shift-terminology` for the chosen unification. Each
 shift is a small, reviewable, reversible commit.

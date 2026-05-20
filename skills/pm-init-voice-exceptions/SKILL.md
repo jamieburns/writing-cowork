@@ -22,7 +22,7 @@ violating a general voice rule, recorded so future voice passes don't
 flag them again.
 
 The file starts empty (header only). Exceptions are added by
-`pm-add-voice-exception` and queried by `pm-list-voice-exceptions`
+`voice-add-exception` and queried by `voice-list-exceptions`
 (both shipping in Subset 3 — Voice/tone).
 
 ## Arguments
@@ -57,7 +57,7 @@ the file/location (when scope < project), and a rationale.
 |------|-------|----|--------|-------|
 ```
 
-The empty table header is intentional — `pm-add-voice-exception` appends
+The empty table header is intentional — `voice-add-exception` appends
 rows to it.
 
 ## Output on success

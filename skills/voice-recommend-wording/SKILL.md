@@ -1,5 +1,5 @@
 ---
-name: pm-recommend-wording
+name: voice-recommend-wording
 description: >
   This skill should be used when the user asks to "recommend wording",
   "suggest alternatives for this paragraph", "give me N voice options
@@ -12,7 +12,7 @@ metadata:
   subset: voice
 ---
 
-# pm-recommend-wording
+# voice-recommend-wording
 
 Generate N wording alternatives for a paragraph or passage, each
 explicitly labeled with the voice mode it targets (Connect / Convince /
@@ -83,7 +83,7 @@ if you want voice-pass tracking.
 
 ## Output on failure
 
-- `voice sample not found at <path>; capture one first via pm-capture-voice-sample`
+- `voice sample not found at <path>; capture one first via voice-capture-sample`
 - `paragraph reference invalid: <file>:<range> does not match anything`
 - `--variants=<N> out of range; expected 2-5`
 

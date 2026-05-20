@@ -1,5 +1,5 @@
 ---
-name: pm-remove-voice-exception
+name: voice-remove-exception
 description: >
   This skill should be used when the user asks to "remove a voice
   exception", "delete a voice exception", "un-exempt this term", or
@@ -12,11 +12,11 @@ metadata:
   subset: voice
 ---
 
-# pm-remove-voice-exception
+# voice-remove-exception
 
 Remove a row from `<vault>/process/active/voice_exceptions.md`. The
-corresponding term re-becomes subject to `pm-run-mechanical-pass` and
-`pm-audit-terminology` flagging.
+corresponding term re-becomes subject to `voice-run-mechanical-pass` and
+`voice-audit-terminology` flagging.
 
 Common use case: an exception was added during a now-superseded voice
 pass; the writer wants the term re-flagged because the project's voice
@@ -39,7 +39,7 @@ has matured.
 1. Resolve vault root.
 2. Verify `voice_exceptions.md` exists.
 3. Verify at least one row matches `<term>`. If not, abort with `no
-   exception found for term <term>; check pm-list-voice-exceptions for
+   exception found for term <term>; check voice-list-exceptions for
    exact spelling`.
 
 ## Execution
@@ -61,7 +61,7 @@ Removed voice exception:
   In: <in-or-"project-wide">
   Was added: <original-add-date>
 
-pm-run-mechanical-pass and pm-audit-terminology will now flag this
+voice-run-mechanical-pass and voice-audit-terminology will now flag this
 term again in the specified scope.
 ```
 
@@ -76,7 +76,7 @@ Other matches remain. To remove additional, re-run with --scope= and --in=.
 ## Output on failure
 
 - `voice_exceptions.md not found at <path>`
-- `no exception found for term <term>; check pm-list-voice-exceptions for exact spelling`
+- `no exception found for term <term>; check voice-list-exceptions for exact spelling`
 - `multiple matches for term <term>; specify --scope= and/or --in= to disambiguate (or accept the interactive prompt)`
 
 ## Standalone use

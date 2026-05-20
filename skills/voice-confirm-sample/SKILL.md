@@ -1,5 +1,5 @@
 ---
-name: pm-confirm-voice-sample
+name: voice-confirm-sample
 description: >
   This skill should be used when the user asks to "confirm a voice
   sample", "verify the lifted voice sample matches", "check the voice
@@ -12,13 +12,13 @@ metadata:
   subset: voice
 ---
 
-# pm-confirm-voice-sample
+# voice-confirm-sample
 
 Present the project's current voice sample to the writer and ask
 "does this still represent your voice for this project?" with options
 to confirm-as-is or refresh with a new sample.
 
-This is the lifecycle counterpart to `pm-capture-voice-sample`. Capture
+This is the lifecycle counterpart to `voice-capture-sample`. Capture
 is for new samples; confirm is for revalidating existing ones.
 
 ## Arguments
@@ -33,7 +33,7 @@ is for new samples; confirm is for revalidating existing ones.
 
 1. Resolve vault root and sample path.
 2. Verify the sample file exists at the resolved path. If absent, abort
-   with `voice sample not found at <path>; run pm-capture-voice-sample
+   with `voice sample not found at <path>; run voice-capture-sample
    first or check --sample= path`.
 
 ## Execution
@@ -52,7 +52,7 @@ is for new samples; confirm is for revalidating existing ones.
      No content change.
    - **(b) refresh:** archive the existing sample to
      `<vault>/process/history/writer_voice_sample_<old-date>.md`, then
-     invoke `pm-capture-voice-sample` to capture a new one at the same
+     invoke `voice-capture-sample` to capture a new one at the same
      path.
    - **(c) annotate:** prompt the writer for notes; append to the
      sample's `## Notes` section.
@@ -76,7 +76,7 @@ OR
 ```
 Voice sample at <path> archived to process/history/; new sample captured.
   Old: <history path>
-  New: <sample path> (from pm-capture-voice-sample)
+  New: <sample path> (from voice-capture-sample)
 ```
 
 OR
@@ -94,7 +94,7 @@ Voice sample confirmation deferred. No changes made.
 
 ## Output on failure
 
-- `voice sample not found at <path>; run pm-capture-voice-sample first`
+- `voice sample not found at <path>; run voice-capture-sample first`
 - `permission denied writing to <path>`
 
 ## Standalone use

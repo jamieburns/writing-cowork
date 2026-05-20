@@ -1,5 +1,5 @@
 ---
-name: pm-audit-terminology
+name: voice-audit-terminology
 description: >
   This skill should be used when the user asks to "audit terminology",
   "check for inconsistent terms", "find terminology drift", "do a
@@ -13,16 +13,16 @@ metadata:
   subset: voice
 ---
 
-# pm-audit-terminology
+# voice-audit-terminology
 
 Scan a scope of the vault for terminology inconsistencies. Detect words
 or phrases that appear in multiple forms (e.g., "Reflection Pattern" vs.
 "reflection pattern" vs. "RP") and surface them for writer adjudication.
-**Detect only — never auto-rewrite.** That's `pm-shift-terminology`'s
+**Detect only — never auto-rewrite.** That's `voice-shift-terminology`'s
 job (separate skill, writer-driven).
 
 The output is a markdown report; the writer reads it, decides which
-inconsistencies are intentional vs. drift, and uses `pm-shift-terminology`
+inconsistencies are intentional vs. drift, and uses `voice-shift-terminology`
 to apply chosen unifications.
 
 ## Arguments
@@ -73,7 +73,7 @@ Audit complete for <scope>:
   Report: <vault>/process/active/terminology_scan_<date>.md
 
 Next: review the report; for each cluster you want unified, run
-pm-shift-terminology with the chosen canonical form.
+voice-shift-terminology with the chosen canonical form.
 ```
 
 ## Output on failure

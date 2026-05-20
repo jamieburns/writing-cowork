@@ -1,5 +1,5 @@
 ---
-name: pm-list-voice-exceptions
+name: voice-list-exceptions
 description: >
   This skill should be used when the user asks to "list voice
   exceptions", "show me what's exempt from voice checks", "what
@@ -11,7 +11,7 @@ metadata:
   subset: voice
 ---
 
-# pm-list-voice-exceptions
+# voice-list-exceptions
 
 Read `<vault>/process/active/voice_exceptions.md` and render the
 exceptions as a scannable table, with optional filters.
