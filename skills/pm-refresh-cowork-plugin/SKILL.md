@@ -1,29 +1,46 @@
 ---
 name: pm-refresh-cowork-plugin
 description: >
-  This skill should be used when the user asks to "refresh a Cowork plugin",
-  "force update a plugin", "pull the latest plugin version", "fix Cowork plugin
-  cache", or any variant of forcing Cowork to re-fetch a plugin that won't
-  update through normal channels. TEMPORARY workaround — exists because
-  Cowork's nominal update mechanism is broken (anthropics/claude-code #38271).
-  Should be deprecated when Anthropic ships a force-refresh affordance.
+  DEPRECATED-FOR-DEVELOPMENT — use Claude Code CLI for the dev cycle
+  (`claude plugin marketplace update` / `claude plugin update`). This
+  skill remains as a CONSUMER-SIDE workaround when Cowork's update
+  detection fails to land a new plugin version (Anthropic support thread
+  215474352137566). Use when the user asks to "refresh a Cowork plugin",
+  "force update a plugin", "fix Cowork plugin cache", or any variant of
+  forcing Cowork to re-fetch a plugin that won't update through normal
+  channels. NOT for active plugin development — develop in Claude Code,
+  then use Cowork as the runtime.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   role: pm
   subset: mvp-foundation
   temporary: true
+  consumer-side-only: true
 ---
 
 # pm-refresh-cowork-plugin
 
 Force Cowork to re-fetch a plugin from its marketplace. Works around the
-known bug where Cowork's marketplace sync returns `status=success` with
-`0 downloaded` even when a new version is genuinely available upstream.
+fact that Cowork has no local marketplace catalog clone — it fetches
+catalog metadata from a server-side proxy, and the proxy's cache plus
+Cowork's local plugin cache together produce stale installs that don't
+update through the UI's "Update plugin" path.
 
-**This is a temporary workaround.** When Anthropic ships a proper
-force-refresh mechanism (UI button or CLI equivalent), this skill should
-be deprecated. Until then, this is the only reliable way to deploy a
-plugin update.
+**This skill is consumer-side only.** For plugin **development**, do not
+use this. Instead, develop against Claude Code CLI where the documented
+slash commands work as expected:
+
+    claude plugin marketplace add <owner/repo>
+    claude plugin install <plugin>@<marketplace>
+    # iterate on plugin source
+    claude plugin validate /path/to/plugin
+    git commit && git push
+    claude plugin marketplace update <marketplace>
+    claude plugin update <plugin>@<marketplace>
+
+Once your plugin works in Claude Code, Cowork consumers (including
+yourself) install it via Cowork's Customize UI. When Cowork doesn't pick
+up an update — which is the bug this skill addresses — use this skill.
 
 ## Arguments
 
@@ -103,21 +120,36 @@ updatedAt field, or counting SKILL.md files in the new plugin cache.
 
 ## Why this skill exists (full context)
 
-Cowork has a known bug (anthropics/claude-code #38271) where
-`pollSyncUntilDone` returns `status=success` with `0 downloaded, 0 removed`
-even when the upstream marketplace has a new plugin version. The "update"
-button, app reload, plugin uninstall/reinstall, and marketplace
-uninstall/reinstall all fail to trigger a re-fetch.
+Two related Cowork issues, observed 2026-05-20 and tracked in Anthropic
+support thread 215474352137566:
 
-The only reliable workaround is to remove the cached plugin directory
-while Cowork is quit. This skill automates the lookup of the correct
-cache path (which is buried under session-hashed directories) and
-prepares the one-shot script.
+1. **No local marketplace catalog clone.** Unlike Claude Code (which
+   clones marketplace repos to `~/.claude/plugins/marketplaces/<name>/`
+   and refreshes via `git pull`), Cowork stores no catalog on disk.
+   The `remoteMarketplaceClient` fetches catalog metadata from an
+   Anthropic-side proxy. There is no local file to edit and no
+   user-facing way to force a catalog refresh.
 
-When Anthropic ships a proper refresh mechanism (UI affordance,
-slash command, or CLI), this skill should be marked deprecated and
-eventually removed. The `metadata.temporary: true` flag in the
-frontmatter is a signal to that future cleanup.
+2. **Update detection fails.** Even after a plugin is republished and
+   the catalog version field is bumped, Cowork's "Update plugin" UI
+   button reports no update available. The plugin cache directory
+   (`local-agent-mode-sessions/<host>/<workspace>/rpm/plugin_*/`) stays
+   pinned to the originally-installed version indefinitely.
+
+The only consumer-side workaround is to nuke the cached plugin directory
+while Cowork is quit; on relaunch Cowork sees the missing directory and
+re-fetches via the proxy. This skill automates that path lookup and
+script preparation.
+
+When Anthropic ships a proper refresh mechanism — a slash command,
+UI button that actually invalidates the proxy cache, or any kind of
+documented Cowork-side equivalent of `claude plugin marketplace update`
+— this skill becomes obsolete. The `metadata.temporary: true` flag is
+the signal for that future removal.
+
+For **plugin authors**: do not develop in Cowork. The supported dev
+workflow is Claude Code CLI (see the description above). Use this skill
+only when something is broken on the consumer side.
 
 ## Standalone use
 
