@@ -9,7 +9,7 @@ description: >
   as the first step; also usable standalone for bolting the structure onto
   an existing vault.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   role: pm
   subset: mvp-foundation
 ---
@@ -58,6 +58,7 @@ Then create the following structure, creating intermediate directories as needed
 │       ├── .gitkeep
 │       └── drift_reports/.gitkeep
 └── inbox/
+    ├── README.md                      # copied from templates/inbox_README.md
     ├── promotion/.gitkeep
     └── hub-updates/.gitkeep
 ```
@@ -66,7 +67,10 @@ Use the file tools (Write) for each file, not shell heredocs — Write produces
 clean file state and avoids encoding surprises.
 
 `.gitkeep` files are empty. They exist solely to make git track otherwise
-empty directories.
+empty directories. The `inbox/README.md` (copied verbatim from
+`${CLAUDE_PLUGIN_ROOT}/templates/inbox_README.md`) documents the two
+shipped subdirectories so specialists reading the directory know the
+conventions.
 
 ## .gitignore content
 
@@ -129,6 +133,8 @@ Vault skeleton created at /Users/jburns/.../Epistemology
   process/history/
   process/data_management/
   process/data_management/drift_reports/
+  inbox/
+  inbox/README.md
   inbox/promotion/
   inbox/hub-updates/
   .gitignore

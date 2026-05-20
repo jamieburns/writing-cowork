@@ -2,7 +2,7 @@
 name: pm-version
 description: >
   Report the loaded writing-cowork plugin version plus a few content
-  sentinels for refresh verification. **EXPECTED VERSION: v0.1.11** —
+  sentinels for refresh verification. **EXPECTED VERSION: v0.1.12** —
   this string appears in the description so you can verify the loaded
   version at a glance in the system-reminder skill listing without
   running anything. Use when the user asks "what version", "show plugin
@@ -70,8 +70,8 @@ writing-cowork plugin version report
   kanban uses dataviewjs:        <yes | no>
   pm-version skill present:      yes
 
-Expected for v0.1.11:
-  version=0.1.11
+Expected for v0.1.12:
+  version=0.1.12
   skill count >= 58
   default --by = milestone
   voice-* yes
@@ -81,7 +81,7 @@ Expected for v0.1.11:
 Status: <MATCH | STALE — refresh did not land | NEWER (sentinel out of date — bump pm-version description)>
 ```
 
-Compare `version` from plugin.json against the expected v0.1.11 baked
+Compare `version` from plugin.json against the expected v0.1.12 baked
 into this skill description:
 
 - exact match AND all sentinels match expected row → `MATCH`
