@@ -2,14 +2,16 @@
 name: pm-version
 description: >
   Report the loaded writing-cowork plugin version plus a few content
-  sentinels for refresh verification. **EXPECTED VERSION: v0.1.9** —
+  sentinels for refresh verification. **EXPECTED VERSION: v0.1.11** —
   this string appears in the description so you can verify the loaded
   version at a glance in the system-reminder skill listing without
   running anything. Use when the user asks "what version", "show plugin
   version", "verify the refresh", "did the update land", or any variant
   of confirming which writing-cowork build Cowork is currently using.
+  MAINTENANCE: bump the EXPECTED VERSION string in this description
+  every time `plugin.json` version is bumped (release-process step).
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   role: pm
   subset: utility
   temporary: true
@@ -68,21 +70,23 @@ writing-cowork plugin version report
   kanban uses dataviewjs:        <yes | no>
   pm-version skill present:      yes
 
-Expected for v0.1.9:
-  version=0.1.9
+Expected for v0.1.11:
+  version=0.1.11
   skill count >= 58
   default --by = milestone
   voice-* yes
   dataviewjs yes
   pm-version yes
 
-Status: <MATCH | STALE — refresh did not land>
+Status: <MATCH | STALE — refresh did not land | NEWER (sentinel out of date — bump pm-version description)>
 ```
 
-If `version` from plugin.json doesn't match the expected v0.1.9 baked
-into this skill description, or if any sentinel disagrees with the
-expected row, surface `STALE — refresh did not land`. Otherwise
-`MATCH`.
+Compare `version` from plugin.json against the expected v0.1.11 baked
+into this skill description:
+
+- exact match AND all sentinels match expected row → `MATCH`
+- version lower than expected OR sentinel disagrees → `STALE — refresh did not land`
+- version higher than expected (sentinel out of date because pm-version's description was not bumped on the last release) → `NEWER`, list which sentinels match the actual loaded version, and surface a reminder that pm-version's EXPECTED VERSION marker needs bumping
 
 ## Output on failure
 
