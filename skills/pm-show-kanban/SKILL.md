@@ -24,6 +24,10 @@ markdown file, which Obsidian renders as a live board when viewed.
   `process/active/kanban_view.md`) — where to write the kanban file.
 - **`--by=status|milestone`** (optional, default `status`) — what to
   group columns by.
+- **`--preserve-customizations`** (optional, flag) — abort if the
+  file already exists (the pre-v0.1.7 "install once" behavior). Use
+  when heavy customization of the Dataview query needs preserving
+  beyond the writer-notes block. Default: regenerate.
 
 ## Preconditions
 
@@ -41,10 +45,32 @@ Write `<output-path>` with a Dataview query that:
 2. Groups by `<by>` (status or milestone).
 3. Renders each group as a column.
 
-Per writing-cowork locked decision #10: install once, never overwrite —
-if the file already exists at `<output-path>`, abort with `kanban view
-already exists at <path>; remove or rename if you want a regenerated
-version`. The writer may have customized the Dataview query.
+**Locked decision #10 was revised in v0.1.7.** The original "install
+once, never overwrite" rule was too restrictive for an active project —
+plugin author may ship better query templates, writer may want to swap
+the grouping axis (`--by=status` ↔ `--by=milestone`), and stale queries
+become a friction point. New behavior:
+
+- **Default:** regenerate the file on every invocation, replacing the
+  Dataview query with the current template. **Preserves** the
+  `<!-- WRITER-NOTES-START -->` / `<!-- WRITER-NOTES-END -->` section
+  if present, by reading the existing file, extracting that marker
+  block, regenerating the rest, then re-inserting the writer-notes
+  block at the same position.
+- **`--preserve-customizations` flag:** restores the old install-once
+  behavior (abort if file exists). Use this if you've heavily
+  customized the Dataview query beyond the writer-notes section and
+  don't want regeneration to clobber it.
+
+The skill writes a designated writer-notes block in the initial
+template so writers know where to put surviving content:
+
+```markdown
+<!-- WRITER-NOTES-START -->
+(Add notes here that should survive kanban regeneration — context for
+the columns, links to related files, etc.)
+<!-- WRITER-NOTES-END -->
+```
 
 Example file content:
 
@@ -79,7 +105,7 @@ Rendered kanban view at <vault>/<output-path>.
 ## Output on failure
 
 - `todos.md not found`
-- `kanban file already exists at <path>; remove or rename to regenerate`
+- `kanban file already exists at <path>; --preserve-customizations is set so refusing to overwrite. Remove the flag to regenerate.` (only when `--preserve-customizations` is supplied)
 - `Dataview plugin not installed in vault; kanban will render as plain markdown table (continuing)`
 
 ## Standalone use
