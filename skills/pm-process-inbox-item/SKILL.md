@@ -2,27 +2,28 @@
 name: pm-process-inbox-item
 description: >
   This skill should be used when the user asks to "process the inbox",
-  "handle an inbox item", "route a promotion request", or any variant of
-  reading and applying a request in inbox/promotion/ or inbox/hub-updates/.
-  Reads the request, applies its placement or hub-update instructions,
-  archives the cover-note to process/history/.
+  "handle an inbox item", "route a promotion request", "review an issue
+  report", or any variant of reading and applying a request in
+  inbox/promotion/, inbox/hub-updates/, or inbox/issues/. Reads the
+  cover-note, applies the right action (placement, hub edit, or issue
+  triage), and archives the cover-note to process/history/.
 metadata:
-  version: "0.1.0"
+  version: "0.1.1"
   role: pm
   subset: mvp-foundation
 ---
 
 # pm-process-inbox-item
 
-Read an inbox cover-note (promotion request or hub-update request), apply
-its instructions (move artifact to canonical path, or edit hub), and
-archive the cover-note to `process/history/`. Both sides of the inbox
-transfer in one skill.
+Read an inbox cover-note (promotion request, hub-update request, or
+issue report), apply the appropriate action, and archive the cover-note
+to `process/history/`. Both sides of the inbox transfer in one skill.
 
 ## Arguments
 
 - **`<inbox-file>`** (required) — path (absolute or vault-relative) to
-  the cover-note in `inbox/promotion/` or `inbox/hub-updates/`.
+  the cover-note in `inbox/promotion/`, `inbox/hub-updates/`, or
+  `inbox/issues/`.
 - **`--vault=<path>`** (optional) — vault root. Default: inferred from
   `<inbox-file>` path.
 
@@ -32,9 +33,12 @@ transfer in one skill.
 2. Parse the cover-note to determine request type:
    - Header "Promotion request" → artifact placement
    - Header "Hub update request" → hub edit
+   - Header "Issue report" → issue triage
 3. For promotion requests: verify the referenced artifact files also
    exist in the same inbox directory.
 4. For hub-update requests: verify `<vault>/project_hub.md` exists.
+5. For issue reports: no extra precondition; the librarian reads and
+   decides.
 
 ## Execution — promotion request
 
@@ -81,6 +85,60 @@ Processed hub-update request from <source>:
   Updated project_hub.md sections: <list>
   Archived: process/history/<date>_hub-update_<source>.md
   Committed: [data-mgmt] <terse message>
+```
+
+## Execution — issue report
+
+Issues are triage items, not auto-actionable. The librarian decides
+disposition per-issue.
+
+1. Read the cover-note's title, description, severity, scope, and
+   plugin-version fields.
+2. Summarize the issue to the user (writer or invoking context) and
+   ask for disposition:
+   - **Escalate to GitHub** — invoke `pm-escalate-issue` against this
+     cover-note. The skill creates a GitHub Issue, appends the URL to
+     the cover-note, and archives the cover-note to
+     `process/history/`. Best for plugin-level observations.
+   - **Handle locally** — apply whatever vault-side fix is appropriate
+     (edit a doc, adjust a config, etc.), then archive the cover-note
+     to `<vault>/process/history/<date>_issue_<slug>_local.md` with a
+     short disposition note appended. Best for vault-specific issues.
+   - **Close (no action)** — archive to
+     `<vault>/process/history/<date>_issue_<slug>_closed.md` with a
+     short reason. Best for issues that turn out to be expected
+     behavior, duplicates, or resolved before processing.
+
+3. Commit the archive (and any local fixes) with prefix
+   `[data-mgmt]` per HANDOFF.md conventions.
+
+## Output on success — issue report (escalated)
+
+```
+Processed issue report from <source>:
+  Disposition: escalated
+  GitHub URL: <url>
+  Archived: process/history/<date>_issue_<slug>_escalated.md
+  Committed: [data-mgmt] <terse message>
+```
+
+## Output on success — issue report (handled locally)
+
+```
+Processed issue report from <source>:
+  Disposition: handled locally
+  Local fix: <one-line summary>
+  Archived: process/history/<date>_issue_<slug>_local.md
+  Committed: [data-mgmt] <terse message>
+```
+
+## Output on success — issue report (closed)
+
+```
+Processed issue report from <source>:
+  Disposition: closed (no action)
+  Reason: <one-line reason>
+  Archived: process/history/<date>_issue_<slug>_closed.md
 ```
 
 ## Output on failure

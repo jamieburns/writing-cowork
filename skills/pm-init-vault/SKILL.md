@@ -9,7 +9,7 @@ description: >
   as the first step; also usable standalone for bolting the structure onto
   an existing vault.
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   role: pm
   subset: mvp-foundation
 ---
@@ -60,7 +60,8 @@ Then create the following structure, creating intermediate directories as needed
 └── inbox/
     ├── README.md                      # copied from templates/inbox_README.md
     ├── promotion/.gitkeep
-    └── hub-updates/.gitkeep
+    ├── hub-updates/.gitkeep
+    └── issues/.gitkeep
 ```
 
 Use the file tools (Write) for each file, not shell heredocs — Write produces
@@ -137,6 +138,7 @@ Vault skeleton created at /Users/jburns/.../Epistemology
   inbox/README.md
   inbox/promotion/
   inbox/hub-updates/
+  inbox/issues/
   .gitignore
 ```
 
