@@ -62,6 +62,34 @@ For substantive decision-locks:
 
 The tag message should capture *why* the lock was made, *what* was decided, and *what alternatives were considered* (per writing-cowork locked decision #8 on tag-lock message format). Future-you needs to judge whether the lock should hold under new evidence.
 
+## When to snapshot-tag
+
+Snapshot tags mark state transitions and operational boundaries. Use them to create clear historical checkpoints without locking decisions.
+
+**Create a snapshot tag when:**
+
+- **Phase complete:** You've finished a substantive phase (e.g., Phase 1 outline is done, Phase 3 revision is complete).
+- **Mode shift:** You're changing how the project operates (e.g., "now entering review cycle", "shifting from distributed outline to centralized draft").
+- **Before major refactor:** You're about to restructure content, reorganize the vault, or make breaking changes. The snapshot is a baseline for comparing before/after.
+- **Role handoff:** You're handing the artifact off between contexts or roles (e.g., "substance → review handoff point").
+- **Natural checkpoint:** You've reached a logical moment to mark progress (end of week, before taking on new scope, after a major decision).
+
+**Do not snapshot-tag for:** everyday commits, minor edits, incremental progress. Those are regular commits.
+
+**Example timeline:**
+
+```
+2026-05-15  snapshot/phase-1-outline-complete     (Phase 1 outline done)
+2026-05-16  lock/2026-05-16-terminology-locked    (key terms locked: "system", "agent", etc.)
+2026-05-17  snapshot/phase-2-research-baseline    (baseline before Phase 2 research begins)
+2026-05-22  snapshot/review-phase-entry           (entering review cycle)
+2026-05-23  lock/2026-05-23-chapter-3-framing     (PM + substance decided on chapter 3 framing)
+```
+
+**Tag message for snapshots:** Describe the state you're marking ("Phase 1 outline complete and ready for review") or the transition happening ("Entering review cycle — substance complete").
+
+Snapshots are navigation aids. They help you jump to specific historical states when exploring evolution of the draft.
+
 ## Listing and inspection
 
 ```bash

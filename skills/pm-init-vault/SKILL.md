@@ -8,6 +8,9 @@ description: >
   inbox/, and gitignored-scratch conventions. Invoked by pm-setup-project
   as the first step; also usable standalone for bolting the structure onto
   an existing vault.
+  
+  **Lift Procedure Integration:** Invoked during project setup (stage 1).
+  See ~/code/cowork-tools/lift/README.md for full lift workflow.
 metadata:
   version: "0.1.2"
   role: pm

@@ -2,23 +2,28 @@
 name: pm-update-task
 description: >
   This skill should be used when the user asks to "update a task",
-  "mark task done", "change task status", or any variant of editing an
-  existing task row in `<vault>/process/active/todos.md`. Tasks are
-  identified by their 8-char hash ID.
+  "mark task done", "change task status", "assign a task", or any variant
+  of editing an existing task row in `<vault>/process/active/todos.md`.
+  Tasks are identified by their 8-char hash ID. Supports assignee changes
+  (v0.1.4+).
 metadata:
-  version: "0.1.0"
+  version: "0.1.4"
   role: pm
   subset: mvp-planning
 ---
 
 # pm-update-task
 
-Edit an existing task row in todos.md.
+Edit an existing task row in todos.md. Supports changes to status, assignee,
+description, milestone, and notes.
 
 ## Arguments
 
 - **`<id>`** (required) — 8-char task ID.
 - **`--status=planned|in-progress|done`** (optional).
+- **`--assignee=<value>`** (optional) — change task owner/role. Supply
+  any value (e.g., "pm", "analysis", "voice", custom roles). To clear,
+  use `--assignee=""` (empty string).
 - **`--description=<text>`** (optional) — replace the description.
 - **`--milestone=<name>`** (optional) — change milestone link.
 - **`--notes=<text>`** (optional) — replace Notes column. To append
@@ -42,7 +47,9 @@ Edit an existing task row in todos.md.
 
 ```
 Updated task <id>:
-  <list of changes applied>
+  Status: planned → in-progress
+  Assignee: (empty) → analysis
+  Notes: [appended: new note text]
 ```
 
 If status changed to `done`, note this in the output and suggest the
@@ -54,7 +61,9 @@ end-of-day pm-list-tasks --status=done to see all freshly-closed tasks).
 - `todos.md not found`
 - `task <id> not found in todos.md`
 - `invalid status: <value> (accepted: planned, in-progress, done)`
+- `permission denied writing to todos.md`
 
 ## Standalone use
 
-Most common standalone use: marking tasks done as they complete.
+Most common standalone use: marking tasks done as they complete, reassigning
+tasks, or updating status during the work session.

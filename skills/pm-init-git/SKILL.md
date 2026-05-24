@@ -8,6 +8,9 @@ description: >
   given vault path. Does not commit — pm-finalize-scaffold-commit handles
   the single setup-completion commit at the end of pm-setup-project.
   Skippable when `--git=none` or `--git=existing`.
+  
+  **Lift Procedure Integration:** Invoked during project setup (stage 1).
+  See ~/code/cowork-tools/lift/README.md for full lift workflow.
 metadata:
   version: "0.1.0"
   role: pm

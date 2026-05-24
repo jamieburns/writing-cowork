@@ -20,6 +20,11 @@ groups by status across projects, displays in an interactive web view.
 Distinct from pm-show-kanban (per-project, Obsidian-rendered):
 composite is cross-project, Cowork-rendered.
 
+**v0.1.15 TODO:** Update this skill to support the same `--by=` and
+`--show=` options as pm-show-kanban (v0.1.14). Currently only supports
+grouping by status; will add support for grouping by assignee and milestone
+with optional column display.
+
 ## Arguments
 
 - **`--status-filter=<list>`** (optional) — comma-separated statuses to

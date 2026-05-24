@@ -1,7 +1,7 @@
 {
   "name": "writing-cowork",
-  "version": "0.1.13",
-  "description": "Multi-role cowork pattern (PM, substance, voice/tone, review) for long-form writing projects. Skills install scaffolds, manage drift, run reviews, and coordinate role handoffs across a project's git-tracked vault.",
+  "version": "0.1.14",
+  "description": "Multi-role cowork pattern (PM, substance, voice/tone, review) for long-form writing projects. Skills install scaffolds, manage drift, run reviews, and coordinate role handoffs across a project's git-tracked vault. **v0.1.14:** Assignee column (role-based task ownership) + multi-mode kanban grouping.",
   "author": {
     "name": "Jamie Burns"
   },
@@ -10,6 +10,8 @@
     "cowork",
     "obsidian",
     "drift-check",
-    "long-form"
+    "long-form",
+    "assignee",
+    "task-ownership"
   ]
 }

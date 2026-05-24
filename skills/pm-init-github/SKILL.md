@@ -8,6 +8,9 @@ description: >
   push — pm-finalize-scaffold-commit handles the single setup-completion
   commit and push at the end. Invoked by pm-setup-project after pm-init-git;
   skipped when `--git` is not `new-github`.
+  
+  **Lift Procedure Integration:** Invoked during project setup (stage 1).
+  See ~/code/cowork-tools/lift/README.md for full lift workflow.
 metadata:
   version: "0.1.0"
   role: pm

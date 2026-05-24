@@ -160,6 +160,109 @@ You need the librarian when you want to *change* something operationally.
 
 ---
 
+## Two-axis phase model
+
+Some projects run both substance phases (artifact development) and process phases (research, review, voice refinement) in parallel. This creates a two-axis structure:
+
+**Substance phases** (sequential): Phase 1–N focused on content artifact development (outline → first draft → revision → final).
+
+**Process phases** (parallel): Analysis (research, background work), Review (quality gates), Voice (tone and polish).
+
+Why two axes: different people own substance vs. process development, and their timelines don't align. Substance is heavily sequential; process can run alongside or slightly behind.
+
+**Example structure:**
+
+- **Phase 1–3:** Substance work (outline, first draft, revision)
+- **Analysis phase:** Parallel to all substance phases (research, contextual findings feed into substance as needed)
+- **Review phase:** Phase 3→4 boundary (quality gate before voice work proceeds)
+- **Voice phase:** Phase 5 (final tone pass on completed substance)
+
+The Epistemology project uses this model successfully. Your project may adopt a different structure — the point is: you can layer process phases across substance phases instead of strictly serializing everything.
+
+Document your phase structure in `project_hub.md` so all contexts understand the timeline.
+
+---
+
+## Memory-file refresh at role-shift
+
+When a role's memory files (e.g., `voice_handoff.md`, `voice_exceptions.md`) need updating because the person in that role has changed, how do you preserve history while signaling the transition?
+
+**Protocol:**
+
+- **Filename stays stable** (e.g., `voice_handoff.md` is always `voice_handoff.md` — don't rename it)
+- **Frontmatter slug changes** (if the writer or voice lead identity changes, update the `name:` field in the file's frontmatter to reflect the new role owner)
+- **HTML comments explain transitions** (add a comment like `<!-- Updated by [new role lead] on YYYY-MM-DD: reason for changes -->`)
+
+This preserves git history (file name is constant across commits) while signaling to human readers that a role transition happened. When you inspect the file's git log, you'll see the continuous file, and the HTML comments mark where the handoff occurred.
+
+**Do NOT delete and recreate the file** — that breaks git history and makes it hard to trace evolution. Edit in place, update the slug and metadata, and leave a comment.
+
+---
+
+## Cross-context workflows — promotion inbox pattern
+
+How do roles hand off work to each other operationally?
+
+**Mechanism:** `inbox/promotion/` folder + cover note describing what's being promoted and where it should go.
+
+**What gets promoted:**
+- Completed analysis or research (findings, background documentation)
+- Review feedback or quality assessment
+- Voice-edited sections or tone guidance
+- Substance decisions ready for integration
+
+**Who promotes:** the chat that completed the work.
+
+**Who processes:** PM reads the cover note, decides on placement (with writer input if needed), integrates the artifact into the canonical structure, and moves the cover note to `process/history/`.
+
+**Atomic promotion:** one finding or discrete piece of work per promotion request, not a dump of everything. This keeps decisions granular and auditable.
+
+**Example flow:**
+
+1. Analysis chat completes research on a chapter topic
+2. Analysis creates `inbox/promotion/analysis-ch3-framing.md` (cover note)
+3. Analysis drops the research artifact (markdown, image, spreadsheet) in the same folder
+4. PM processes the request: integrates findings into the chapter workspace, updates `project_hub.md` if needed, archives cover note
+5. If findings need substance response, PM creates a task in substance chat
+
+---
+
+## Cross-context workflows — lightweight handoff log pattern
+
+Not all handoffs need full artifact promotion. Some projects prefer a lightweight log.
+
+**Alternative mechanism:** `process/active/handoffs.md` as a timestamped log of inter-role coordination.
+
+**Format:** Simple markdown table with columns: Date | From → To | Work Item | Status
+
+**Example:**
+
+```markdown
+| Date | Flow | Work Item | Status |
+|------|------|-----------|--------|
+| 2026-05-20 | Analysis → Substance | Chapter 3 framing review | Complete |
+| 2026-05-21 | Substance → Voice | Draft ch3 ready for tone pass | In progress |
+| 2026-05-22 | Voice → PM | Tone edits committed, ready to merge | Complete |
+```
+
+**When to use:** Quick coordination, fewer artifacts, or when the team prefers a single handoff log over folder-based promotion.
+
+**Reconciliation uses `inbox/promotion/`** for clear artifact routing. **Authority may prefer `handoffs.md`** for lighter overhead. Your charter can specify which pattern fits your project.
+
+---
+
+## Deferred sections
+
+The following sections depend on Part 3 (role clarification) and Part 7 (implementation):
+
+- § "Substance and Analysis Coordination" — depends on Part 3
+- § "Chat-Managed Workstream Status Blocks" — depends on Drift implementation (Part 7)
+- § "Reader-Bundle Generation Split" — depends on Review skills (Part 7)
+
+These will be added in the next documentation cycle.
+
+---
+
 ## When in doubt
 
 - Operational, mechanical, or hygiene → librarian.

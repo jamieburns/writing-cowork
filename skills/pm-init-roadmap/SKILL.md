@@ -6,6 +6,9 @@ description: >
   creating the writing-cowork roadmap document. Supports two shapes:
   phase-based (the Reconciliation pattern) and now-next-later (lighter,
   for newer projects). Invoked by pm-setup-project; also usable standalone.
+  
+  **Lift Procedure Integration:** Invoked during project setup (stage 2).
+  See ~/code/cowork-tools/lift/README.md for full lift workflow.
 metadata:
   version: "0.1.0"
   role: pm

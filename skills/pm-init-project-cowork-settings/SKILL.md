@@ -9,6 +9,9 @@ description: >
   loads writing-cowork only when operating in this project. Invoked by
   pm-setup-project as part of the initial scaffold; also usable standalone
   for retrofitting onto an existing vault.
+  
+  **Lift Procedure Integration:** Invoked during project setup (stage 1).
+  See ~/code/cowork-tools/lift/README.md for full lift workflow.
 metadata:
   version: "0.1.0"
   role: pm

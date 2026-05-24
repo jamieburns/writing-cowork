@@ -2,17 +2,20 @@
 name: pm-list-tasks
 description: >
   This skill should be used when the user asks to "list tasks",
-  "show my todos", "what tasks are open", or any variant of querying
-  `<vault>/process/active/todos.md` with optional filters.
+  "show my todos", "what tasks are open", "tasks for analysis", or any
+  variant of querying `<vault>/process/active/todos.md` with optional
+  filters (status, milestone, assignee). Supports combined filters.
 metadata:
-  version: "0.1.0"
+  version: "0.1.4"
   role: pm
   subset: mvp-planning
 ---
 
 # pm-list-tasks
 
-Read todos.md, apply optional filters, render as a scannable table.
+Read todos.md, apply optional filters (status, milestone, assignee),
+render as a scannable table. Supports combined filters (e.g.,
+--assignee=analysis --status=pending).
 
 ## Arguments
 
@@ -21,6 +24,8 @@ Read todos.md, apply optional filters, render as a scannable table.
   filter by status.
 - **`--milestone=<name>`** (optional) — filter to tasks linked to a
   specific milestone.
+- **`--assignee=<value>`** (optional) — filter to tasks assigned to a
+  specific role or person (e.g., "analysis", "voice", "pm+writer").
 - **`--vault=<path>`** (optional) — vault root. Default: cwd.
 
 ## Preconditions
@@ -41,10 +46,15 @@ Based on detected schema:
 **If plugin schema:**
 
 1. Parse todos.md table.
-2. Apply filters.
-3. Render as a table: `ID | Status | Description | Milestone | Added`.
+2. Apply filters (status, milestone, assignee). Filters are AND-ed: a task
+   must match ALL supplied filters. Examples:
+   - `--status=planned` — all planned tasks
+   - `--assignee=analysis` — all tasks assigned to analysis
+   - `--assignee=analysis --status=pending` — pending tasks for analysis
+   - `--milestone=phase-2 --assignee=voice` — voice tasks in phase 2
+3. Render as a table: `ID | Status | Description | Milestone | Assignee | Added`.
 4. At the bottom, summary line: total tasks matching filter, plus
-   breakdown by status.
+   breakdown by status (and optionally by assignee if that filter was used).
 
 **If legacy checkbox schema (Reconciliation pattern):**
 
@@ -69,22 +79,25 @@ Based on detected schema:
 ## Output on success
 
 ```
-Tasks in <vault>/process/active/todos.md (filter: <description>):
+Tasks in <vault>/process/active/todos.md (filter: assignee=analysis):
 
-  ID        Status        Description                    Milestone     Added
-  --------  ------------  -----------------------------  ------------  ----------
-  a1b2c3d4  in-progress   Voice pass on §3.5             Phase 2       2026-05-15
-  e5f6g7h8  planned       Reader-review packet draft     Phase 3       2026-05-16
+  ID        Status        Description                    Milestone  Assignee   Added
+  --------  ------------  -----------------------------  ---------  ---------  ----------
+  a1b2c3d4  in-progress   Research methodology           Phase 2    analysis   2026-05-15
+  e5f6g7h8  planned       Analyze competitor approach    Phase 3    analysis   2026-05-16
 
   Showing 2 of 12 total tasks.
-  Status breakdown: planned=1, in-progress=1, done=10 (hidden by filter).
+  Status breakdown: planned=1, in-progress=1.
+  Assignee: analysis.
 ```
 
 ## Output on failure
 
 - `todos.md not found`
 - `invalid filter: <value>`
+- `invalid status filter: <value> (accepted: planned, in-progress, done, all)`
 
 ## Standalone use
 
-Pure read. Useful at session start for "where was I."
+Pure read. Useful at session start for "where was I" or to check who
+has what work assigned.

@@ -95,6 +95,63 @@ The reason for single-writer: prevents drift, keeps tone consistent, gives a cle
 
 ---
 
+## Librarian == PM
+
+In writing-cowork's current model, the PM (project manager) and Librarian (data-management context) are the same role. This isn't accidental — it's by design.
+
+**Why:** both PM and Librarian own the vault's operational hygiene and structure. Splitting them creates artificial handoffs (PM decides scope, Librarian executes) that slow down decision-making without clarity gain. The single PM/Librarian role owns:
+
+- **Project scope, phase structure, task planning** (PM domain)
+- **File placement, organization, naming, versioning** (Librarian domain)
+- **Inbox processing, drift monitoring, role coordination** (both)
+
+One person wearing both hats keeps decisions coherent and fast.
+
+**For legacy projects:** Older Reconciliation charters separated Librarian from PM. If you have that structure and are considering a refresh, the current pattern is PM/Librarian merged. See `for_other_contexts.md` § "Two-Axis Phase Model" for handling multi-phase workflows when roles remain distributed across teams.
+
+---
+
+## Mode boundary enforcement
+
+The PM actively enforces mode boundaries — pushing back when work creeps across role lines. This isn't adversarial; it's protective.
+
+**Pushback scenarios:**
+
+- **Task in wrong bucket:** A task belongs in substance-execution scope, but was written as a process task → PM returns it with "this is substance-scope, not PM-scope. Run it past substance chat."
+- **Delegation-back:** Substance chat asks PM to "decide if this framing is strong enough" → PM says "that's substance-scope, not PM-scope. Make the judgment call with the writer."
+- **Vague task:** A task description is fuzzy about what done looks like → PM says "clarify success criteria before this lands in a sprint."
+
+Each role stays focused on their domain. Pushback is a sign the system is working.
+
+---
+
+## Substance vs. process pushback
+
+Different roles push back on different things. This is healthy and expected.
+
+**Substance chats push back on:**
+- Claim strength, scope, framing, narrative flow, evidence adequacy
+- Terminology consistency, voice/tone alignment
+- Whether an argument supports the conclusion
+
+**Substance chats do NOT push back on:**
+- Task deadlines, process sequencing, which milestone things land in (those are PM concerns)
+- Operational placement or file organization (those are librarian concerns)
+
+**PM pushes back on:**
+- Task clarity, phase boundaries, ownership, cross-role handoff protocol
+- Inbox items routed to the wrong folder or context
+- Drift in file organization or structure
+
+**PM does NOT push back on:**
+- Whether an analytical claim is sound (that's substance)
+- Whether prose tone is right (that's voice/tone advisory)
+- Whether a finding is worth including (that's substance editorial judgment)
+
+Pushback is healthy. It means each role is doing their job and protecting their domain.
+
+---
+
 ## Cross-references
 
 - **Tracking artifacts:** `file_ownership.md`, `file_hierarchy.md`

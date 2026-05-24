@@ -4,9 +4,10 @@ description: >
   This skill should be used when the user asks to "add a task",
   "create a task", "track this work item", or any variant of appending a
   new row to `<vault>/process/active/todos.md`. Generates a short hash
-  task ID per writing-cowork locked decision #9.
+  task ID per writing-cowork locked decision #9. Supports optional assignee
+  field for role-based task ownership (v0.1.4+).
 metadata:
-  version: "0.1.0"
+  version: "0.1.4"
   role: pm
   subset: mvp-planning
 ---
@@ -16,11 +17,16 @@ metadata:
 Append a new task row to `<vault>/process/active/todos.md`. Generates a
 fresh 8-character short hash as the task ID (writing-cowork locked
 decision #9 — task IDs are short hashes, not auto-incrementing integers).
+Supports optional assignee field to link tasks to roles (pm, analysis,
+review, voice, substance, writer, librarian, or custom).
 
 ## Arguments
 
 - **`<description>`** (required) — short task description (one line).
 - **`--milestone=<name>`** (optional) — link to a milestone in roadmap.md.
+- **`--assignee=<value>`** (optional) — role or person owning this task.
+  Validates against role_taxonomy.md if it exists; accepts any string if
+  not (e.g., "pm", "analysis+voice", or custom roles from the project).
 - **`--notes=<text>`** (optional) — additional context for the Notes
   column.
 - **`--vault=<path>`** (optional) — vault root. Default: cwd.
@@ -30,6 +36,9 @@ decision #9 — task IDs are short hashes, not auto-incrementing integers).
 1. Resolve vault root and verify todos.md exists.
 2. If `--milestone=<name>` is supplied, verify the milestone exists in
    roadmap.md. If not, warn but proceed.
+3. If `--assignee=<value>` is supplied, read role_taxonomy.md if it exists
+   and validate that <value> matches a defined role. Warn if not found but
+   proceed (allows custom roles to be created ad-hoc).
 
 ## Execution
 
@@ -40,8 +49,11 @@ decision #9 — task IDs are short hashes, not auto-incrementing integers).
 3. Append a row to the Markdown table in todos.md:
 
    ```
-   | <id> | <description> | <milestone-or-"-"> | planned | <date> | <notes-or-"-"> |
+   | <id> | <description> | <milestone-or-"-"> | <assignee-or-""> | planned | <date> | <notes-or-"-"> |
    ```
+
+   The Assignee column is empty if not supplied; no dash or placeholder
+   is written (Assignee is truly optional).
 
 4. Atomic-write todos.md.
 
@@ -50,6 +62,7 @@ decision #9 — task IDs are short hashes, not auto-incrementing integers).
 ```
 Added task <id>: <description>
   Milestone: <name-or-"unassigned">
+  Assignee: <value-or-"unassigned">
   Status: planned
   Added: <date>
 ```
@@ -58,8 +71,9 @@ Added task <id>: <description>
 
 - `todos.md not found at <vault>/process/active/`
 - `milestone <name> not found in roadmap.md (task added anyway with milestone="<name>")`
+- `assignee <value> not found in role_taxonomy.md (custom role allowed; task added)`
 - `permission denied writing to todos.md`
 
 ## Standalone use
 
-Same preconditions.
+Same preconditions. Useful for ad-hoc task creation without invoking the full skill system.
