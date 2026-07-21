@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "install the handoff doc",
   "create the project handoff file", "add a handoff.md to the vault", or any
   variant of placing the writing-cowork handoff template at the vault root.
-  Copies 0_Product/templates/handoff.md into the vault, substituting project-specific
+  Copies templates/handoff.md into the vault, substituting project-specific
   placeholders. Invoked by pm-setup-project; also usable standalone.
 metadata:
   version: "0.1.0"
@@ -14,7 +14,7 @@ metadata:
 
 # pm-install-handoff
 
-Copy `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/handoff.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` from the plugin to
 `<vault>/process/data_management/handoff.md`, substituting standard
 placeholders. Placement is `process/data_management/` (not vault root) per
 the convention that keeps vault root reserved for substantive writing
@@ -38,11 +38,11 @@ fill in project specifics over time.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/handoff.md` does NOT
    already exist.
-4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/handoff.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` exists.
 
 ## Execution
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/handoff.md` from the plugin's templates directory.
+1. Read `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md` from the plugin's templates directory.
 2. Substitute `{{name}}`, `{{title}}`, `{{date_iso}}`, `{{vault_path}}`.
 3. Atomic-write to `<vault-path>/process/data_management/handoff.md`.
 
@@ -56,7 +56,7 @@ Installed handoff.md at <vault-path>/process/data_management/handoff.md
 
 - `data_management directory missing; run pm-init-vault first`
 - `handoff.md already exists at <vault>/process/data_management/handoff.md; remove it first or skip this step`
-- `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/handoff.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/handoff.md not found in plugin install`
 - `permission denied writing to <vault-path>/process/data_management/`
 
 ## Standalone use

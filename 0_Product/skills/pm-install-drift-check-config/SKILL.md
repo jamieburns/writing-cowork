@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "install the drift check
   config", "set up drift_check.yaml", "configure drift detection for this
   vault", or any variant of placing the project-specific drift_check
-  configuration. Copies 0_Product/templates/drift_check.yaml into the vault's
+  configuration. Copies templates/drift_check.yaml into the vault's
   process/data_management/ directory, substituting project-specific values.
   Invoked by pm-setup-project; also usable standalone.
 metadata:
@@ -34,11 +34,11 @@ this project.
 2. Verify `<vault-path>/process/data_management/` exists.
 3. Verify `<vault-path>/process/data_management/drift_check.yaml` does NOT
    already exist.
-4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/drift_check.yaml` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/drift_check.yaml` exists.
 
 ## Execution
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/drift_check.yaml` from the plugin.
+1. Read `${CLAUDE_PLUGIN_ROOT}/templates/drift_check.yaml` from the plugin.
 2. Substitute placeholders:
    - `{{name}}` → `<name>` arg
    - `{{title}}` → resolved title (used as `project_name:` value)
@@ -64,7 +64,7 @@ Installed drift_check.yaml at <vault-path>/process/data_management/drift_check.y
 
 - `drift_check.yaml already exists at <path>; remove it first or skip this step`
 - `data_management directory missing; run pm-init-vault first`
-- `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/drift_check.yaml not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/drift_check.yaml not found in plugin install`
 
 ## Standalone use
 

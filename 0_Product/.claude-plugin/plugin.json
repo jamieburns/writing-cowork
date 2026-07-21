@@ -1,0 +1,17 @@
+{
+  "name": "writing-cowork",
+  "version": "0.1.15",
+  "description": "Multi-role cowork pattern (PM, substance, voice/tone, review) for long-form writing projects. Skills install scaffolds, manage drift, run reviews, and coordinate role handoffs across a project's git-tracked vault. **v0.1.15:** Plugin root moved to 0_Product/ (skills/, templates/, .claude-plugin/ now live together there) -- no skill behavior changes.",
+  "author": {
+    "name": "Jamie Burns"
+  },
+  "keywords": [
+    "writing",
+    "cowork",
+    "obsidian",
+    "drift-check",
+    "long-form",
+    "assignee",
+    "task-ownership"
+  ]
+}

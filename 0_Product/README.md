@@ -1,20 +1,16 @@
 # 0_Product
 
-What this project ships.
+What this project ships. This directory is the actual Claude Code plugin root.
 
-**Physically inside this folder:**
-
-- `templates/` — scaffold templates skills copy into new vaults. Moved here 2026-07-21; all 12 referencing skills updated to `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/...`.
-- `Documents/` — reference/output documents for the product itself (as distinct from process or development docs — see the sibling `Documents/` folders under `1_Project/` and `2_Development/`).
-
-**Physically at repo root, not here — cannot move:**
-
-- `skills/` — the 60 (and counting) skills that make up the plugin
 - `.claude-plugin/plugin.json` — the plugin manifest
-- `.claude/settings.json` — this dev repo's own Cowork project settings
+- `skills/` — the 60 (and counting) skills that make up the plugin
+- `templates/` — scaffold templates skills copy into new vaults
+- `Documents/` — reference/output documents for the product itself
 
-Claude Code's plugin loader requires `skills/`, `commands/`, `agents/`, `hooks/`, `.mcp.json`, `.lsp.json`, `monitors/`, `bin/`, and `settings.json` to live at the **plugin root** — this is not configurable via `plugin.json`. Nesting them under a subfolder breaks the plugin for both Claude Code and Cowork. `templates/` had no such constraint (not a reserved plugin directory name), so it moved; `skills/` and `.claude-plugin/` do and stay put.
+**How this works:** `cowork-plugins-marketplace`'s catalog entry for `writing-cowork` uses a `git-subdir` source pointing at this subdirectory (`path: "0_Product"`), so Claude Code's plugin loader treats this folder — not the repo root — as the plugin root. `${CLAUDE_PLUGIN_ROOT}` in any skill resolves to this directory.
 
-**Removed 2026-07-21:** `docs/` (was empty) and `lift/README.md` (the staged vault-setup procedure) — Jamie cleaned these up directly; the next development pass will capture a new lift process from scratch rather than carry the old one forward.
+`.claude/settings.json` at the repo root is unrelated to this — that's this *dev repo's own* Cowork project setting (enabling writing-cowork while working in this repo), not part of the shipped plugin.
 
-**Decision recorded:** 2026-07-21, during the housekeeping/reorg pass. See `1_Project/Decisions.md`.
+**Verification status:** restructured 2026-07-21 (v0.1.15). Tested via Claude Code CLI's marketplace-update cycle before any Cowork-side refresh was attempted — see `1_Project/Decisions.md` for the result.
+
+**Removed 2026-07-21 (earlier housekeeping pass):** `docs/` (was empty) and `lift/README.md` — Jamie's own intentional cleanup; a new lift process will be written from scratch in a future development pass.

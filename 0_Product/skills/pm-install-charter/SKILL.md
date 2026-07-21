@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "install the charter",
   "create the project charter", "add a charter file to the vault", or any
   variant of placing the writing-cowork charter template at the vault root.
-  Copies 0_Product/templates/charter.md into the vault, substituting project-specific
+  Copies templates/charter.md into the vault, substituting project-specific
   placeholders. Invoked by pm-setup-project; also usable standalone.
 metadata:
   version: "0.1.0"
@@ -14,7 +14,7 @@ metadata:
 
 # pm-install-charter
 
-Copy `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/charter.md` from the plugin to
+Copy `${CLAUDE_PLUGIN_ROOT}/templates/charter.md` from the plugin to
 `<vault>/process/data_management/charter.md`, substituting standard
 placeholders. Placement is `process/data_management/` (not vault root) to
 keep substantive writing artifacts visible at the root and group all
@@ -38,11 +38,11 @@ process/PM documents together.
 3. Verify `<vault-path>/process/data_management/charter.md` does NOT
    already exist. If it does, abort with `charter.md already exists at
    <expected path>; remove it first or skip this step`.
-4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/charter.md` exists and is readable.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/charter.md` exists and is readable.
 
 ## Execution
 
-1. Read `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/charter.md` from the plugin's templates directory.
+1. Read `${CLAUDE_PLUGIN_ROOT}/templates/charter.md` from the plugin's templates directory.
 2. Substitute these placeholders in the content:
    - `{{name}}` → `<name>` arg
    - `{{title}}` → resolved title
@@ -65,7 +65,7 @@ Specific error plus the most likely fix. Examples:
 
 - `data_management directory missing; run pm-init-vault first`
 - `charter.md already exists at <vault>/process/data_management/charter.md; remove it first or skip this step`
-- `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/charter.md not found in plugin install (plugin may be corrupted; reinstall)`
+- `${CLAUDE_PLUGIN_ROOT}/templates/charter.md not found in plugin install (plugin may be corrupted; reinstall)`
 - `permission denied writing to <vault-path>/process/data_management/`
 
 Do not partial-write. If the atomic-write `mv` fails, the `.tmp` file is left

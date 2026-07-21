@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "initialize voice handoff",
   "install the voice handoff doc", "create voice_handoff.md", or any variant
   of placing the writing-cowork voice/tone briefing document into a new
-  vault. Copies 0_Product/templates/voice_handoff.md into the vault's
+  vault. Copies templates/voice_handoff.md into the vault's
   process/active/ directory, substituting placeholders. Invoked by
   pm-setup-project; also usable standalone.
   
@@ -39,7 +39,7 @@ first voice pass.
 2. Verify `<vault-path>/process/active/` exists (pm-init-vault created it).
 3. Verify `<vault-path>/process/active/voice_handoff.md` does NOT already
    exist.
-4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/voice_handoff.md` exists.
+4. Verify the plugin's `${CLAUDE_PLUGIN_ROOT}/templates/voice_handoff.md` exists.
 
 ## Execution
 
@@ -57,7 +57,7 @@ Installed voice_handoff.md at <vault-path>/process/active/voice_handoff.md
 
 - `process/active directory missing; run pm-init-vault first`
 - `voice_handoff.md already exists at <path>; remove it first or skip this step`
-- `${CLAUDE_PLUGIN_ROOT}/0_Product/templates/voice_handoff.md not found in plugin install`
+- `${CLAUDE_PLUGIN_ROOT}/templates/voice_handoff.md not found in plugin install`
 
 ## Standalone use
 
