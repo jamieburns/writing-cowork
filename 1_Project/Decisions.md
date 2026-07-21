@@ -11,7 +11,9 @@ When a decision changes, update the row here; don't append a new one. The old va
 | Topic | Current decision |
 |---|---|
 | Sync capability | Not delivered, never will be from this plugin. Discipline is Obsidian + iCloud across Mac/phone/tablet, managed outside Cowork. See `1_Project/Memory/feedback_no_sync_capability.md`. |
-| `0_Product` folder | Pointer/README only — cannot physically contain `skills/`, `.claude-plugin/`, etc. (Claude Code plugin-loader constraint: those must stay at repo root). |
+| `0_Product` folder | `templates/` lives here (moved 2026-07-21). `skills/` and `.claude-plugin/` stay at repo root **for now** — see "Full 0_Product consolidation" below for why this could change later. |
+| `docs/`, `lift/` | Removed by Jamie 2026-07-21 (intentional cleanup, not a bug — I initially misread this and wrongly restored them, then corrected). Next development pass will write a new lift process from scratch. |
+| `10_DeveloperSpace/` | Jamie's personal notes-to-self space. Git-managed (tracked, not gitignored) but excluded from Claude's reads via `.claudeignore` (which IS tracked in git — only the folder's contents are hidden, not the exclusion mechanism itself). |
 | Reorg scope | This dev repo only. Does NOT change what `pm-init-vault`/`pm-setup-project` scaffold for new end-user writing projects. |
 | Memory management | All memories live as visible files in `1_Project/Memory/`, not in hidden session-managed storage. No new memory files outside this location without explicit user consent. |
 
@@ -29,6 +31,27 @@ When a decision changes, update the row here; don't append a new one. The old va
 | Staleness threshold | Global 14-day default, per-project override. Ship status unverified. |
 | Assignee sourcing | Read role taxonomy from `charter.md`. **Shipped in v0.1.14.** |
 | Assignee kanban grouping | `--by=assignee` as an alternative mode, not always-on column. **Shipped in v0.1.14.** |
+
+## Full 0_Product consolidation — researched, held off (2026-07-21)
+
+Jamie's actual goal for `0_Product`: the whole shipped plugin (`.claude-plugin/`, `skills/`, `templates/`) living together there, kept pristine and separate from dev notes — not just a pointer/README. `templates/` achieves this already. `skills/`/`.claude-plugin/` can't move to a subfolder of *this repo* under the plugin loader's default assumption (plugin root = wherever `.claude-plugin/plugin.json` lives = repo root, for a normal install) — **but there is a real mechanism that would make it possible:**
+
+Claude Code's marketplace schema supports a `git-subdir` source type:
+```json
+"source": {
+  "source": "git-subdir",
+  "url": "jamieburns/writing-cowork",
+  "path": "0_Product",
+  "ref": "main"
+}
+```
+This makes the *subdirectory* the effective plugin root for install purposes — via a sparse partial clone. If `cowork-plugins-marketplace`'s catalog entry for `writing-cowork` used this instead of the current `github`+`repo` source, `0_Product/` could genuinely contain the entire plugin (`.claude-plugin/`, `skills/`, `templates/`) with dev/process/roadmap content fully separated in `1_Project/`/`2_Development/`.
+
+**Why held off:** two blockers, both about doing this safely rather than about whether it's possible.
+1. Docs describe `git-subdir` specifically for Claude Code CLI. Given Cowork's marketplace/plugin system has repeatedly diverged from documented CLI behavior (stale-cache bug, ignored `extraKnownMarketplaces`, undocumented validation failures — see `2_Development/RoadMap/Roadmap.md`), Cowork support for `git-subdir` is **unverified**. If unsupported, the next Cowork-side refresh could break the plugin you use daily until manually rolled back.
+2. This requires a coordinated change across two repos (`writing-cowork` + `cowork-plugins-marketplace`) landing together — moving one without the other breaks the next `claude plugin update` immediately. Session access to `cowork-plugins-marketplace` wasn't granted this pass.
+
+**To revisit:** grant folder access to `cowork-plugins-marketplace`, or make the marketplace.json edit yourself using the snippet above (adjust `path` if `.claude-plugin` and `skills` haven't actually moved into `0_Product` yet — do that move in `writing-cowork` first, then the marketplace edit, then test via `claude plugin marketplace update` + `claude plugin update` in Claude Code CLI *before* attempting any Cowork-side refresh).
 
 ## Resolved during reorg (2026-07-21)
 
