@@ -32,7 +32,15 @@ When a decision changes, update the row here; don't append a new one. The old va
 | Assignee sourcing | Read role taxonomy from `charter.md`. **Shipped in v0.1.14.** |
 | Assignee kanban grouping | `--by=assignee` as an alternative mode, not always-on column. **Shipped in v0.1.14.** |
 
-## Full 0_Product consolidation — researched, held off (2026-07-21)
+## Full 0_Product consolidation — DONE for Claude Code CLI, Cowork not yet tested (2026-07-21)
+
+Executed: `writing-cowork` restructured to v0.1.15 (`.claude-plugin/`, `skills/`, `templates/` all under `0_Product/`, commit `d524b90`), `cowork-plugins-marketplace` updated to catalog `1.0.10` with a `git-subdir` source pointing at `path: "0_Product"` (commit `30a73a5`). Both pushed to GitHub.
+
+**Verified via Claude Code CLI:** `claude plugin marketplace update jamie-cowork-plugins` + `claude plugin update writing-cowork@jamie-cowork-plugins` reported success, jumping straight to 0.1.15. Confirmed by inspecting the actual cache directly (not just trusting the CLI's success message): `~/.claude/plugins/cache/jamie-cowork-plugins/writing-cowork/0.1.15/` has `.claude-plugin/`, `skills/` (60 skills), `templates/`, `Documents/`, `README.md` directly at its root — the sparse git-subdir checkout correctly flattened `0_Product/`'s contents, no nested wrapper. `plugin.json` reads back correctly. This resolves the open question about whether `git-subdir` actually works.
+
+**Not yet done: Cowork side.** Per the agreed plan, Cowork's install hasn't been touched. Next step, when ready: the marketplace-level uninstall/reinstall procedure (`1_Project/Process/dev-workflow-and-release.md`), then verify with `pm-version`. If Cowork's installer doesn't support `git-subdir` the way Claude Code CLI's does, this is where it would surface — have the rollback plan ready first (revert the marketplace source back to plain `github`+`repo` pointing at the old repo-root layout, which still exists in git history at commit `c6fbc9e` if needed, though `writing-cowork` itself would also need reverting since `0.1.14`'s repo-root layout no longer exists on `main`).
+
+## Historical: original research before execution (2026-07-21, superseded by the above)
 
 Jamie's actual goal for `0_Product`: the whole shipped plugin (`.claude-plugin/`, `skills/`, `templates/`) living together there, kept pristine and separate from dev notes — not just a pointer/README. `templates/` achieves this already. `skills/`/`.claude-plugin/` can't move to a subfolder of *this repo* under the plugin loader's default assumption (plugin root = wherever `.claude-plugin/plugin.json` lives = repo root, for a normal install) — **but there is a real mechanism that would make it possible:**
 
