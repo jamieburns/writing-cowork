@@ -61,7 +61,7 @@ Then create the following structure, creating intermediate directories as needed
 │       ├── .gitkeep
 │       └── drift_reports/.gitkeep
 └── inbox/
-    ├── README.md                      # copied from templates/inbox_README.md
+    ├── README.md                      # copied from 0_Product/templates/inbox_README.md
     ├── promotion/.gitkeep
     ├── hub-updates/.gitkeep
     └── issues/.gitkeep
@@ -72,7 +72,7 @@ clean file state and avoids encoding surprises.
 
 `.gitkeep` files are empty. They exist solely to make git track otherwise
 empty directories. The `inbox/README.md` (copied verbatim from
-`${CLAUDE_PLUGIN_ROOT}/templates/inbox_README.md`) documents the two
+`${CLAUDE_PLUGIN_ROOT}/0_Product/templates/inbox_README.md`) documents the two
 shipped subdirectories so specialists reading the directory know the
 conventions.
 
