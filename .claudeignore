@@ -1,0 +1,5 @@
+# Directories and files to "hide" from Claude
+
+# Set aside place for user notes
+10_DeveloperSpace/*
+
