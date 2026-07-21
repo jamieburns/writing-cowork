@@ -24,3 +24,6 @@ __pycache__/
 
 # Accidental Obsidian vault that got created inside the dev repo on 2026-05-19
 WritingPlugin/
+
+# Personal notes-to-self space, kept out of git and out of Claude's view (see .claudeignore)
+10_DeveloperSpace/
