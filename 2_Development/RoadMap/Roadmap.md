@@ -7,15 +7,26 @@ High-level phase/version summary. Full detail for each version lives in its own 
 | v0.1.1 – v0.1.9 | Shipped | Foundation, Planning (Subset 2), Voice/tone (Subset 3), refresh-workaround skill, MVP validated |
 | v0.1.10 – v0.1.11 | Shipped | Dev-workflow hardening (Claude Code CLI as the dev environment), pm-refresh rewritten as a documented consumer-side workaround |
 | v0.1.12 – v0.1.13 | Shipped | `inbox/README.md` scaffold, `inbox/issues/` convention + `pm-create-issue-report` + `pm-escalate-issue` (GitHub routing) |
-| v0.1.14 | **Status unclear — see below** | Assignee column (6 skills + role_taxonomy template) committed. Review Skills (Subset 4, 13 skills) and Drift Enhancements were locked in `DECISIONS_v014.md` but not obviously committed. |
-| v0.1.15+ | Not started | `review-prep-reader-bundle`'s PM-side packaging counterpart (deferred from v0.1.14 decision) |
+| **v0.1.14** | **Shipped, released, in successful daily use for 2 months (confirmed 2026-07-21)** | Assignee column (6 skills + role_taxonomy template). `pm-version`'s marker was stale at v0.1.13 pointing to this exact version — fixed 2026-07-21. |
+| v0.1.15+ | Not started | See "Carried-over decisions" below |
 
-## ⚠️ v0.1.14 needs a status check
+## Carried-over decisions from `DECISIONS_v014.md` — not yet shipped
 
-`plugin.json` says `0.1.14`. The only v0.1.14-labeled commit in git history is `c6fbc9e [v014] Assignee column`. `DECISIONS_v014.md` locked decisions for Review Skills and Drift Enhancements too — unclear if those were implemented, abandoned, or are still in flight. `pm-version`'s marker still says v0.1.13, which is itself evidence the release checklist wasn't completed. **First task of the next dev session: figure out what's actually true about v0.1.14 before doing anything else.**
+`DECISIONS_v014.md` locked three workstreams for v0.1.14: Assignee Column, Review Skills (Subset 4, 13 skills), and Drift Enhancements. Only Assignee Column shipped — confirmed by skill listing: no `review-*` or `cycle-*` skills exist anywhere in the current 60 skills (only the pre-existing `pm-init-reader-review-tracking` and `pm-schedule-review`). Drift Enhancements' status wasn't independently re-verified in this pass (they may be embedded as code changes to `pm-run-drift-check`/`drift_check.py` rather than new skill names, which wouldn't show up in a skill-name check).
 
-## Legacy / carried-over work items
+These are open, not urgent — pick up whenever you're ready to resume feature work:
 
-- Subset 4 (Review, 13 skills per the locked v0.1.14 decision)
-- Subset 5 (Substance, 3 skills — mentioned in earlier project notes, not detailed in any current design doc found during this reorg — worth confirming this is still wanted)
-- Phase 9 (legacy `todos.md` migration to vault) — no `todos.md` was found in this repo during the reorg; if this refers to something in a different (end-user) vault, track it there instead
+- Review Skills (Subset 4, 13 skills per the locked decision) — full scope in `2_Development/RoadMap/v0.1.14/ASSESSMENT_REVIEW_SKILLS_v014.md`
+- Drift Enhancements (cross-phase dependency detection, status-staleness timestamps, `.gitkeep` inflation fix) — full scope in `2_Development/RoadMap/v0.1.14/ASSESSMENT_DRIFT_ENHANCEMENTS_v014.md`. Worth a quick check of `pm-run-drift-check`/`drift_check.py` before assuming this is unshipped.
+
+## Deferred, being handled separately (per user, 2026-07-21)
+
+- Subset 5 (Substance, 3 skills) — user will clean this up separately, not part of this housekeeping pass.
+
+## Anthropic support thread 215474352137566
+
+Filed via support.claude.com's contact form (private, account-tied — no MCP/API access to check status). **Needs Jamie to check directly** — no automated way to verify whether it's been answered. Full original correspondence: `1_Project/History/_anthropic_feedback_2026-05-18.md` and `_anthropic_reply_2026-05-18.md`.
+
+## Legacy / uncertain work items
+
+- Phase 9 (legacy `todos.md` migration to vault) — no `todos.md` was found in this repo during the reorg; if this refers to something in a different (end-user) vault, track it there instead.
