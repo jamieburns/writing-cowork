@@ -11,7 +11,7 @@ Where-am-I document. Brief context, navigation, current work threads, recent com
 <!-- DRIFT-ATTENTION-START -->
 **Clean** — drift check not yet run for this project.
 
-The drift-check tool (`~/code/cowork-tools/drift_check.py`) will populate this block when first invoked. While the block reads "Clean", there are no outstanding integrity issues — or no drift check has run yet.
+The drift-check tool (bundled with the writing-cowork plugin, `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py`) will populate this block when first invoked. While the block reads "Clean", there are no outstanding integrity issues — or no drift check has run yet.
 <!-- DRIFT-ATTENTION-END -->
 
 ---

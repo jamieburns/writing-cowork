@@ -1,7 +1,7 @@
 # Per-project drift_check.yaml — {{title}}
 #
 # Lives at {{vault_path}}/process/data_management/drift_check.yaml
-# Loaded by ~/code/cowork-tools/drift_check.py via the registry or --config.
+# Loaded by ${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py (bundled with the writing-cowork plugin) via the registry or --config.
 #
 # Generated {{date_iso}} by pm-install-drift-check-config (writing-cowork plugin).
 

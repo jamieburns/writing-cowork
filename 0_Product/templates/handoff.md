@@ -36,7 +36,7 @@ Reference docs as needed: `claim_dispute_protocol.md`, `tagging_conventions.md`.
 
 ### Active automation
 
-- **Drift check** — `~/code/cowork-tools/drift_check.py` runs against this project's `process/data_management/drift_check.yaml` on the shared schedule (per machine's launchd / cron). Output: Attention block at top of `project_hub.md`, footer in `file_ownership.md`. Detailed report on drift only: `drift_reports/<date>.md` (gitignored).
+- **Drift check** — `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py` (bundled with the writing-cowork plugin) runs against this project's `process/data_management/drift_check.yaml` on the shared schedule (per machine's launchd / cron). Output: Attention block at top of `project_hub.md`, footer in `file_ownership.md`. Detailed report on drift only: `drift_reports/<date>T<time>.md` (gitignored).
 
 ### Ownership default
 
@@ -50,7 +50,7 @@ Reference docs as needed: `claim_dispute_protocol.md`, `tagging_conventions.md`.
 
 | Tool | What it does | Where |
 |------|---|-------|
-| `drift_check.py` | Inventory / xref / build-freshness / inbox check | `~/code/cowork-tools/drift_check.py` (shared) |
+| `drift_check.py` | Inventory / xref / build-freshness / inbox check | `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py` (bundled) |
 | osascript MCP | Executes shell commands on writer's Mac (git, builds, file moves) | Loaded via ToolSearch |
 | Build pipeline | (populated when a build pipeline is established) | (path) |
 
