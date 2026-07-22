@@ -2,7 +2,7 @@
 name: pm-version
 description: >
   Report the loaded writing-cowork plugin version plus a few content
-  sentinels for refresh verification. **EXPECTED VERSION: v0.1.15** —
+  sentinels for refresh verification. **EXPECTED VERSION: v0.1.16** —
   this string appears in the description so you can verify the loaded
   version at a glance in the system-reminder skill listing without
   running anything. Use when the user asks "what version", "show plugin
@@ -11,7 +11,7 @@ description: >
   MAINTENANCE: bump the EXPECTED VERSION string in this description
   every time `plugin.json` version is bumped (release-process step).
 metadata:
-  version: "0.1.1"
+  version: "0.1.2"
   role: pm
   subset: utility
   temporary: true
@@ -47,7 +47,12 @@ Read these from the plugin root:
    `version` field.
 2. `${CLAUDE_PLUGIN_ROOT}/skills/` — count directories that contain a
    `SKILL.md`.
-3. Sentinels (markers that flip across versions):
+3. `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py` — extract
+   `DRIFT_CHECK_VERSION` (grep for the constant assignment near the top
+   of the file). Report `not present` if the file or constant is
+   missing (indicates a pre-v0.1.16 plugin build, or an incomplete
+   install).
+4. Sentinels (markers that flip across versions):
    - **pm-show-kanban default `--by`** — read
      `${CLAUDE_PLUGIN_ROOT}/skills/pm-show-kanban/SKILL.md` and grep for
      the `--by=` argument's `default` value (should be `milestone` in
@@ -58,30 +63,45 @@ Read these from the plugin root:
      pm-show-kanban SKILL.md (v0.1.8 layout).
    - **pm-version skill present** — trivially yes if this skill is
      running, but worth noting (v0.1.9+).
+   - **tools/drift_check.py present** — bundled drift-check
+     incorporation (v0.1.16+). Absent in older plugin versions, which
+     relied on an external `~/code/cowork-tools/drift_check.py` instead.
+   - **pm-sync-project-to-plugin present, pm-migrate-to-shared-tool
+     absent** — the migrate skill was replaced by the more general
+     sync skill in v0.1.16. If both are present, or neither, flag it —
+     that's an inconsistent intermediate state, not a clean version.
 
 ## Output template
 
 ```
 writing-cowork plugin version report
-  plugin.json version:           <X.Y.Z>
-  skill count (SKILL.md files):  <N>
-  pm-show-kanban default --by:   <status | milestone>
-  voice-* skills present:        <yes | no>
-  kanban uses dataviewjs:        <yes | no>
-  pm-version skill present:      yes
+  plugin.json version:               <X.Y.Z>
+  skill count (SKILL.md files):      <N>
+  drift_check.py version (bundled):  <X.Y.Z | not present>
+  pm-show-kanban default --by:       <status | milestone>
+  voice-* skills present:            <yes | no>
+  kanban uses dataviewjs:            <yes | no>
+  pm-version skill present:          yes
+  tools/drift_check.py present:      <yes | no>
+  pm-sync-project-to-plugin present: <yes | no>
+  pm-migrate-to-shared-tool present: <yes | no>
 
-Expected for v0.1.15:
-  version=0.1.15
-  skill count >= 60
+Expected for v0.1.16:
+  version=0.1.16
+  skill count = 60
+  drift_check.py version >= 0.2.0
   default --by = milestone
   voice-* yes
   dataviewjs yes
   pm-version yes
+  tools/drift_check.py yes
+  pm-sync-project-to-plugin yes
+  pm-migrate-to-shared-tool no
 
 Status: <MATCH | STALE — refresh did not land | NEWER (sentinel out of date — bump pm-version description)>
 ```
 
-Compare `version` from plugin.json against the expected v0.1.15 baked
+Compare `version` from plugin.json against the expected v0.1.16 baked
 into this skill description:
 
 - exact match AND all sentinels match expected row → `MATCH`
