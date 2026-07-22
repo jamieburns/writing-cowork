@@ -2,7 +2,7 @@
 name: pm-version
 description: >
   Report the loaded writing-cowork plugin version plus a few content
-  sentinels for refresh verification. **EXPECTED VERSION: v0.1.16** —
+  sentinels for refresh verification. **EXPECTED VERSION: v0.1.15** —
   this string appears in the description so you can verify the loaded
   version at a glance in the system-reminder skill listing without
   running anything. Use when the user asks "what version", "show plugin
@@ -50,7 +50,7 @@ Read these from the plugin root:
 3. `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py` — extract
    `DRIFT_CHECK_VERSION` (grep for the constant assignment near the top
    of the file). Report `not present` if the file or constant is
-   missing (indicates a pre-v0.1.16 plugin build, or an incomplete
+   missing (indicates a pre-v0.1.15 plugin build, or an incomplete
    install).
 4. Sentinels (markers that flip across versions):
    - **pm-show-kanban default `--by`** — read
@@ -64,11 +64,11 @@ Read these from the plugin root:
    - **pm-version skill present** — trivially yes if this skill is
      running, but worth noting (v0.1.9+).
    - **tools/drift_check.py present** — bundled drift-check
-     incorporation (v0.1.16+). Absent in older plugin versions, which
+     incorporation (v0.1.15+). Absent in older plugin versions, which
      relied on an external `~/code/cowork-tools/drift_check.py` instead.
    - **pm-sync-project-to-plugin present, pm-migrate-to-shared-tool
      absent** — the migrate skill was replaced by the more general
-     sync skill in v0.1.16. If both are present, or neither, flag it —
+     sync skill in v0.1.15. If both are present, or neither, flag it —
      that's an inconsistent intermediate state, not a clean version.
 
 ## Output template
@@ -86,8 +86,8 @@ writing-cowork plugin version report
   pm-sync-project-to-plugin present: <yes | no>
   pm-migrate-to-shared-tool present: <yes | no>
 
-Expected for v0.1.16:
-  version=0.1.16
+Expected for v0.1.15:
+  version=0.1.15
   skill count = 60
   drift_check.py version >= 0.2.0
   default --by = milestone
@@ -101,7 +101,7 @@ Expected for v0.1.16:
 Status: <MATCH | STALE — refresh did not land | NEWER (sentinel out of date — bump pm-version description)>
 ```
 
-Compare `version` from plugin.json against the expected v0.1.16 baked
+Compare `version` from plugin.json against the expected v0.1.15 baked
 into this skill description:
 
 - exact match AND all sentinels match expected row → `MATCH`
