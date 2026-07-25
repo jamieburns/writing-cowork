@@ -28,7 +28,7 @@ substantive wording stays for `voice-recommend-wording` (separate skill).
 
 - **`<scope>`** (required) — vault-relative path to the file, directory,
   or glob to scan. Examples: `part1_draft.md`,
-  `process/active/voice_handoff.md`, `analysis/*.md`.
+  `process/active/voice_handoff.md`, `research_and_analysis/*.md`.
 - **`--ignore-exceptions`** (optional, flag) — skip the
   `voice_exceptions.md` consultation step. Default: respect exceptions.
 - **`--strict`** (optional, flag) — also catch hyphenation drift. Off by

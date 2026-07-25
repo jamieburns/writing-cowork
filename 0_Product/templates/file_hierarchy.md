@@ -8,7 +8,7 @@ Navigational map of the project. Layout, structure, and "where to find X" guidan
 
 ## Layout
 
-Starter layout produced by `pm-setup-project` on {{date_iso}}. Substantive folders (`analysis/`, `background/`, `graphics/`, `subprojects/`, etc.) are added organically by the writer as the project develops.
+Starter layout produced by `pm-setup-project` on {{date_iso}}. Substantive folders (`research_and_analysis/`, `resources/`, `background/`, `graphics/`, `subprojects/`, `production/`, etc.) are added organically by the writer as the project develops.
 
 ```
 {{title}}/
@@ -42,11 +42,12 @@ Starter layout produced by `pm-setup-project` on {{date_iso}}. Substantive folde
 
 Folders added by the writer as the project matures:
 
-- `analysis/` — analytical working artifacts (per-step / per-section)
+- `research_and_analysis/` — analytical working artifacts (per-step / per-section)
+- `resources/` — read-only reference material, cached with provenance (see the resources & citation ledger convention below)
 - `background/` — background, history, source lists
 - `graphics/` — rendered deliverable graphics
 - `subprojects/` — multi-track work (e.g., cover, separate deliverables)
-- Project-specific build/output directories (e.g., `BookDeliverables/`)
+- `production/` — final-deliverable build/output directory (epub, print PDF, Word, etc.). Standard name going forward; full production-pipeline tooling is separately planned (see `Next Version Goals.md`) — this folder convention lands ahead of that tooling.
 
 ---
 
@@ -75,3 +76,4 @@ Additional rows added by the writer as project structure develops (e.g., "Brief 
 - ISO date format (`YYYY-MM-DD`) throughout.
 - **Scratch convention.** Any filename prefixed with `_`, any `_scratch/` or `scratch/` folder at any depth, or any `.scratch.md` file — ignored by drift checks and gitignored.
 - **Attention block convention (`project_hub.md` § Attention).** Tools may post status into the hub's Attention section by writing their own HTML-comment-delimited block, e.g., `<!-- TOOL-NAME-START --> ... <!-- TOOL-NAME-END -->`. The tool owns its block — auto-rewrites it on each run and clears to a benign state when its condition resolves. Reference implementation: `drift_check.py` (`<!-- DRIFT-ATTENTION-START/END -->`).
+- **Folder-naming consistency across projects.** `research_and_analysis/` and `production/` are the standard names — cross-project consistency is a deliberate design goal of this plugin, not a per-vault style choice. Vaults on the older `analysis/` naming (or ad hoc `BookDeliverables/`-style output folders) are expected to migrate onto the standard names via `pm-sync-project-to-plugin --target=layout`, not to keep the old names indefinitely. That case tags a rollback point (`pm-tag-snapshot`) before moving anything, runs with the vault owner concurrent (not unattended), and rewrites internal cross-references it can find — see the skill's own docs for what it catches automatically vs. what needs manual follow-up. Git history remains the safety net for anything the automated rewrite misses.

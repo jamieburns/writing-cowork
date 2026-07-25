@@ -21,9 +21,9 @@ metadata:
 
 Create the standard writing-cowork directory skeleton at the supplied vault
 path. Pure filesystem work — no git, no network. The skeleton is process
-infrastructure only; substantive folders (`analysis/`, `graphics/`,
-`subprojects/`, etc.) are created organically by the writer later and are
-not part of the skeleton.
+infrastructure only; substantive folders (`research_and_analysis/`,
+`resources/`, `graphics/`, `production/`, `subprojects/`, etc.) are created
+organically by the writer later and are not part of the skeleton.
 
 ## Arguments
 

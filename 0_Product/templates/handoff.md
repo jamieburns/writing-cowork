@@ -27,7 +27,7 @@ Reference docs as needed: `claim_dispute_protocol.md`, `tagging_conventions.md`.
 
 - Vault scaffolded {{date_iso}} via `pm-setup-project` (writing-cowork plugin v0.1).
 - Source of truth: `{{vault_path}}`
-- Substantive folders (`analysis/`, `background/`, `graphics/`, `subprojects/`, etc.) created organically by the writer as the project develops.
+- Substantive folders (`research_and_analysis/`, `resources/`, `background/`, `graphics/`, `production/`, `subprojects/`, etc.) created organically by the writer as the project develops.
 
 ### Git / GitHub
 

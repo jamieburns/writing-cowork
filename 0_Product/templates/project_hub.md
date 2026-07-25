@@ -36,7 +36,7 @@ The drift-check tool (bundled with the writing-cowork plugin, `${CLAUDE_PLUGIN_R
 | `process/active/voice_handoff.md` | Voice/tone briefing |
 | `inbox/promotion/` | Inbound material staging |
 
-Additional rows added by the librarian as substantive folders are created (e.g., `analysis/`, `background/`, `graphics/`, subprojects).
+Additional rows added by the librarian as substantive folders are created (e.g., `research_and_analysis/`, `resources/`, `background/`, `graphics/`, `production/`, subprojects).
 
 ---
 
