@@ -1,6 +1,6 @@
 # Information Architecture Spine — Design Draft
 
-**Status:** **LOCKED 2026-07-24.** Jamie concurred; resting-state summary lives in `1_Project/Decisions.md` → "Information Architecture Spine (2026-07-24)". The two `[QUESTION]` markers (§4 log length, §8 handoff cleanup) are resolved inline. §6 (memory) remains the **sole open item** — deliberately unsolved, tracked as OPEN. History of markup: Jamie added [CONCURRED] where he agreed and [QUESTION] where he wanted clarity; those questions are now answered.
+**Status:** Draft for review. Not locked. Sections are marked **[DECIDED]**, **[PROPOSED]**, or **[OPEN]** so you can red-line each independently.  Jamie added [CONCURRED] for where I agree and [QUESTION] where I would like additional clarity or thought
 **Date:** 2026-07-24
 **Author:** Claude (Cowork), cloud session, with Jamie
 **Scope:** The writing-cowork plugin's records/information architecture — applies to this dev repo **and** every consumer vault the plugin scaffolds. Product content is out of scope by design; this is the process skeleton the product sits inside.
@@ -56,9 +56,9 @@ State docs are the small, canonical set that answers "where does the project sta
 
 ---
 
-## 4. The activity log **[LOCKED 2026-07-24]**
+## 4. The activity log **[DECIDED — form; PROPOSED — mechanics]**
 
-**[RESOLVED — §4 question]** What keeps it from getting too long: roll at **phase/version close**, not per-subphase (too granular — you'd drown in tiny files). At a phase/version close, that segment archives to `history/` named for the phase/version and the live log starts fresh. Size safety-valve: a numbered continuation if one phase's log runs long. And length never drives context cost — a session reads only the **tail** (last N entries) to orient, so this is file hygiene, not a context concern.
+[QUESTION] what keeps this from getting to long, do we start a new on at each phase or subphase or something else?
 
 The single missing organ. It is the audit trail and the answer to "why, and from what inputs."
 
@@ -128,6 +128,25 @@ Direction we're fairly confident about: make **vault memory authoritative**, wir
 
 Do not build new memory machinery until 6b/6c have answers. The immediate, safe, reversible steps are: (a) the Tier-1 router pointing at visible vault memory, and (b) declaring vault memory authoritative in `charter.md`. Those improve targeting today without committing to a memory model we're not sure of.
 
+### 6e. Input for the standalone memory pass (from 2026-07-24 discussion)
+
+Analysis from the session that locked this spine, promoted here so the memory pass starts from it rather than re-deriving it. Treat as input, not decision.
+
+**Will vault-level guidelines on memory be executed or ignored?** Partly executed, not reliably — and it depends on what the guideline asks:
+
+- A guideline that shapes *what the agent chooses to do* ("propose a memory and get a yes before writing"; "prefer writing learned rules to visible `Memory/` files") is fairly reliable *if* it lives in an always-loaded place (`CLAUDE.md`, charter). It's followed like any operating rule.
+- A guideline that tries to *forbid the platform mechanism from acting* is unreliable. The platform memory system has its own tools and its own standing instructions (a `MEMORY.md` index + write-guidance is injected at session start, unseen by the user). A vault guideline is a *peer* instruction competing with those, not an override of the subsystem. It biases behavior; it does not disable the capability.
+- The weak spot is exactly the user's concern — *silent* accumulation over months — because a guideline depends on the agent choosing restraint on *every* session, and any single session that doesn't will still write. A guideline lowers the rate; it does not close the hole. Closing it needs a *mechanism* (see research task below), not a guideline.
+
+**Does the platform store have efficiency advantages over vault memory?** Yes, two real ones — the honest case *for* it:
+
+1. **Automatic loading.** The platform `MEMORY.md` index is injected at session start with zero action. Vault memory only loads if something reads it (router → `Memory/INDEX.md` → topic file). "Always on for free" vs. "on when routed to."
+2. **Cross-project scope.** Platform memory follows the *user*, not the vault — good for durable cross-project facts about the person. Vault memory is deliberately per-vault.
+
+**The tension, and the working hypothesis:** the platform's advantages (auto-load, cross-project) are *the same properties* that make it invisible and uncontrollable — the convenience and the silent-accumulation risk are one mechanism, not two. So the likely answer is not "vault replaces platform" but a **split by kind**: durable cross-project facts about *the user* live in the platform store (where auto-load earns its keep); everything *project-specific and load-bearing* lives in visible vault memory the router loads deliberately. That shrinks the hard problem from "control all memory" to the smaller, more tractable "keep the platform store **reviewable** so its convenience doesn't become a silent junk drawer." Hypothesis for the pass, not a decision.
+
+**Research task to run first (blocks the pass):** verify against the actual Claude Code / Cowork memory documentation what the platform *offers* for control — is there (a) a setting to disable project memory, (b) a hook that can intercept/gate memory writes, and (c) any audit surface that lists what's already in the hidden store? Question 6c-1/2/3 can't be decided until this is known. Do not assert any of these exist without reading the docs — behavior here has repeatedly diverged from expectation.
+
 ---
 
 ## 7. Handoff lifecycle — **[DECIDED, see `Decisions.md`]**
@@ -136,9 +155,9 @@ Session-close handoffs are **Ephemeral**: fully gitignored, local + iCloud only,
 
 ---
 
-## 8. Enforcement — **[LOCKED 2026-07-24]**
+## 8. Enforcement — **[PROPOSED]**
 
-**[RESOLVED — §8 question]** How old handoffs get cleaned up: the handoff is **single-slot**. `pm-close-session` writes *the* handoff; the next kickoff reads it, promotes the durable bits, then deletes it — so at most one live handoff exists at a time. They're gitignored, so deletion is trivial and prunes no git history. A drift-check Attention flag surfaces any straggler older than a short window (a session that closed but was never picked up) for confirm-before-delete. The existing dated pile in `1_Project/Handoff/` gets swept once — keep as frozen history or delete, Jamie's call — and new ones never accumulate.
+[QUESTION] How do we clean up old handoffs?
 
 Folders enforce nothing. The spine rots the moment promote-and-log is skipped. So the real deliverable is a skill, and eventually a hook:
 
