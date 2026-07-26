@@ -35,6 +35,23 @@ Concretely:
 
 ## Operating rules
 
+### Knowledge routing — where a durable fact goes
+
+Every durable fact has exactly **one** home. Which one depends on what kind of thing it is:
+
+| Kind of thing | Home | Test |
+|---|---|---|
+| A repeatable **operating procedure** | the relevant `process/` doc | "this is how we do X" — someone could follow it as steps |
+| A raw **observation or correction** | `process/memory/` | "we learned X" — a fact, not yet a procedure |
+| A **commitment or choice** | the project's decisions record | "we decided X, and it stands until revisited" |
+| A **standing constraint** on how work is done | this charter | "X is always true of how this project runs" |
+
+Memory is the raw log; a process doc is the manual. When a memory matures into a repeatable procedure, write the process doc and keep the memory file as its origin record — do not duplicate the content in both.
+
+If a fact seems to belong in two places, one of them is a pointer. Two live copies drift, and the stale one keeps getting read as though current.
+
+**Memory is visible by default.** Project memory lives in `process/memory/` as plain markdown, git-tracked and readable in Obsidian. Do not write durable project knowledge to hidden session-managed memory: it is invisible to the writer, absent from git history, and diverges silently from the vault. Because `process/memory/` is git-tracked, an unreviewed write appears in `git status` before it is committed — review the diff, keep what's right, discard what isn't.
+
 ### Commit policy
 
 - This context commits its own mechanical work, batched into logical units, prefixed `[data-mgmt]` in the commit message.

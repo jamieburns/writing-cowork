@@ -115,7 +115,7 @@ Research complete; a prototype is running **in this dev repo** before anything i
 | §6c-1 consent-on-write | **Answered:** achievable via a `PreToolUse` hook that matches the memory write and blocks it — the docs are explicit that hooks enforce where instructions only persuade. Not shipped by default; would be a custom build. **Deliberately not building it yet** — depends on two unverified things at once (that Cowork runs hooks, and that matchers catch `mcp__*` calls), and the audit diff gets most of the benefit with none of the risk. |
 | §6c-2 suppress / redirect | **Answered:** `autoMemoryEnabled: false` suppresses (user or per-project scope); `autoMemoryDirectory` redirects storage location; `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` is the env-var equivalent. Real documented settings, not workarounds. **Caveat:** all documented for Claude Code CLI; Cowork binding unverified — that is the gating test. |
 | §6c-3 audit / cleanup | **Partly answered:** the store is plain markdown and inspectable (`/memory` in CLI); it is *unsurfaced*, not *hidden*. What is genuinely missing is **proactive periodic surfacing** — a drift-check-style flag. Remains to build (step 4). |
-| §6c-4 memory / decision / charter-rule boundary | **Still open. Jamie owns this call.** Untouched by the research. |
+| §6c-4 memory / decision / charter-rule boundary | **RESOLVED 2026-07-26** (Jamie confirmed). See "Knowledge routing rule" below — this was the last item blocking the plugin port. |
 | §6c-5 trust in unprovenanced memory | Slightly improved: CLI v2.1.214+ stamps a `modified` frontmatter timestamp on memory writes, so there is a recency signal — still no why/inputs provenance like the §4 activity log. |
 | Chosen direction | **Make git the consent mechanism.** Put memory where an unapproved write shows up as an uncommitted change: `git status` is the surfacing §6c-3 asks for, `git diff` the review, `git checkout` the reject. Consent-on-write becomes consent-on-commit — weaker in theory, but achievable today **in both runtimes** with no new machinery. |
 | Option chosen | **B preferred** (redirect the auto-memory store into `1_Project/Memory/` so there is one pile, auto-loaded and git-visible), **A as fallback** (disable outright, vault-only by discipline). Contingent on the gating test. |
@@ -126,5 +126,41 @@ Research complete; a prototype is running **in this dev repo** before anything i
 
 ### CLAUDE.md marker convention (new 2026-07-25, prototype — not yet in the plugin)
 
-Plugin-managed markdown files delimit ownership with block-level HTML comments: `BEGIN/END WRITING-COWORK MANAGED: <block-name>` for plugin-owned content regenerated on sync, and `BEGIN/END PROJECT-OWNED` for content the plugin never touches. Comments are stripped before the file enters model context, so markers cost no runtime tokens — but that also means the model cannot see them, so each managed file carries one short *visible* line stating the boundary. **`.claude/settings.json` is the exception:** JSON has no comments, so its provenance is documented in the gating-test doc instead. Port target: a `--target=router` mode on `pm-sync-project-to-plugin`, per the skill-consolidation precedent above (one mechanism per "bring this vault current" job).
+Plugin-managed markdown files delimit ownership with block-level HTML comments: `BEGIN/END WRITING-COWORK MANAGED: <block-name>` for plugin-owned content regenerated on sync, and `BEGIN/END PROJECT-OWNED` for content the plugin never touches.
 
+**Pre-existing marker to reconcile (found 2026-07-26):** `templates/project_hub.md` already uses `<!-- DRIFT-ATTENTION-START -->` / `<!-- DRIFT-ATTENTION-END -->` for the drift-check-written Attention block — the same idea under different naming, and `drift_check.py` greps for those exact strings. Left alone for now rather than renamed, because renaming breaks the tool. Reconciling the two naming schemes is part of the open marker-coverage decision (spine §10.9); the general convention should absorb the drift block as a named instance (`MANAGED: drift-attention`) when the tool can be updated in the same change. Comments are stripped before the file enters model context, so markers cost no runtime tokens — but that also means the model cannot see them, so each managed file carries one short *visible* line stating the boundary. **`.claude/settings.json` is the exception:** JSON has no comments, so its provenance is documented in the gating-test doc instead. Port target: a `--target=router` mode on `pm-sync-project-to-plugin`, per the skill-consolidation precedent above (one mechanism per "bring this vault current" job).
+
+
+## Knowledge routing rule (2026-07-26) — LOCKED
+
+Confirmed by Jamie. Resolves spine §6c-4 / §10.6, the last decision blocking the plugin port. Ships in `templates/charter.md` (§"Knowledge routing") and in the `router-orientation` block of `templates/CLAUDE.md`.
+
+Every durable fact has exactly **one** home, determined by what kind of thing it is:
+
+| Kind of thing | Home | Test |
+|---|---|---|
+| A repeatable **operating procedure** | the relevant `process/` doc | "this is how we do X" — followable as steps |
+| A raw **observation or correction** | `process/memory/` (`1_Project/Memory/` in this dev repo) | "we learned X" — a fact, not yet a procedure |
+| A **commitment or choice** | the decisions record (this file) | "we decided X, and it stands until revisited" |
+| A **standing constraint** on how work is done | `charter.md` | "X is always true of how this project runs" |
+
+Memory is the raw log; a process doc is the manual. When a memory matures into a repeatable procedure, write the process doc and keep the memory file as its origin record — do not duplicate content in both. If a fact seems to belong in two places, one of them is a pointer; two live copies drift and the stale one keeps being read as current.
+
+**Empirical basis:** on 2026-07-26 a session given a durable operating rule ("always run `claude plugin validate .` before committing a version bump") routed it to `1_Project/Process/dev-workflow-and-release.md` plus an activity-log entry, not to either memory store — landing in two git-visible files and zero invisible ones. The rule above generalizes that observed behaviour rather than imposing a new one.
+
+## Plugin port — memory management (2026-07-26) — IN PROGRESS
+
+First slice of stage 3. New in `0_Product/`:
+
+| Artifact | Purpose |
+|---|---|
+| `templates/CLAUDE.md` | Tier-1 router for consumer vaults; two managed blocks (`router-orientation`, `router-skills`) plus a `PROJECT-OWNED` block. Carries the knowledge-routing rule and the skill-routing map. |
+| `templates/memory_index.md` | `process/memory/INDEX.md` manifest — the Reference-layer Tier-2 manifest, ships empty. |
+| `templates/charter.md` | Gained §"Knowledge routing" (the rule above) as the first Operating rule. |
+| `skills/pm-install-router/` | Places `CLAUDE.md` at vault root. **Refuses to overwrite an existing `CLAUDE.md`** — no merge, no silent rewrite. |
+| `skills/pm-init-memory/` | Creates `process/memory/` + `INDEX.md`. |
+| `skills/pm-setup-project/` | Both wired into the orchestration: 20 sub-skills → **22**, router at step 9 (after the hub it points at), memory at step 13 (with data-management scaffolding). Narration groups 3 and 4 updated; stale "15/19/20 sub-skills" counts corrected throughout. |
+
+**Deliberately NOT ported yet** (blocked on spine §10.7–§10.11): the memory *settings* (`autoMemoryEnabled` / `autoMemoryDirectory`) — the prototype's `autoMemoryDirectory` holds a machine-specific path in a git-tracked file, which is disqualifying for a shipped template until §10.8 is decided; marker coverage beyond `CLAUDE.md` (§10.9); and the activity-log template (§10.10, location/ordering still provisional). The port so far is **entirely runtime-independent** — files and git only, no settings dependency — per the spine §6d constraint.
+
+**Consumer memory location:** `process/memory/`, parallel to `process/active/` and `process/data_management/`. New convention introduced by this slice; not previously specified.
