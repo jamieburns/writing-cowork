@@ -1,9 +1,11 @@
 # Information Architecture Spine — Design Draft
 
 **Status:** Draft for review. Not locked. Sections are marked **[DECIDED]**, **[PROPOSED]**, or **[OPEN]** so you can red-line each independently.  Jamie added [CONCURRED] for where I agree and [QUESTION] where I would like additional clarity or thought
-**Date:** 2026-07-24
+**Date:** 2026-07-24 · **revised 2026-07-26** (memory pass)
 **Author:** Claude (Cowork), cloud session, with Jamie
 **Scope:** The writing-cowork plugin's records/information architecture — applies to this dev repo **and** every consumer vault the plugin scaffolds. Product content is out of scope by design; this is the process skeleton the product sits inside.
+
+**Revision 2026-07-26 — memory pass.** §6 moved from `[OPEN — not solved]` to `[DECIDED — model; PROTOTYPED — mechanism]`; §5 gained §5a (ownership markers in plugin-managed files); §10 gained items 6–11, the decisions that gate the plugin port. The rest of the document is unchanged from the 2026-07-24 lock.
 
 ---
 
@@ -97,57 +99,93 @@ Three tiers, each small, each read only as far down as needed. Same descent path
 
 **Skill routing:** with ~60 skills, choosing the right one is itself a search the agent does poorly. A compact "for operation X, use skill Y" map (in the router or a doc it references) cuts that search and makes skill choice *legible* — you can see why a skill was used because the router pointed at it.
 
----
+### 5a. Ownership markers in plugin-managed files **[PROTOTYPED 2026-07-25]**
 
-## 6. Memory management — **[OPEN — not solved]**
+Once the plugin writes files into a vault that the user also edits, "who owns this line" becomes a real question — and a silent-overwrite risk on the next sync. Plugin-managed markdown therefore delimits ownership with **block-level HTML comments**:
 
-This section is deliberately unfinished. We are moving in the right direction but do **not** yet have this managed the best way. Recording the open problem is the point.
+```
+<!-- BEGIN WRITING-COWORK MANAGED: <block-name> -->   plugin-owned, regenerated on sync
+<!-- END   WRITING-COWORK MANAGED: <block-name> -->
+<!-- BEGIN PROJECT-OWNED --> ... <!-- END PROJECT-OWNED -->
+```
 
-### 6a. What we believe is right
+Blocks are **named** so a sync can regenerate one without disturbing others, and the opening comment carries provenance (plugin version, block revision, date).
 
-Memory is the **Reference** layer of the taxonomy — durable knowledge the AI works from. Two distinct things share the name:
+Three properties worth recording, because they shaped the design:
 
-- **Platform memory** — the hidden, session-managed store the environment keeps (the `MEMORY.md` index handed to the agent at session start lives here). Cross-session, but **not** in the vault, **not** in git, **not** visible in Obsidian.
-- **Vault memory** — the visible `Memory/*.md` files plus `INDEX.md`. Diffable, git-tracked, controllable. The locked `feedback_visible_memory_only.md` decision already favors this.
+- **Free at runtime.** Block-level HTML comments are stripped before a file enters model context, so markers cost no tokens on a file that loads every turn. (Documented for Claude Code CLI; Cowork behaviour is on the test plan.)
+- **Invisible to the agent, therefore insufficient alone.** Because they are stripped, the model never sees "do not edit this." Every managed file must also carry **one short visible line** stating the boundary — otherwise an agent asked to "add something to `CLAUDE.md`" writes into a managed block and loses it on the next sync.
+- **Markdown only.** JSON has no comment syntax, so `.claude/settings.json` cannot carry markers; its provenance has to be documented elsewhere. YAML (e.g. `drift_check.yaml`) can. **Which plugin-managed files get markers, and what substitutes for JSON, is open — see §10.**
 
-Direction we're fairly confident about: make **vault memory authoritative**, wire `Memory/INDEX.md` into the Tier-1 router so the agent finds what it needs without a grand search, and keep the `INDEX.md`-plus-topic-files shape (it's correct — it just isn't wired into an always-on router yet).
-
-### 6b. The core unresolved risk — memory created without consent
-
-**On a long-running project, Claude agents generate new files in the platform memory system without the user's consent, and that hidden store is where unexpected things pile up over time.** The user cannot see this accumulation in Obsidian, did not approve it, and has no natural moment where it surfaces for review. This is the single biggest unsolved problem in this whole design. Everything else here is arrangement; this is a control problem we do not yet have a clean answer for.
-
-### 6c. Open questions (memory) — none of these are decided
-
-1. **Consent on write.** Can memory creation be made consent-gated — the agent proposes a memory, the user approves before it persists — rather than written silently? Is that even controllable from inside a project, or is the platform store going to write regardless?
-2. **Suppress or redirect the hidden store.** Can the project make the agent write learned knowledge to *visible vault memory* instead of the platform store? If the platform store still writes on its own, can its content at least be surfaced/mirrored into a place the user reviews?
-3. **Audit and cleanup of what's already accumulated.** A long-running project already has a pile in the hidden store. Is there a periodic surfacing ("here is what has accumulated in platform memory — keep / promote to vault / delete") so it stops being a silent junk drawer? Possibly a drift-check-style Attention flag.
-4. **The boundary problem.** A "feedback" memory ("always verify agent citations") is really a durable *operating rule* — is that memory, or does it belong with `charter.md`/process rules? A "we decided X" is a *decision*, not a memory. Without a crisp line between **memory / decision / charter-rule**, the memory layer becomes the new scatter. The platform's own typing (*user / feedback / project / reference*) is a starting cut but does not resolve the memory-vs-rule line.
-5. **Cross-session trust.** How much should a fresh session trust hidden-store memory it can't show the user the provenance of? (Ties to §4 — the visible log has provenance; hidden memory does not.)
-
-### 6d. What NOT to do yet
-
-Do not build new memory machinery until 6b/6c have answers. The immediate, safe, reversible steps are: (a) the Tier-1 router pointing at visible vault memory, and (b) declaring vault memory authoritative in `charter.md`. Those improve targeting today without committing to a memory model we're not sure of.
-
-### 6e. Input for the standalone memory pass (from 2026-07-24 discussion)
-
-Analysis from the session that locked this spine, promoted here so the memory pass starts from it rather than re-deriving it. Treat as input, not decision.
-
-**Will vault-level guidelines on memory be executed or ignored?** Partly executed, not reliably — and it depends on what the guideline asks:
-
-- A guideline that shapes *what the agent chooses to do* ("propose a memory and get a yes before writing"; "prefer writing learned rules to visible `Memory/` files") is fairly reliable *if* it lives in an always-loaded place (`CLAUDE.md`, charter). It's followed like any operating rule.
-- A guideline that tries to *forbid the platform mechanism from acting* is unreliable. The platform memory system has its own tools and its own standing instructions (a `MEMORY.md` index + write-guidance is injected at session start, unseen by the user). A vault guideline is a *peer* instruction competing with those, not an override of the subsystem. It biases behavior; it does not disable the capability.
-- The weak spot is exactly the user's concern — *silent* accumulation over months — because a guideline depends on the agent choosing restraint on *every* session, and any single session that doesn't will still write. A guideline lowers the rate; it does not close the hole. Closing it needs a *mechanism* (see research task below), not a guideline.
-
-**Does the platform store have efficiency advantages over vault memory?** Yes, two real ones — the honest case *for* it:
-
-1. **Automatic loading.** The platform `MEMORY.md` index is injected at session start with zero action. Vault memory only loads if something reads it (router → `Memory/INDEX.md` → topic file). "Always on for free" vs. "on when routed to."
-2. **Cross-project scope.** Platform memory follows the *user*, not the vault — good for durable cross-project facts about the person. Vault memory is deliberately per-vault.
-
-**The tension, and the working hypothesis:** the platform's advantages (auto-load, cross-project) are *the same properties* that make it invisible and uncontrollable — the convenience and the silent-accumulation risk are one mechanism, not two. So the likely answer is not "vault replaces platform" but a **split by kind**: durable cross-project facts about *the user* live in the platform store (where auto-load earns its keep); everything *project-specific and load-bearing* lives in visible vault memory the router loads deliberately. That shrinks the hard problem from "control all memory" to the smaller, more tractable "keep the platform store **reviewable** so its convenience doesn't become a silent junk drawer." Hypothesis for the pass, not a decision.
-
-**Research task to run first (blocks the pass):** verify against the actual Claude Code / Cowork memory documentation what the platform *offers* for control — is there (a) a setting to disable project memory, (b) a hook that can intercept/gate memory writes, and (c) any audit surface that lists what's already in the hidden store? Question 6c-1/2/3 can't be decided until this is known. Do not assert any of these exist without reading the docs — behavior here has repeatedly diverged from expectation.
+Port target: a `--target=router` mode on `pm-sync-project-to-plugin`, per the one-mechanism-per-job precedent in `Decisions.md`.
 
 ---
+
+## 6. Memory management — **[DECIDED — model; PROTOTYPED — mechanism]**
+
+Was `[OPEN — not solved]` in the 2026-07-24 draft. Researched and prototyped 2026-07-25/26: the **model below is settled**; the **mechanism is under test in this repo** before anything ships to consumer vaults. Detail records: `memory_control_research_2026-07-25.md` (what the platform offers), `memory_management_recommendation_2026-07-25.md` (what to do about it), `memory_prototype_test_plan_2026-07-25.md` (how we know it works).
+
+### 6a. Where memory sits — unchanged from the draft
+
+Memory is the **Reference** layer of §2: durable knowledge the AI works *from*, a read-only sub-case of State. Two things share the name — **platform memory** (session-managed, outside the vault, outside git, invisible in Obsidian) and **vault memory** (`1_Project/Memory/` + `INDEX.md`, diffable and git-tracked). **Vault memory is authoritative**, and `Memory/INDEX.md` is a Tier-2 manifest reached from the §5 router.
+
+### 6b. What we actually found — the stores had already diverged
+
+The 2026-07-24 draft treated silent accumulation as a *future* risk. Inspection on 2026-07-25 found it had **already happened in this repo**, in three distinct ways:
+
+1. **The governing rule was invisible to the mechanism it governed.** `feedback_visible_memory_only.md` — the rule saying "do not write to the hidden store" — existed *only* in the vault, which the platform store never loads. Sessions were handed the platform index without it.
+2. **A stale copy actively misinformed a live session.** The platform store's project-state file still claimed v0.1.13 when the truth was v0.1.15, and a session began believing it.
+3. **A memory lived only in the platform store** — the release-checklist entry, missed by the 2026-07-21 migration and invisible in Obsidian for four days.
+
+All three are now reconciled. The lesson generalizes well past memory:
+
+> **An instruction only binds if it lives somewhere the governed mechanism actually loads.**
+
+That is the same principle §5's router encodes, reached from the opposite direction — which is why the router and the memory fix are one piece of work, not two.
+
+### 6c. The control model — **git is the consent mechanism**
+
+The unsolved problem in the draft was *consent*: writes happening without approval. The platform ships no "ask before saving." Rather than build one, put memory where an unapproved write **shows up as an uncommitted change**: `git status` is the surfacing the draft asked for, `git diff` is the review, `git checkout` is the reject. Consent-on-write becomes **consent-on-commit** — weaker in theory, available today in every runtime, and it needs no new machinery.
+
+Two corollaries:
+- It gates **undirected** agent writes. Work the user explicitly directed does not need the gate.
+- It only works if the working tree is otherwise clean. Permanent untracked noise (stray handoffs, scratch) degrades the review surface, which is a second reason the §7 handoff cleanup matters.
+
+### 6d. Runtime independence — the rule with the most reach
+
+Every memory control the platform documents — `autoMemoryEnabled`, `autoMemoryDirectory`, `CLAUDE_CODE_DISABLE_AUTO_MEMORY`, `/memory`, `PreToolUse` hooks — is documented for **Claude Code CLI**. Cowork's memory runs through a different mechanism entirely. Development happens in CLI; **consumer vaults run in Cowork**. Therefore:
+
+> A control built on Claude Code settings or hooks may protect the dev loop and protect **nothing** in the shipped product. A control built on **files plus git** works in both, because it does not depend on the runtime.
+
+Prefer runtime-independent controls; treat settings as belt-and-braces where they happen to bind. **This governs the whole plugin port, not just memory** — it is the strongest architectural constraint this pass produced.
+
+### 6e. What the platform offers (research result, supersedes the draft's open questions 1–3)
+
+- **Disable** — real and documented: `autoMemoryEnabled: false` (user or per-project scope), or `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`.
+- **Redirect** — `autoMemoryDirectory` relocates the store; honored only after the workspace-trust dialog.
+- **Gate writes** — no dedicated hook. `PreToolUse` can *block*; `PostToolUse` can only *log*. Deliberately **not built**: it depends on two unverified things at once (that Cowork runs hooks, and that matchers catch `mcp__*` calls), and an audit diff gets most of the benefit at none of the risk.
+- **Audit** — the store is plain markdown, inspectable via `/memory`. It is **unsurfaced, not hidden**; the missing piece is *proactive periodic surfacing*, i.e. a diff, not a decoder.
+
+Correction to the draft's §6e hypothesis: the "split by kind" idea (cross-project user facts in the platform store, project content in the vault) **was doing no work here** — all seven platform files were project-specific. At *project* scope the platform store has no legitimate resident. The split may still hold at *user* scope; it is not load-bearing for this design.
+
+### 6f. Ownership markers — see §5
+
+Memory work drove the plugin-managed vs. project-owned marker convention, but it applies to every file the plugin writes, so it is recorded in §5 rather than here.
+
+### 6g. First live evidence (2026-07-26)
+
+Given a durable correction ("always run `claude plugin validate .` before committing a version bump"), a session routed it to **`Process/dev-workflow-and-release.md` plus an activity-log entry** — not to either memory store. The knowledge landed in two git-visible files and zero invisible ones. The model works; it also shows the routing instinct is *Process*, not *Memory*, which sharpens the open boundary question below rather than settling it.
+
+### 6h. What remains open
+
+1. **The boundary — memory vs. decision vs. charter-rule vs. Process doc.** The draft's question 4, still **Jamie's call**, but no longer abstract: §6g is a concrete instance to decide against. Until there is a rule, the memory layer can still become the new scatter. **Blocks the plugin port**, because templates must encode the routing.
+2. **Default model for consumer vaults** — disable the platform store outright, or redirect it into the vault. Pending the gating test.
+3. **Fate of the platform store** — leave it as a reconciled, banner-carrying mirror, or empty it?
+4. **Trust in unprovenanced memory** (draft question 5) — partly improved: writes now carry a `modified` timestamp, so there is a recency signal, but still no why/inputs provenance of the kind §4's log gives. Revisit once the log is real.
+
+### 6i. Prototype status
+
+Running in this dev repo (commits `953e588`, `c39f04d`): stores reconciled, §5 router in place, memory settings armed, test plan written. **Not yet ported.** Port only after the Tier-1 results are recorded and 6h-1 is decided.
 
 ## 7. Handoff lifecycle — **[DECIDED, see `Decisions.md`]**
 
@@ -180,12 +218,27 @@ Folders enforce nothing. The spine rots the moment promote-and-log is skipped. S
 
 1. **Scope** — additive "impose the spine" (recommended), fuller data-management consolidation, or minimal first-cut on this dev repo only? [concur with imposed spine - Jamie]
 2. **Log ordering** — newest-first or newest-last in the live file? [JAMIE - either]
-3. **Memory boundary** (§6c-4) — where's the line between memory, decision, and charter-rule? *You own this call.*
-4. **Memory consent/control** (§6b, §6c-1/2/3) — the open risk. No action until there's a direction here.
+3. ~~**Memory boundary**~~ → **still open, now the critical path.** See item 6 below.
+4. ~~**Memory consent/control**~~ → **RESOLVED 2026-07-25.** Model settled (§6c: git is the consent mechanism); mechanism prototyped and under test. No longer blocking.
 5. **Consumer-vault decisions ledger** — confirm it should ship in the template set (§3). [CONFIRMED]
+
+### Open before the plugin port (added 2026-07-25/26)
+
+These are the decisions that gate stage 3 — porting the spine into `0_Product/` templates and skills. Ordered by how much else depends on them.
+
+6. **The routing boundary — memory vs. decision vs. charter-rule vs. Process doc.** *You own this.* **Blocks the port**, because templates have to encode the routing and there is currently no rule. §6g is a concrete instance to decide against: a durable operating rule ("always run `claude plugin validate .` before a version bump") went to the **Process** doc plus a log entry, not to memory. Is that the general rule — *operating procedure → Process, raw observation → Memory, commitment → Decisions, standing constraint → charter*? If so it can be written down and shipped; if not, say where it differs.
+7. **Default memory model for consumer vaults** — disable the platform store (Option A) or redirect it into the vault (Option B)? Pending the Tier-1 gating result. If neither setting binds Cowork, the answer is forced: router + discipline + audit diff, and the plugin must not promise settings-based control.
+8. **Path portability.** `autoMemoryDirectory` currently holds a machine-specific absolute path in a **git-tracked** file. Fine for the prototype, disqualifying for a shipped template. Choose: gitignored `settings.local.json` (per-machine, not shared) or computed at install time by the sync skill.
+9. **Marker coverage** (§5a) — which plugin-managed files get ownership markers? `CLAUDE.md` only, or also `charter.md`, `project_hub.md`, `file_hierarchy.md`, `drift_check.yaml`? And what substitutes for markers in JSON?
+10. **Activity-log location and ordering** (§4) — `1_Project/Log.md` and newest-last were bootstrapped provisionally on 2026-07-26, ahead of the v0.16 build. Confirm or revise before the template ships, since consumer vaults will inherit whatever is chosen.
+11. **Fate of the platform store** (§6h-3) — leave it as a reconciled, banner-carrying mirror, or empty it?
 
 ---
 
 ## 11. Status / next steps
 
-This doc is itself the first artifact built the new way: a durable **State** design record, promoted out of a chat conversation before it evaporated. Next, on your red-line: lock the **[PROPOSED]** sections you agree with into `Decisions.md`, then scope `pm-close-session` as the first build.
+This doc is itself the first artifact built the new way: a durable **State** design record, promoted out of a chat conversation before it evaporated.
+
+**Where things stand (2026-07-26):** §6 has moved from `[OPEN — not solved]` to `[DECIDED — model; PROTOTYPED — mechanism]`, §5 gained the ownership-marker convention (§5a), and the prototype is running in this repo at commits `953e588` / `c39f04d`. The §4 activity log has been bootstrapped early as `1_Project/Log.md`.
+
+**Next:** record the Tier-1 test results, decide §10 items 6–8, then port to `0_Product/`. `pm-close-session` (§8) remains the first build after that.
