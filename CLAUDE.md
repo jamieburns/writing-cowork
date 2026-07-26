@@ -1,0 +1,81 @@
+<!-- =====================================================================
+     WRITING-COWORK PLUGIN — MANAGED FILE
+     ---------------------------------------------------------------------
+     MARKER CONVENTION (applies to every plugin-managed markdown file):
+
+       <!== BEGIN WRITING-COWORK MANAGED: <block-name> ==>   plugin-owned
+       <!== END   WRITING-COWORK MANAGED: <block-name> ==>
+       <!== BEGIN PROJECT-OWNED ==> ... <!== END PROJECT-OWNED ==>
+
+     (Real markers below use standard HTML comment syntax; the forms above
+     are written with `==` only so they don't terminate this comment.)
+
+     Content inside a MANAGED block is owned by the writing-cowork plugin
+     and is REGENERATED on sync. Hand edits inside a managed block are
+     silently lost the next time the plugin updates it.
+
+     Content inside PROJECT-OWNED is yours. The plugin never reads, edits,
+     or overwrites it. Put anything repo-specific there.
+
+     Block-level HTML comments are stripped before this file enters the
+     model's context, so these markers cost no tokens at runtime. That
+     also means the model never sees this notice — hence the short visible
+     line at the top of the PROJECT-OWNED section.
+
+     Provenance: writing-cowork v0.1.15 · router block rev 1 · 2026-07-25
+     Prototype status: this file is the memory-management prototype's
+     Tier-1 router (spine doc section 5). Not yet ported to the plugin.
+     ===================================================================== -->
+
+# writing-cowork — router
+
+<!-- BEGIN WRITING-COWORK MANAGED: router-orientation -->
+
+**This file is a router, not a manual.** It loads on every turn, so it holds pointers and invariants only. Content belongs in the documents it points at.
+
+## Orient — read in this order, stop when oriented
+
+1. `1_Project/Decisions.md` — current resting state of every decision. **Start here.**
+2. `1_Project/Memory/INDEX.md` — memory manifest; pull topic files on demand, don't read them all.
+3. `1_Project/Process/README.md` — how we work: dev cycle, release procedure, tool lanes.
+4. `2_Development/RoadMap/Roadmap.md` — what's next.
+
+That is the whole orientation set. It is fixed-size and does not grow with project age. Do **not** reconstruct project state by reading `1_Project/Handoff/` or `1_Project/History/` — those are ephemeral and historical respectively, never sources of truth.
+
+## Invariants
+
+- **Memory is the vault.** `1_Project/Memory/` is authoritative — visible, git-tracked, diffable. Do not write to the hidden session-managed memory store. See `1_Project/Memory/feedback_visible_memory_only.md`.
+- **Git mutations go through osascript.** Anything that writes `.git/` (add, commit, push, tag) runs via the host, not a mounted-view bash. Read-only inspection is fine anywhere. See `1_Project/Memory/feedback_sandbox_host_lanes.md`.
+- **Develop in Claude Code CLI; Cowork is the runtime consumer.** Never develop plugin changes from inside Cowork.
+- **Every record is one of four kinds** — State (overwrite in place, kept small), Log (append-only), Queue (`inbox/`, process then archive), Ephemeral (handoffs, scratch — never a source of truth). One home per fact.
+- **A version bump touches three places** — `plugin.json`, the `pm-version` EXPECTED VERSION marker, and the `(vX.Y.Z)` tag in both plugin and marketplace catalog descriptions.
+
+<!-- END WRITING-COWORK MANAGED: router-orientation -->
+
+<!-- BEGIN WRITING-COWORK MANAGED: router-skills -->
+
+## Skill routing
+
+This repo is the **plugin source**, not a writing vault: it has no `process/active/` layout, so most `pm-*` skills do not apply here. They are for consumer vaults scaffolded by `pm-setup-project`.
+
+| To do this | Use |
+|---|---|
+| Check which plugin version is loaded | `pm-version` |
+| Everything else in this repo | Plain file edits + the release procedure in `1_Project/Process/dev-workflow-and-release.md` |
+
+<!-- END WRITING-COWORK MANAGED: router-skills -->
+
+<!-- =====================================================================
+     Everything below is PROJECT-OWNED. The plugin will never touch it.
+     Add repo-specific instructions, current focus, or temporary notes.
+     ===================================================================== -->
+<!-- BEGIN PROJECT-OWNED -->
+
+## Project-specific
+
+*Sections above this line are plugin-managed and are overwritten on plugin sync — put repo-specific instructions here instead.*
+
+- **Active prototype (2026-07-25):** memory management is being prototyped in this repo before being ported to the plugin. If a memory-related setting or file looks unusual, read `1_Project/Documents/memory_gating_test_2026-07-25.md` before changing it — an experiment may be in flight.
+- `10_DeveloperSpace/` is Jamie's personal space, excluded from reads via `.claudeignore`. Do not read it.
+
+<!-- END PROJECT-OWNED -->
