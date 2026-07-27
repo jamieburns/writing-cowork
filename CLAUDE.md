@@ -46,6 +46,8 @@ That is the whole orientation set. It is fixed-size and does not grow with proje
 
 - **Memory is the vault.** `1_Project/Memory/` is authoritative — visible, git-tracked, diffable. Do not write to the hidden session-managed memory store. See `1_Project/Memory/feedback_visible_memory_only.md`.
 - **Git mutations go through osascript.** Anything that writes `.git/` (add, commit, push, tag) runs via the host, not a mounted-view bash. Read-only inspection is fine anywhere. See `1_Project/Memory/feedback_sandbox_host_lanes.md`.
+- **Stage a file once.** A file copied into the sandbox is pinned to its first stage for the whole session — re-staging does **not** refresh it, and reports the device's real size regardless. After writing a file back, make further edits on the host, never from a re-stage. See `1_Project/Memory/feedback_restaged_files_can_be_stale.md`.
+- **Review `git diff`, not just `git status`, before committing.** Names tell you which files changed; only content tells you whether a change silently reverted something. This is the detector for stale-copy edits — the one failure mode the lane rules above can still let through.
 - **Develop in Claude Code CLI; Cowork is the runtime consumer.** Never develop plugin changes from inside Cowork.
 - **Every record is one of four kinds** — State (overwrite in place, kept small), Log (append-only), Queue (`inbox/`, process then archive), Ephemeral (handoffs, scratch — never a source of truth). One home per fact.
 - **A version bump touches three places** — `plugin.json`, the `pm-version` EXPECTED VERSION marker, and the `(vX.Y.Z)` tag in both plugin and marketplace catalog descriptions.
