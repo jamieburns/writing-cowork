@@ -226,3 +226,14 @@ Resolves spine §8. The skill that keeps the spine from rotting: folders enforce
 | Don't assume, verify | The sweep instructs reviewing each hidden-store entry against the vault rather than assuming duplicates. On this project's own retirement pass that assumption would have been wrong. |
 
 **Also fixed in `drift_check.yaml`:** `inbox.buckets` was missing `issues`, so the bucket `pm-create-issue-report` writes to was never monitored. Pre-existing gap, unrelated to this workstream.
+
+## drift_check.py lives in two locations — intentional (2026-07-27)
+
+Confirmed by Jamie. **Not drift; do not "reconcile" or delete either copy.**
+
+| Copy | Status |
+|---|---|
+| `0_Product/tools/drift_check.py` | **Canonical.** Bundled into the plugin 2026-07-22; now **v0.3.0** (session-hygiene checks). All new work goes here. Referenced by `templates/drift_check.yaml` as `${CLAUDE_PLUGIN_ROOT}/tools/drift_check.py`. |
+| `~/code/cowork-tools/drift_check.py` | **The original, retained on purpose** for projects that have not yet transitioned to the bundled copy. Sits at the pre-bundling revision (~41 lines behind) and that is expected. |
+
+Consequence: `pm-migrate-to-shared-tool` and `pm-run-drift-check`'s references to the cowork-tools path stay **valid** — they serve untransitioned vaults. A future session noticing the two copies differ should read this row rather than treating it as an inconsistency to fix.
