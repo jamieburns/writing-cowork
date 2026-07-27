@@ -68,6 +68,7 @@ That is the whole orientation set. It is fixed-size and does not grow with proje
 | Hand an artifact to the librarian | `pm-create-promotion-request` |
 | Flag a process or plugin problem | `pm-create-issue-report` |
 | Process anything sitting in `inbox/` | `pm-process-inbox-item` |
+| Close out a working session | `pm-close-session` |
 | Check vault integrity | `pm-run-drift-check` |
 | Voice and terminology work | the `voice-*` skills |
 

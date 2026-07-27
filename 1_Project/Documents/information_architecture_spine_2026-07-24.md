@@ -193,13 +193,19 @@ Session-close handoffs are **Ephemeral**: fully gitignored, local + iCloud only,
 
 ---
 
-## 8. Enforcement — **[PROPOSED]**
+## 8. Enforcement — **[SPECIFIED 2026-07-27 — `pm-close-session` written]**
 
-[QUESTION] How do we clean up old handoffs?
+The earlier open question about cleaning up old handoffs is resolved: **single-slot**, gitignored. `pm-close-session` writes *the* handoff; the next kickoff reads it, promotes the durable bits, then deletes it. At most one live handoff exists at a time.
 
 Folders enforce nothing. The spine rots the moment promote-and-log is skipped. So the real deliverable is a skill, and eventually a hook:
 
-- **`pm-close-session` (skill, build now):** atomically promote durable content → its State home, append one author-stamped Log entry with provenance, write the Ephemeral handoff. This is what makes ephemerality safe and the log reliable.
+- **`pm-close-session` (skill, written 2026-07-27):** six steps in a fixed order — survey (including `git diff` *content*, not just status), promote durable content to its State home, sweep, append one author-stamped Log entry, commit, and write the handoff **last**. The order is load-bearing: the handoff is only written after promotion has committed, because ephemerality is safe *only* if durable content left first.
+
+  The **sweep** is split by what each layer can reach. The session-managed memory store is checked by the skill itself — in some runtimes it sits behind a tool no script can call. Everything else (uncommitted durable content, stray untracked files, log entries stuck at `commit: uncommitted`, `autoMemoryDirectory` drift, unbalanced managed markers) delegates to `pm-run-drift-check` under a new `session_hygiene:` config block, so there is one implementation rather than two that can diverge.
+
+  Red flags **block the close** by default; `--force` overrides and records the override in the log entry, since an override that leaves no trace is indistinguishable from the check never running.
+
+  One wrinkle worth knowing: the log entry names the commit that carried the change, but the log is itself committed — and `--amend` cannot resolve that, since amending changes the hash the entry would name. Resolution is **two commits**: content first, then the log entry naming that hash. The log trails the work by one commit. Correct rather than elegant, but the hash is real and greppable.
 - **Session-start orientation (convention now, hook later):** read the bounded set + log tail, then state back "here's what I read, the state as I understand it, and what I'm about to do and why" before acting.
 - **Session-start/-end hooks (v0.17):** move the above from convention to enforced. Already on the roadmap.
 

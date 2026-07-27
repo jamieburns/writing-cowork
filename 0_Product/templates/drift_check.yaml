@@ -56,6 +56,7 @@ inbox:
   buckets:
     - promotion
     - hub-updates
+    - issues            # written by pm-create-issue-report; was missing before 2026-07-27
   overdue_days: 14
 
 # Markers — keep stable unless you have a reason to vary
@@ -64,3 +65,57 @@ markers:
   attention_end:   "<!-- DRIFT-ATTENTION-END -->"
   footer_start:    "<!-- DRIFT-FOOTER-START -->"
   footer_end:      "<!-- DRIFT-FOOTER-END -->"
+
+# ---------------------------------------------------------------------------
+# Session hygiene — "is anything hidden, stale, or stranded?"
+#
+# Invoked by pm-close-session as its verification step, and run on the normal
+# drift schedule. Every check here is file/git based, so it behaves identically
+# in every runtime — see the information architecture spine, section 6d.
+#
+# NOT here, deliberately: the session-managed ("hidden") memory store check.
+# In some runtimes that store sits behind a tool only an agent can call, so a
+# script cannot reach it. pm-close-session performs that check itself.
+# ---------------------------------------------------------------------------
+session_hygiene:
+  enabled: true
+
+  # Durable content sitting uncommitted in the working tree. This is the
+  # failure that lost a locked decision on 2026-07-23.
+  uncommitted_durable:
+    enabled: true
+    watch:                        # vault-relative prefixes whose uncommitted state is a red flag
+      - process/
+      - project_hub.md
+      - CLAUDE.md
+    ignore_untracked:             # expected to be untracked; never flagged
+      - process/handoff/
+
+  # Activity-log entries whose commit field was never filled in — work that was
+  # recorded but may never have landed.
+  log_unlanded:
+    enabled: true
+    path: process/Log.md
+    placeholder: "uncommitted"
+
+  # autoMemoryDirectory must resolve to a path inside this vault. It holds an
+  # absolute path computed at install, so it goes stale silently if the vault is
+  # moved, cloned, or opened under a different username — memory then stops
+  # appearing in process/memory/ with no error.
+  memory_path:
+    enabled: true
+    settings_file: .claude/settings.json
+    key: autoMemoryDirectory
+    must_be_inside_vault: true
+
+  # Plugin-managed marker blocks must be balanced. An unbalanced BEGIN/END means
+  # a half-written sync, and the next sync would guess at block boundaries.
+  # Matcher should tolerate internal whitespace variation in the marker text.
+  managed_markers:
+    enabled: true
+    begin: "BEGIN WRITING-COWORK MANAGED:"
+    end: "END WRITING-COWORK MANAGED:"
+    project_begin: "BEGIN PROJECT-OWNED"
+    project_end: "END PROJECT-OWNED"
+    files:
+      - CLAUDE.md

@@ -63,6 +63,7 @@ This repo is the **plugin source**, not a writing vault: it has no `process/acti
 | To do this | Use |
 |---|---|
 | Check which plugin version is loaded | `pm-version` |
+| Close out a working session | `pm-close-session` — promotes durable content, logs, sweeps for anything hidden or uncommitted |
 | Everything else in this repo | Plain file edits + the release procedure in `1_Project/Process/dev-workflow-and-release.md` |
 
 <!-- END WRITING-COWORK MANAGED: router-skills -->

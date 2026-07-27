@@ -211,3 +211,18 @@ All 8 entries reviewed individually against the vault before disposal, not assum
 | `MEMORY.md` | **Zero entries.** Left as a 3-line retirement notice pointing at `1_Project/Memory/`, not fully blank — a session that still loads this store should be told where to go rather than handed a void. Say the word to blank it completely. |
 
 **Tool constraint found:** `project_memory_write` has **no delete affordance** — only create/overwrite. Files can be blanked to zero bytes (verified) but the filenames persist in the store listing. Genuine deletion, if wanted, needs the desktop UI. For the plugin this matters: any future "audit and clean the hidden store" tooling can empty entries but cannot remove them.
+
+## Enforcement — pm-close-session (2026-07-27) — SPECIFIED
+
+Resolves spine §8. The skill that keeps the spine from rotting: folders enforce nothing, and promotion + logging are exactly what a session skips when it runs short of room.
+
+| Topic | Decision |
+|---|---|
+| Step order | survey → promote → sweep → log → commit → **handoff last**. Load-bearing: the handoff is written only after promotion commits, or it becomes a source of truth again. |
+| Survey includes `git diff` | Content, not just `git status` names. Only a content diff reveals a change that silently reverted something — this is the detector for stale-copy edits. |
+| Sweep split | Hidden-store check is **agent-performed inside the skill** (in Cowork that store is behind an MCP tool no script can reach). All file/git checks **delegate to `pm-run-drift-check`** via a new `session_hygiene:` block in `drift_check.yaml` — one implementation, per the one-mechanism-per-job precedent. |
+| Red flags | **Block the close** by default. `--force` overrides and the override is recorded in the log entry. |
+| Commit-hash circularity | The log entry names the commit carrying the change, but the log is itself committed; `--amend` changes the hash. **Two commits**: content, then log naming that hash. The log trails by one commit — correct over elegant, because the hash stays real and greppable. |
+| Don't assume, verify | The sweep instructs reviewing each hidden-store entry against the vault rather than assuming duplicates. On this project's own retirement pass that assumption would have been wrong. |
+
+**Also fixed in `drift_check.yaml`:** `inbox.buckets` was missing `issues`, so the bucket `pm-create-issue-report` writes to was never monitored. Pre-existing gap, unrelated to this workstream.
