@@ -8,7 +8,35 @@ High-level phase/version summary. Full detail for each version lives in its own 
 | v0.1.10 – v0.1.11 | Shipped | Dev-workflow hardening (Claude Code CLI as the dev environment), pm-refresh rewritten as a documented consumer-side workaround |
 | v0.1.12 – v0.1.13 | Shipped | `inbox/README.md` scaffold, `inbox/issues/` convention + `pm-create-issue-report` + `pm-escalate-issue` (GitHub routing) |
 | **v0.1.14** | **Shipped, released, in successful daily use for 2 months (confirmed 2026-07-21)** | Assignee column (6 skills + role_taxonomy template). `pm-version`'s marker was stale at v0.1.13 pointing to this exact version — fixed 2026-07-21. |
-| v0.1.15+ | Not started | See "Carried-over decisions" below |
+| v0.1.15 | Shipped to Claude Code CLI; **not yet refreshed in Cowork** | Full `0_Product/` consolidation via a `git-subdir` marketplace source; `research_and_analysis/` + `production/` folder-naming conventions. |
+| **v0.1.16** | **In progress (2026-07-25/27)** | **Information architecture spine.** Shipped so far: `CLAUDE.md` Tier-1 router + ownership-marker convention; visible project memory (`process/memory/` + `INDEX.md`); memory settings (Option B redirect, path computed at install); activity log (`process/Log.md`, newest-last); `file_ownership.md` as the plugin-managed provenance registry; `pm-install-router`, `pm-init-memory`, `pm-init-log`, `pm-close-session`; `drift_check.py` v0.3.0 with `session_hygiene` checks. `pm-setup-project` now runs 23 sub-skills. |
+| v0.1.17 | Planned — **gated** | **Session hooks:** move session-start orientation and session-close discipline from convention to enforced. See "v0.1.17 gate" below. |
+| v0.1.19 | Deferred | Production-pipeline tooling. |
+| v0.2.0 | Deferred | `pm-sync-project-to-plugin` (drift-check config + vault layout + router migration in one mechanism). |
+
+**Version shorthand:** elsewhere in this repo (`Decisions.md`, the spine doc) these are written as v0.16, v0.17, v0.19 — dropping the leading `1.`. They mean v0.1.16, v0.1.17, v0.1.19. v0.2.0 is genuinely the next minor and comes after v0.1.19.
+
+### v0.1.16 — outstanding before release
+
+- Handoff lifecycle: `.gitignore` entry + single-slot placement + drift-check flag for stragglers. (Decision locked 2026-07-23/24; not yet implemented — the 2026-07-23 handoff is still untracked in this repo.)
+- Ownership markers rolled across the remaining *regenerated* templates (`claim_dispute_protocol.md`, `tagging_conventions.md`, `file_hierarchy.md`). Scaffold-once templates need only a provenance row, not markers.
+- Reconcile `DRIFT-ATTENTION-START/END` into the `MANAGED:` naming — requires changing `drift_check.py` in the same commit, and migrating any live vault's hub.
+- Release: version bump in all three places per the release checklist, then the Cowork-side marketplace refresh.
+
+### v0.1.17 gate — verify Cowork runs hooks at all
+
+Hooks are a **Claude Code CLI** mechanism. The 2026-07-25 research established that every memory control the platform documents is CLI-documented, and that **consumer vaults run in Cowork**, where binding is unverified. Two specific unknowns block v0.1.17:
+
+1. Does Cowork execute hooks at all?
+2. Do hook matchers catch MCP tool calls (`mcp__*`), not just `Write`/`Edit`?
+
+If either answer is no, v0.1.17 cannot deliver enforcement to consumer vaults and the convention-plus-`pm-close-session` approach remains the ceiling. **Verify before scoping the work** — this is the same runtime-independence constraint recorded as spine §6d.
+
+Candidate contents, assuming the gate passes:
+
+- **SessionStart hook** — read the bounded set + log tail, then state back what was read, the state as understood, and what is about to be done. Convention today.
+- **SessionEnd/Stop hook** — invoke `pm-close-session` rather than reimplementing it; the skill already exists.
+- **`PreToolUse` consent-gate on memory writes** — spine §6c-1, deliberately deferred from the v0.1.16 memory pass precisely because it depends on both unknowns above.
 
 ## Carried-over decisions from `DECISIONS_v014.md` — not yet shipped
 
