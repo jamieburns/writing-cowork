@@ -14,3 +14,8 @@ When a workflow requires Cowork to be quit (cache-nuke, manifest edits, anything
 3. Script should be self-healing — back up any files it modifies, validate the result, leave restoration instructions in the output.
 4. Script should be end-to-end — do the cleanup, the edits, AND the relaunch. User runs ONE thing.
 5. Tell the user: Cmd-Q Cowork, then in Terminal: `bash /tmp/<name>.sh`. Single transaction.
+
+**Bad pattern:** "1. Quit Cowork. 2. Tell me when quit. 3. I'll edit the file. 4. You relaunch."
+**Good pattern:** "I've prepared `/tmp/cowork-refresh.sh`. When ready, Cmd-Q Cowork, then run `bash /tmp/cowork-refresh.sh`. It handles everything including relaunch."
+
+*(Examples recovered 2026-07-26 from the hidden memory store during its retirement.)*

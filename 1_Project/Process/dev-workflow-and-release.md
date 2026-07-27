@@ -7,6 +7,26 @@ How we develop and ship writing-cowork. Distilled from `1_Project/Memory/referen
 - **Claude Code CLI** — the dev environment. All documented commands work reliably.
 - **Cowork** — the runtime consumer. Limited, sometimes unreliable plugin-management UI. Never develop here; only install/verify.
 
+The `claude` binary lives at `~/.local/bin/claude` — **not** on the Homebrew path. Anything invoking it via `osascript` must export a PATH including `$HOME/.local/bin`, or it fails with `claude: command not found`.
+
+## One-time setup (per machine)
+
+Recovered 2026-07-26 from the hidden memory store during its retirement — it existed nowhere else.
+
+```bash
+# Required for HTTPS-only git auth — Claude Code's "github" marketplace source
+# forces SSH clones otherwise.
+git config --global url."https://github.com/".insteadOf git@github.com:
+
+# Add the marketplace
+claude plugin marketplace add jamieburns/cowork-plugins-marketplace
+
+# Install the plugin (needs GITHUB_TOKEN; gh auth provides it)
+GITHUB_TOKEN=$(gh auth token) claude plugin install writing-cowork@jamie-cowork-plugins
+```
+
+Claude Code keeps versioned plugin caches at `~/.claude/plugins/cache/jamie-cowork-plugins/writing-cowork/<version>/`. Old versions are retained, not clobbered — useful for confirming which version actually landed.
+
 ## Per-iteration dev cycle
 
 ```bash
@@ -50,6 +70,25 @@ Do NOT set `version` in both `plugin.json` and the marketplace catalog entry —
 Total ~3-5 minutes. The repeated quits are empirically necessary.
 
 **What does NOT work in Cowork:** "Update plugin" button, "Save plugin" button (generic validation-failed error even when `claude plugin validate` passes — undocumented Cowork-side bug), drag-drop `.plugin` zip, plugin-only uninstall/reinstall without the marketplace step.
+
+## Cowork internals (for debugging only)
+
+Also recovered 2026-07-26 from the retired memory store.
+
+Cowork's plugin install is entirely separate from Claude Code's, at
+`~/Library/Application Support/Claude/local-agent-mode-sessions/<host>/<workspace>/rpm/plugin_<id>/`,
+with a `manifest.json` entry in the parent `rpm/` directory. Cowork has **no local marketplace catalog clone** — catalog metadata is fetched on demand from Anthropic's server-side proxy, so there is no local file to edit and no documented way to force a catalog refresh.
+
+`~/.claude/settings.json`'s `extraKnownMarketplaces` is Claude Code CLI only; Cowork ignores it. (Two GitHub issue numbers were recorded alongside this in the old memory file. They are **unverified** — per `1_Project/Memory/feedback_verify_agent_citations.md`, agent-supplied issue numbers get checked before being quoted, and these never were. Deliberately omitted rather than propagated.)
+
+## Repo visibility toggle
+
+```bash
+gh repo edit jamieburns/<repo> --visibility private --accept-visibility-change-consequences
+gh repo edit jamieburns/<repo> --visibility public  --accept-visibility-change-consequences
+```
+
+The `--accept-visibility-change-consequences` flag is required by `gh`.
 
 ## Debug log
 

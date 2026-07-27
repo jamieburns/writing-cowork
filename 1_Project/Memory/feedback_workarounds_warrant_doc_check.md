@@ -16,3 +16,7 @@ When you find yourself building a third or fourth workaround for the same proble
 5. After migration, clean up the old workarounds aggressively.
 
 **2026-07-21 note:** this same instinct applied directly to the folder-access confusion earlier in this session — instead of guessing at an app "toggle" that might not exist, the fix was to actually test the tool (`device_stage_files`) and get a definitive answer.
+
+**Origin (recovered 2026-07-26 from the retired memory store).** Jamie's actual words, which is what turned this from a nagging feeling into a rule: *"I have to think we are doing something wrong in process. The more workarounds we do the bigger mess we make."* The canonical docs that resolved it: `code.claude.com/docs/en/plugin-marketplaces`.
+
+**Important qualification:** this is *not* "never use workarounds." `pm-refresh-cowork-plugin` remains a legitimate documented consumer-side workaround for a real Cowork bug. The mistake was using workarounds for the *entire dev cycle* when the supported tooling was one `claude plugin marketplace add` away.
