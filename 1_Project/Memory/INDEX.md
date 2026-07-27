@@ -11,10 +11,17 @@ Reached from the repo-root `CLAUDE.md` router. Pull topic files on demand; don't
 - [Self-contained scripts when Cowork must be quit](feedback_self_contained_quit_scripts.md) — package the full workflow into one Terminal-runnable script before the user quits.
 - [When workarounds pile up, check the docs](feedback_workarounds_warrant_doc_check.md) — stop and read canonical docs before adding a 3rd/4th workaround for the same problem.
 - [Release checklist — version in description](feedback_release_includes_version_in_description.md) — every version bump touches three places so Cowork's UI shows the version without opening files. Polished into `1_Project/Process/dev-workflow-and-release.md`.
+- [Re-staged files can be stale](feedback_restaged_files_can_be_stale.md) — `device_stage_files` may serve a cached copy on re-stage while reporting the new size; verify content, or edit on the host.
 - [Personal plugin marketplace mechanics](reference_personal_plugin_marketplace.md) — raw reference notes on the two-client (Claude Code / Cowork) plugin distribution setup. Polished into a runnable procedure at `1_Project/Process/dev-workflow-and-release.md`.
 - [writing-cowork project state (stale, historical)](project_writing_cowork_v013_state_HISTORICAL.md) — snapshot from 2026-05-20 at v0.1.13. **Superseded** — current state is v0.1.15; read `1_Project/Decisions.md` instead. Kept as a historical record only.
 
 ---
+
+## Hidden store retired — 2026-07-26
+
+The platform memory store is **empty and retired**. All 8 entries were reviewed individually and dispositioned: unique content promoted (notably the one-time per-machine setup steps, which existed nowhere else — now in `1_Project/Process/dev-workflow-and-release.md`), duplicates and stale entries discarded. Its `MEMORY.md` is a 3-line pointer back here. Full record in `1_Project/Decisions.md` → "Platform memory store — retirement record".
+
+**This directory is now the only project memory.** Note: `project_memory_write` has no delete affordance — entries there could be blanked but not removed, so the filenames persist even though the content is gone.
 
 ## Reconciliation note — 2026-07-25
 

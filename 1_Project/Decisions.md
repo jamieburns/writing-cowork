@@ -161,6 +161,53 @@ First slice of stage 3. New in `0_Product/`:
 | `skills/pm-init-memory/` | Creates `process/memory/` + `INDEX.md`. |
 | `skills/pm-setup-project/` | Both wired into the orchestration: 20 sub-skills → **22**, router at step 9 (after the hub it points at), memory at step 13 (with data-management scaffolding). Narration groups 3 and 4 updated; stale "15/19/20 sub-skills" counts corrected throughout. |
 
-**Deliberately NOT ported yet** (blocked on spine §10.7–§10.11): the memory *settings* (`autoMemoryEnabled` / `autoMemoryDirectory`) — the prototype's `autoMemoryDirectory` holds a machine-specific path in a git-tracked file, which is disqualifying for a shipped template until §10.8 is decided; marker coverage beyond `CLAUDE.md` (§10.9); and the activity-log template (§10.10, location/ordering still provisional). The port so far is **entirely runtime-independent** — files and git only, no settings dependency — per the spine §6d constraint.
+**Second slice landed 2026-07-27** — §10.7–10.11 all answered, so the deferred items shipped: `pm-init-project-cowork-settings` v0.2.0 (Option B redirect by default, `--memory=disable` as the Option A fallback, path **computed at install** since `autoMemoryDirectory` requires an absolute path); `templates/log.md` + `pm-init-log` (`process/Log.md`, newest-last); and `file_ownership.md` extended into the **plugin-managed provenance registry** that answers the JSON problem. `pm-setup-project` now runs **23** sub-skills. Still open: rolling ownership markers across the remaining templates — see the regenerated/scaffold-once distinction below.
+
+**Marker coverage needs two classes, not one** (refines §10.9's "yes to all files"): **regenerated** files have their marked blocks rewritten on sync (`CLAUDE.md`, the pure-reference docs) and need `BEGIN/END` markers; **scaffold-once** files are written once and belong to the user thereafter (`charter.md`, `project_hub.md`, roadmap, todos, `Log.md`, memory `INDEX.md`) and need only a provenance row in `file_ownership.md`. Blanket-wrapping everything would have the plugin claim ownership of files the writer actually owns — and `Log.md` in particular must never be rewritten. Both classes are now tabulated in the `file_ownership.md` template.
 
 **Consumer memory location:** `process/memory/`, parallel to `process/active/` and `process/data_management/`. New convention introduced by this slice; not previously specified.
+
+## Memory management — open questions resolved (2026-07-26)
+
+Jamie's answers to spine §10 items 7–11, plus the `pm-install-router` merge requirement.
+
+| # | Question | Decision |
+|---|---|---|
+| 7 | Default memory model | **Option B** — redirect the auto-memory store into the vault memory directory. Proceed in this direction. **Option A (disable outright) retained as fallback** if something bad surfaces. |
+| 8 | Path portability | **Compute at install.** The template ships no path; the setup/sync skill resolves the absolute path at install time and writes it. |
+| 9 | Marker coverage | **All plugin-managed files.** JSON handled per the recommendation below. |
+| 10 | Activity log | **Confirmed** — `Log.md` at the process root, newest-last, rolls at phase/version close. Consumer equivalent: `process/Log.md`. |
+| 11 | Fate of the platform store | **Retired.** Every entry reviewed and dispositioned; retained content promoted; store left empty. Done 2026-07-26 — see below. |
+
+### JSON provenance — recommendation (§10.9)
+
+The marker convention is markdown-only. Three-part answer:
+
+1. **Where we control the format, use YAML.** `drift_check.yaml` already does; any *new* plugin-managed config should be YAML, which takes `#` comments and can carry the same `BEGIN/END WRITING-COWORK MANAGED` markers verbatim.
+2. **`.claude/settings.json` we do not control** — the filename and JSON parsing are dictated by Claude Code / Cowork. It cannot become YAML.
+3. **For that file, record provenance in `file_ownership.md`** rather than in the file. That table already exists as the vault's file inventory with ownership and status columns; extend it with a `plugin:writing-cowork` owner value and a managed-blocks column.
+
+Why the ownership table over the alternatives: a `"_comment"` key inside `settings.json` *might* work, but unknown-key tolerance is unverified and a strict schema would reject the whole file — and the failure mode for that particular file is "the plugin stops loading," which is the worst place to take an unverified risk. A sidecar `settings.provenance.md` is safe but invents a parallel mechanism. The ownership table reuses machinery that already exists (consistent with the one-mechanism-per-job precedent above), is format-agnostic so it covers JSON, YAML and markdown uniformly, and answers a question that currently cannot be answered at all — *which files does the plugin manage?* — in one place instead of requiring every file to be opened.
+
+**Division of labour:** in-file markers stay the convenience for markdown (visible at the point of editing, free at runtime); `file_ownership.md` becomes the authoritative registry of what the plugin owns. Testing whether `settings.json` tolerates a `"_comment"` key is a nice-to-have, off the critical path.
+
+### `pm-install-router` — merge required (supersedes the refuse-to-overwrite behaviour)
+
+v0.1.0 refused to touch an existing `CLAUDE.md`. Reworked to **v0.2.0** with four modes: **install** (clean vault), **refresh** (our markers present — regenerate managed blocks, copy `PROJECT-OWNED` through byte-for-byte), **adopt** (a foreign `CLAUDE.md` — move its entire content verbatim into `PROJECT-OWNED` under a dated heading, discarding nothing), and **abort** (malformed/unbalanced markers — never guess block boundaries, because a bad guess silently destroys content). Every write to an existing file takes a timestamped `.bak-`, shows a unified diff, and prompts; `--dry-run` shows the diff without writing. In adopt mode the rule is *keep the user's content whole rather than classify it* — sorting their prose into managed blocks is a judgement call that is sometimes wrong, and being wrong loses their words.
+
+### Platform memory store — retirement record (2026-07-26)
+
+All 8 entries reviewed individually against the vault before disposal, not assumed stale. **The assumption would have been wrong:** `reference_personal_plugin_marketplace.md` held ~6KB of detail against the vault's 1.4KB summary, including content in neither the vault memory nor the process doc.
+
+| Entry | Disposition |
+|---|---|
+| `reference_personal_plugin_marketplace.md` | **Retained** — one-time per-machine setup (the `url.insteadOf` HTTPS/SSH git config fix, marketplace add, install), Cowork's internal plugin install path, and the `gh repo edit --visibility` commands promoted into `Process/dev-workflow-and-release.md` per the routing rule (operating procedure → process doc). Two GitHub issue numbers **deliberately dropped** as unverified, per `feedback_verify_agent_citations.md`. |
+| `feedback_workarounds_warrant_doc_check.md` | **Partly retained** — Jamie's originating quote and the "this is not anti-workaround" qualification appended to the vault copy. |
+| `feedback_self_contained_quit_scripts.md` | **Partly retained** — the bad-pattern/good-pattern examples appended to the vault copy. |
+| `feedback_sandbox_host_lanes.md` | **Discarded** — stale (pre-rename tool names, missing the 2026-07-21 device_bash addendum); vault copy is a superset. |
+| `feedback_verify_agent_citations.md` | **Discarded** — vault copy equivalent. |
+| `feedback_release_includes_version_in_description.md` | **Discarded** — already promoted to the vault 2026-07-25. |
+| `project_writing_cowork_v013_state.md` | **Discarded** — stale v0.1.13 snapshot, already tombstoned. |
+| `MEMORY.md` | **Zero entries.** Left as a 3-line retirement notice pointing at `1_Project/Memory/`, not fully blank — a session that still loads this store should be told where to go rather than handed a void. Say the word to blank it completely. |
+
+**Tool constraint found:** `project_memory_write` has **no delete affordance** — only create/overwrite. Files can be blanked to zero bytes (verified) but the filenames persist in the store listing. Genuine deletion, if wanted, needs the desktop UI. For the plugin this matters: any future "audit and clean the hidden store" tooling can empty entries but cannot remove them.

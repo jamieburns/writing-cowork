@@ -7,7 +7,7 @@ description: >
   or any variant of starting a fresh project that should run the writing-cowork
   multi-role pattern (PM, substance, voice/tone, review). Orchestrates the full
   setup sequence — vault skeleton, git, GitHub remote, charter, handoff,
-  ownership table, router, memory index, drift-check config, voice scaffold, roadmap, todos —
+  ownership table, router, memory index, activity log, drift-check config, voice scaffold, roadmap, todos —
   and registers the project with the per-machine cowork registry.
 metadata:
   version: "0.1.0"
@@ -69,20 +69,22 @@ return the failure message plus the resume instruction.
 | 11 | `pm-install-tagging-conventions` | Place `tagging_conventions.md` from template | — |
 | 12 | `pm-install-hierarchy-and-ownership` | Place `process/data_management/file_hierarchy.md` + initial `file_ownership.md` | — |
 | 13 | `pm-init-memory` | Create `process/memory/` + `INDEX.md` — visible, git-tracked project memory | — |
-| 14 | `pm-install-drift-check-config` | Place `process/data_management/drift_check.yaml` from template, substituting project-specific values | — |
-| 15 | `pm-place-lift-decisions` | Copy the supplied decisions doc to vault root | `--decisions` not provided |
-| 16 | `pm-init-voice-handoff` | Place `process/active/voice_handoff.md` with placeholders | — |
-| 17 | `pm-init-voice-exceptions` | Create empty `process/active/voice_exceptions.md` | — |
-| 18 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
-| 19 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
-| 20 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
-| 21 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
-| 22 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
+| 14 | `pm-init-log` | Create `process/Log.md` — the shared append-only activity log | — |
+| 15 | `pm-install-drift-check-config` | Place `process/data_management/drift_check.yaml` from template, substituting project-specific values | — |
+| 16 | `pm-place-lift-decisions` | Copy the supplied decisions doc to vault root | `--decisions` not provided |
+| 17 | `pm-init-voice-handoff` | Place `process/active/voice_handoff.md` with placeholders | — |
+| 18 | `pm-init-voice-exceptions` | Create empty `process/active/voice_exceptions.md` | — |
+| 19 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
+| 20 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
+| 21 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
+| 22 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
+| 23 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
 
 `pm-install-router` runs directly after `pm-install-project-hub` because the
-router points at the hub. `pm-init-memory` sits with the data-management
-scaffolding because `process/memory/INDEX.md` is the Reference manifest the
-router's orientation block names.
+router points at the hub. `pm-init-memory` and `pm-init-log` sit with the
+data-management scaffolding: `process/memory/INDEX.md` is the Reference manifest
+the router's orientation block names, and `process/Log.md` is the project's
+activity record rather than a planning artifact.
 
 Skip rules apply at the orchestrator level. Each sub-skill is independently
 invokable from chat for ad-hoc use; the orchestrator simply chains them.
@@ -113,7 +115,7 @@ Format:
 }
 ```
 
-Track all 22 sub-skills individually in `completed_steps` (granular).
+Track all 23 sub-skills individually in `completed_steps` (granular).
 Resume needs to know which specific sub-skill failed; user-facing narration
 gangs steps into groups but the state file does not.
 
@@ -122,15 +124,15 @@ Update the file atomically — write to `<name>_setup_state.json.tmp`, then
 from the manual phase; the registry and other long-lived files use it to
 avoid torn reads.
 
-On success of the final step (`pm-register-project`, step 22), set `status: "complete"`.
+On success of the final step (`pm-register-project`, step 23), set `status: "complete"`.
 Keep the file — `pm-resume-setup` checks status before doing anything; a
 completed file is a no-op signal, not stale state.
 
 ## Output
 
-Narrate progress in groups, not per-step. The 22 sub-skills fall into 8
+Narrate progress in groups, not per-step. The 23 sub-skills fall into 8
 narration groups; gang the low-impact steps (file copies, touches) so the
-user-facing output stays scannable. The state file still tracks all 22
+user-facing output stays scannable. The state file still tracks all 23
 sub-skills individually.
 
 Narration groups:
@@ -140,7 +142,7 @@ Narration groups:
 | 1 | `pm-init-vault`, `pm-init-project-cowork-settings` | Initialize vault skeleton + Cowork settings |
 | 2 | `pm-init-git`, `pm-init-github` | Initialize git + create GitHub remote `<org>/<name>` |
 | 3 | `pm-install-charter`, `pm-install-handoff`, `pm-install-for-other-contexts`, `pm-install-project-hub`, `pm-install-router`, `pm-install-claim-dispute-protocol`, `pm-install-tagging-conventions`, `pm-place-lift-decisions` (when not skipped) | Install orienting docs (charter, handoff, for-other-contexts, project-hub, router, claim-dispute-protocol, tagging-conventions[, decisions]) |
-| 4 | `pm-install-hierarchy-and-ownership`, `pm-init-memory`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, memory index, drift-check config) |
+| 4 | `pm-install-hierarchy-and-ownership`, `pm-init-memory`, `pm-init-log`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, memory index, activity log, drift-check config) |
 | 5 | `pm-init-voice-handoff`, `pm-init-voice-exceptions` | Install voice scaffolding (voice handoff, voice exceptions) |
 | 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos` | Initialize active planning files (reviewer tracking, roadmap, todos) |
 | 7 | `pm-finalize-scaffold-commit` | Finalize scaffold (commit + push) |
@@ -155,7 +157,7 @@ narration only then. Group 7 is also conditional: skipped entirely when
 `--git=none` (no repo to commit to); narrated as "Finalize scaffold (commit)"
 — without "+ push" — when `--git=local` (no remote yet).
 
-Group numbering is fixed at 8 in the standard case (all 22 sub-skills run);
+Group numbering is fixed at 8 in the standard case (all 23 sub-skills run);
 when groups are entirely skipped (groups 2 and 7 are the only candidates),
 reduce the denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do
 not renumber mid-run.
@@ -184,7 +186,7 @@ Git mode: new-github
 [1/8] Initialize vault skeleton + Cowork settings… done
 [2/8] Initialize git + create GitHub remote jamieburns/epistemology… done
 [3/8] Install orienting docs (charter, handoff, for-other-contexts, project-hub, router, claim-dispute-protocol, tagging-conventions)… done
-[4/8] Install data-management scaffolding (file hierarchy, ownership table, memory index, drift-check config)… done
+[4/8] Install data-management scaffolding (file hierarchy, ownership table, memory index, activity log, drift-check config)… done
 [5/8] Install voice scaffolding (voice handoff, voice exceptions)… done
 [6/8] Initialize active planning files (reviewer tracking, roadmap, todos)… done
 [7/8] Finalize scaffold (commit + push)… done
@@ -244,7 +246,7 @@ for a pre-flight abort; state file only tracks runs that began step 1.
 ## Related skills
 
 - `pm-resume-setup` — recovery skill for partial setups.
-- `pm-init-vault` through `pm-register-project` — the 22 sub-skills enumerated
+- `pm-init-vault` through `pm-register-project` — the 23 sub-skills enumerated
   above. Each is independently invokable.
 - `pm-list-projects` — list registered projects.
 - `pm-enable-project` / `pm-disable-project` — toggle a project's registry
