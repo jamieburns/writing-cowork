@@ -72,7 +72,7 @@ except ImportError:
 # release. Printed via --version and stamped into every report header, so
 # a project's actual running script version can be confirmed directly
 # rather than assumed from the plugin version alone.
-DRIFT_CHECK_VERSION = "0.2.0"  # 2026-07-22: report filenames now include time-of-day
+DRIFT_CHECK_VERSION = "0.3.0"  # 2026-07-27: session-hygiene checks
 
 DEFAULT_REGISTRY = Path.home() / ".config" / "cowork" / "registry.yaml"
 
@@ -148,6 +148,14 @@ class ProjectConfig:
             if check.get("type") == "workstream-status-staleness":
                 self.workstream_status_config = check
                 break
+
+        # 2026-07-27: session hygiene — is anything hidden, stale, or stranded?
+        sh = data.get("session_hygiene", {}) or {}
+        self.session_hygiene_enabled = bool(sh.get("enabled", False))
+        self.sh_uncommitted  = sh.get("uncommitted_durable", {}) or {}
+        self.sh_log          = sh.get("log_unlanded", {}) or {}
+        self.sh_memory_path  = sh.get("memory_path", {}) or {}
+        self.sh_markers      = sh.get("managed_markers", {}) or {}
 
 
 # ════════════════════════════════════════════════════════════════════════════ helpers
@@ -690,6 +698,181 @@ def check_workstream_status_staleness(config: ProjectConfig):
 
 # ════════════════════════════════════════════════════════════════════════════ reporting
 
+def check_session_hygiene(config: ProjectConfig):
+    """Session hygiene — "is anything hidden, stale, or stranded?"
+
+    Runs on the normal drift schedule and is invoked by pm-close-session as its
+    verification step. Every check here is file/git based, so it behaves
+    identically in every runtime (information architecture spine, section 6d).
+
+    NOT here, deliberately: the session-managed ("hidden") memory store. In some
+    runtimes that store sits behind a tool only an agent can call, so no script
+    can reach it — pm-close-session performs that check itself.
+    """
+    import json
+    import subprocess
+
+    if not getattr(config, "session_hygiene_enabled", False):
+        return []
+
+    issues = []
+    vault = config.vault
+
+    def _git(*args):
+        try:
+            out = subprocess.run(
+                ["git", "-C", str(vault)] + list(args),
+                capture_output=True, text=True, timeout=30,
+            )
+            return out.stdout if out.returncode == 0 else None
+        except Exception:
+            return None
+
+    # ---- 1. durable content sitting uncommitted ---------------------------
+    cfg = config.sh_uncommitted
+    if cfg.get("enabled", True):
+        porcelain = _git("status", "--porcelain")
+        if porcelain is None:
+            issues.append({
+                "kind": "session_hygiene_no_git",
+                "summary": "Session hygiene — not a git repo (or git failed); "
+                           "uncommitted-content check skipped",
+                "details": {"vault": str(vault)},
+            })
+        else:
+            watch = tuple(cfg.get("watch", []))
+            ignore = tuple(cfg.get("ignore_untracked", []))
+            flagged = []
+            for line in porcelain.splitlines():
+                if len(line) < 4:
+                    continue
+                status, rel = line[:2], line[3:].strip()
+                if " -> " in rel:                 # rename: take the destination
+                    rel = rel.split(" -> ", 1)[1]
+                rel = rel.strip('"')
+                if watch and not rel.startswith(watch):
+                    continue
+                if status.strip() == "??" and ignore and rel.startswith(ignore):
+                    continue
+                flagged.append({"path": rel, "status": status.strip() or "M"})
+            if flagged:
+                shown = ", ".join(f["path"] for f in flagged[:5])
+                more = "..." if len(flagged) > 5 else ""
+                issues.append({
+                    "kind": "uncommitted_durable",
+                    "summary": "Session hygiene — %d durable file(s) uncommitted: %s%s"
+                               % (len(flagged), shown, more),
+                    "details": {"files": flagged},
+                })
+
+    # ---- 2. activity-log entries that never landed ------------------------
+    cfg = config.sh_log
+    if cfg.get("enabled", True):
+        log_path = vault / cfg.get("path", "process/Log.md")
+        placeholder = cfg.get("placeholder", "uncommitted")
+        if log_path.exists():
+            stranded = []
+            try:
+                lines = log_path.read_text(encoding="utf-8").splitlines()
+            except Exception:
+                lines = []
+            for i, line in enumerate(lines, 1):
+                if "commit:" in line and placeholder in line:
+                    stranded.append({"line": i, "text": line.strip()[:120]})
+            if stranded:
+                issues.append({
+                    "kind": "log_unlanded",
+                    "summary": "Session hygiene — %d activity-log entr(ies) still marked '%s'"
+                               % (len(stranded), placeholder),
+                    "details": {"entries": stranded},
+                })
+
+    # ---- 3. autoMemoryDirectory must resolve inside the vault -------------
+    cfg = config.sh_memory_path
+    if cfg.get("enabled", True):
+        settings_path = vault / cfg.get("settings_file", ".claude/settings.json")
+        key = cfg.get("key", "autoMemoryDirectory")
+        settings = None
+        if settings_path.exists():
+            try:
+                settings = json.loads(settings_path.read_text(encoding="utf-8"))
+            except Exception as exc:
+                issues.append({
+                    "kind": "memory_path_unreadable",
+                    "summary": "Session hygiene — %s did not parse as JSON (%s)"
+                               % (settings_path.name, exc),
+                    "details": {"path": str(settings_path)},
+                })
+        if settings is not None and key in settings:
+            configured = Path(os.path.expanduser(str(settings[key])))
+            try:
+                resolved = configured.resolve()
+                inside = True
+                try:
+                    resolved.relative_to(vault.resolve())
+                except ValueError:
+                    inside = False
+            except Exception:
+                resolved, inside = configured, False
+            if cfg.get("must_be_inside_vault", True) and not inside:
+                issues.append({
+                    "kind": "memory_path_drift",
+                    "summary": "Session hygiene — %s points outside this vault; "
+                               "memory writes are landing where you will not see them" % key,
+                    "details": {"configured": str(resolved), "vault": str(vault)},
+                })
+            elif not resolved.exists():
+                issues.append({
+                    "kind": "memory_path_missing",
+                    "summary": "Session hygiene — %s points at a path that does not exist" % key,
+                    "details": {"configured": str(resolved)},
+                })
+
+    # ---- 4. plugin-managed marker blocks must balance ---------------------
+    cfg = config.sh_markers
+    if cfg.get("enabled", True):
+        def _marker_re(literal):
+            # Require the real HTML-comment opener, so prose documenting the
+            # convention (deliberately written with <!== ... ==> so it is inert)
+            # is not counted as a marker. Tolerate internal whitespace runs,
+            # because markers are padded for alignment: "END   WRITING-COWORK".
+            parts = [re.escape(w) for w in str(literal).split()]
+            return re.compile(r"<!--\s*" + r"\s+".join(parts))
+
+        pairs = (
+            (cfg.get("begin", "BEGIN WRITING-COWORK MANAGED:"),
+             cfg.get("end", "END WRITING-COWORK MANAGED:"), "MANAGED"),
+            (cfg.get("project_begin", "BEGIN PROJECT-OWNED"),
+             cfg.get("project_end", "END PROJECT-OWNED"), "PROJECT-OWNED"),
+        )
+        unbalanced = []
+        for rel in cfg.get("files", []):
+            fp = vault / rel
+            if not fp.exists():
+                continue
+            try:
+                text = fp.read_text(encoding="utf-8")
+            except Exception:
+                continue
+            for begin, end, label in pairs:
+                n_begin = len(_marker_re(begin).findall(text))
+                n_end   = len(_marker_re(end).findall(text))
+                if n_begin != n_end:
+                    unbalanced.append({
+                        "file": rel, "block": label,
+                        "begin": n_begin, "end": n_end,
+                    })
+        if unbalanced:
+            issues.append({
+                "kind": "managed_markers_unbalanced",
+                "summary": "Session hygiene — unbalanced ownership markers in %d block(s); "
+                           "a sync would have to guess block boundaries" % len(unbalanced),
+                "details": {"blocks": unbalanced},
+            })
+
+    return issues
+
+
 def format_report(config: ProjectConfig, issues, generated_present, when):
     lines = [
         f"# Drift report — {config.name} — {when.isoformat(timespec='seconds')} "
@@ -861,6 +1044,9 @@ def run_one(config: ProjectConfig, dry_run=False):
     # v0.1.14 enhancements
     issues.extend(check_cross_phase_dependency(config))
     issues.extend(check_workstream_status_staleness(config))
+
+    # 2026-07-27: session hygiene
+    issues.extend(check_session_hygiene(config))
 
     update_hub(config, issues, when, dry_run=dry_run)
     update_ownership_footer(config, issues, when, dry_run=dry_run)
