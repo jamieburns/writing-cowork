@@ -117,6 +117,13 @@ venv/
 .obsidian/workspace-mobile.json
 .obsidian/workspace.json.bak
 
+# Session-close handoff — ephemeral single-slot baton, never a source of
+# truth. Written by pm-close-session; the next kickoff reads it, promotes
+# the durable content, then deletes it. NOTE: distinct from
+# process/data_management/handoff.md, which is the LIVING librarian
+# handoff and stays tracked.
+process/handoff/
+
 # Drift check artifacts (regenerable per-run)
 process/data_management/.drift_flag
 process/data_management/drift_reports/

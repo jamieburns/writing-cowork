@@ -237,3 +237,34 @@ Confirmed by Jamie. **Not drift; do not "reconcile" or delete either copy.**
 | `~/code/cowork-tools/drift_check.py` | **The original, retained on purpose** for projects that have not yet transitioned to the bundled copy. Sits at the pre-bundling revision (~41 lines behind) and that is expected. |
 
 Consequence: `pm-migrate-to-shared-tool` and `pm-run-drift-check`'s references to the cowork-tools path stay **valid** — they serve untransitioned vaults. A future session noticing the two copies differ should read this row rather than treating it as an inconsistency to fix.
+
+## Hooks in Cowork — researched 2026-07-27 — **ANSWERED: hooks do not run**
+
+The v0.1.17 gate is settled, and it **fails**. Three GitHub issues, one with hands-on verification:
+
+| Issue | State | Finding |
+|---|---|---|
+| [#40495](https://github.com/anthropics/claude-code/issues/40495) | **Open** (2026-03-29) | Canonical. **Cowork silently ignores all settings sources.** User hooks in `~/.claude/settings.json` never fire; managed/MDM settings ignored; env vars not forwarded. Root causes given: config-dir mismatch (sandbox looks for `cowork_settings.json` under `/sessions/<name>/mnt/.claude/`), platform mismatch (the sandbox is a **Linux VM**, so it resolves `/etc/claude-code/managed-settings.json` rather than the macOS path), and env vars not passed into the sandbox. |
+| [#47993](https://github.com/anthropics/claude-code/issues/47993) | Closed as duplicate of #40495 | States plainly: "Cowork sessions do not fire SessionStart hooks defined in `~/.claude/settings.json` or in plugins." |
+| [#63360](https://github.com/anthropics/claude-code/issues/63360) | Open, labelled `area:cowork`/`area:hooks` | Verified 2026-05-28: `UserPromptSubmit` did not fire, `Stop` did not fire, and **`/hooks` does not exist in Cowork** ("Unknown skill: hooks"). The reporter's script works when run directly in Terminal — "Cowork just never triggers it." |
+
+**Consequences, in order of importance:**
+
+1. **v0.1.17 as conceived is dead.** SessionStart / SessionEnd / `PreToolUse` hooks cannot deliver enforcement to consumer vaults, because consumer vaults run in Cowork. Convention plus `pm-close-session` **is the ceiling** there.
+2. **The §6c-1 memory consent-gate is off the table** for Cowork. Deferring it in the v0.1.16 pass was right, and it should now be marked not-viable rather than pending.
+3. **Spine §6d is vindicated, not paranoid.** "A control built on Claude Code settings or hooks may protect the dev loop and protect nothing in the shipped product" is now documented fact, not a cautious hypothesis.
+4. **Expectations for the memory-settings gating test should be low.** #40495 concerns *user-scope* `~/.claude/settings.json`; ours are *project-scope* `<vault>/.claude/settings.json`, and `enabledPlugins` demonstrably works there — so project scope is read for at least some keys. Still worth running, but a negative result would be unsurprising.
+5. **Sobering detail:** #47993 lists "CLAUDE.md with blocking instructions" among the *inadequate* workarounds — "unreliable, Claude skips them when the user's first message is engaging." That is precisely our Tier-1 router. We are at the documented ceiling, and should not expect the router alone to enforce anything.
+
+**What v0.1.17 should become instead.** Scheduled tasks **do** work in Cowork — the plugin already ships `pm-schedule-review`. A scheduled `pm-run-drift-check` is a runtime-independent enforcement backstop that catches what an unrun `pm-close-session` would have missed: uncommitted durable content, stranded log entries, memory-path drift. Not equivalent to a session-end hook (it is periodic, not guaranteed at close), but it is the strongest mechanism actually available in the runtime that matters. Hooks remain worth adding **for the Claude Code CLI dev loop only**, clearly scoped as such.
+
+## Handoff — two distinct artifacts, do not conflate (corrected 2026-07-27)
+
+The 2026-07-23/24 handoff decision said "`pm-install-handoff` updated to place handoffs in the gitignored single-slot location." **That conflates two different files** and taking it literally would have made a durable State doc ephemeral.
+
+| Artifact | Kind | Fate |
+|---|---|---|
+| `process/data_management/handoff.md` | **State — tracked** | The *living librarian handoff*, read first when picking up the librarian role in a new chat. Installed by `pm-install-handoff`, which is **unchanged**. Never gitignored. |
+| `process/handoff/session-handoff.md` | **Ephemeral — gitignored** | The session-close baton. Written by `pm-close-session`, single-slot; the next kickoff reads it, promotes the durable content, deletes it. New in v0.1.16. |
+
+Shipped: `process/handoff/` added to the vault `.gitignore` written by `pm-init-vault`; `1_Project/Handoff/` added to this repo's `.gitignore` (the stale 2026-07-23 handoff is now correctly ignored); `pm-close-session` names the path explicitly and warns against the confusion.

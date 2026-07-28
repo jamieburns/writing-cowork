@@ -127,8 +127,14 @@ project, mutations run on the host rather than through a mounted view.
 
 ## 6. Handoff
 
-Write **the** handoff — single-slot, gitignored, local disk only. Overwrite any
-existing one; at most one live handoff exists at a time.
+Write **the** handoff to `process/handoff/session-handoff.md` — single-slot,
+gitignored, local disk only. Overwrite any existing one; at most one live
+handoff exists at a time. Create `process/handoff/` if absent.
+
+**Do not confuse this with `process/data_management/handoff.md`.** That is the
+*living librarian handoff* — a tracked State doc read when picking up the
+librarian role in a new chat. It is not ephemeral and this skill never touches
+it. Two different artifacts that happen to share a word.
 
 Keep it a **routing note, never a source of truth**: where the next session
 should pick up, what was in flight, what to read first. Anything durable should

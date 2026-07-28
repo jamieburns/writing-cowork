@@ -25,3 +25,6 @@ __pycache__/
 # Accidental Obsidian vault that got created inside the dev repo on 2026-05-19
 WritingPlugin/
 
+# Session-close handoffs — ephemeral single-slot baton, never a source of truth.
+# Locked 2026-07-23/24; see 1_Project/Decisions.md "Handoff lifecycle".
+1_Project/Handoff/

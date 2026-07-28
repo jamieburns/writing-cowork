@@ -10,7 +10,7 @@ High-level phase/version summary. Full detail for each version lives in its own 
 | **v0.1.14** | **Shipped, released, in successful daily use for 2 months (confirmed 2026-07-21)** | Assignee column (6 skills + role_taxonomy template). `pm-version`'s marker was stale at v0.1.13 pointing to this exact version — fixed 2026-07-21. |
 | v0.1.15 | Shipped to Claude Code CLI; **not yet refreshed in Cowork** | Full `0_Product/` consolidation via a `git-subdir` marketplace source; `research_and_analysis/` + `production/` folder-naming conventions. |
 | **v0.1.16** | **In progress (2026-07-25/27)** | **Information architecture spine.** Shipped so far: `CLAUDE.md` Tier-1 router + ownership-marker convention; visible project memory (`process/memory/` + `INDEX.md`); memory settings (Option B redirect, path computed at install); activity log (`process/Log.md`, newest-last); `file_ownership.md` as the plugin-managed provenance registry; `pm-install-router`, `pm-init-memory`, `pm-init-log`, `pm-close-session`; `drift_check.py` v0.3.0 with `session_hygiene` checks. `pm-setup-project` now runs 23 sub-skills. |
-| v0.1.17 | Planned — **gated** | **Session hooks:** move session-start orientation and session-close discipline from convention to enforced. See "v0.1.17 gate" below. |
+| v0.1.17 | **Rescoped** — original plan not viable | Session hooks **do not run in Cowork** (researched 2026-07-27). Replace with a scheduled-task enforcement backstop; hooks only for the CLI dev loop. See below. |
 | v0.1.19 | Deferred | Production-pipeline tooling. |
 | v0.2.0 | Deferred | `pm-sync-project-to-plugin` (drift-check config + vault layout + router migration in one mechanism). |
 
@@ -23,16 +23,24 @@ High-level phase/version summary. Full detail for each version lives in its own 
 - Reconcile `DRIFT-ATTENTION-START/END` into the `MANAGED:` naming — requires changing `drift_check.py` in the same commit, and migrating any live vault's hub.
 - Release: version bump in all three places per the release checklist, then the Cowork-side marketplace refresh.
 
-### v0.1.17 gate — verify Cowork runs hooks at all
+### v0.1.17 gate — **ANSWERED 2026-07-27: hooks do not run in Cowork**
 
 Hooks are a **Claude Code CLI** mechanism. The 2026-07-25 research established that every memory control the platform documents is CLI-documented, and that **consumer vaults run in Cowork**, where binding is unverified. Two specific unknowns block v0.1.17:
 
 1. Does Cowork execute hooks at all?
 2. Do hook matchers catch MCP tool calls (`mcp__*`), not just `Write`/`Edit`?
 
-If either answer is no, v0.1.17 cannot deliver enforcement to consumer vaults and the convention-plus-`pm-close-session` approach remains the ceiling. **Verify before scoping the work** — this is the same runtime-independence constraint recorded as spine §6d.
+**Both answered, both negative.** [#40495](https://github.com/anthropics/claude-code/issues/40495) (open, canonical) documents that Cowork silently ignores *all* settings sources — user hooks never fire, managed settings are ignored, env vars are not forwarded — with root causes given (config-dir mismatch, and the sandbox being a Linux VM so it resolves the Linux managed-settings path). [#47993](https://github.com/anthropics/claude-code/issues/47993) states SessionStart hooks do not fire and was closed as a duplicate of it. [#63360](https://github.com/anthropics/claude-code/issues/63360) verified hands-on that `UserPromptSubmit` and `Stop` never fire and that `/hooks` does not exist in Cowork. Full record in `1_Project/Decisions.md` → "Hooks in Cowork".
 
-Candidate contents, assuming the gate passes:
+**So enforcement-by-hook cannot reach consumer vaults.** Convention plus `pm-close-session` is the ceiling there. Note also that #47993 lists "CLAUDE.md with blocking instructions" among the *inadequate* workarounds — that is our Tier-1 router, so the router should be understood as steering, not enforcing.
+
+**Rescoped v0.1.17 — what to build instead:**
+
+- **Scheduled-task enforcement backstop (primary).** Scheduled tasks *do* work in Cowork, and `pm-schedule-review` already exists. A scheduled `pm-run-drift-check` catches what an unrun `pm-close-session` would have missed — uncommitted durable content, stranded log entries, memory-path drift. Periodic rather than guaranteed-at-close, but it is the strongest mechanism available in the runtime that actually matters.
+- **Hooks for the Claude Code CLI dev loop only**, explicitly scoped as such — they genuinely help Jamie's own workflow and should not be advertised as a consumer-vault feature.
+- **Watch #40495.** If Cowork ever honours settings sources, both the hook plan and the memory-settings approach become viable together.
+
+Superseded — the original plan, retained for context:
 
 - **SessionStart hook** — read the bounded set + log tail, then state back what was read, the state as understood, and what is about to be done. Convention today.
 - **SessionEnd/Stop hook** — invoke `pm-close-session` rather than reimplementing it; the skill already exists.
