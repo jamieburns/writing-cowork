@@ -101,6 +101,7 @@ Two ownership classes, and the difference matters:
 | `process/data_management/drift_check.yaml` | scaffold-once | — | YAML, so it *can* take comments and markers if it ever becomes regenerated. |
 | `process/memory/INDEX.md` | scaffold-once | — | Yours the moment it exists. |
 | `process/Log.md` | scaffold-once | — | Append-only; the plugin must never rewrite it. |
+| `process/data_management/git-hooks/post-commit` | scaffold-once | — | Session-hygiene hook. Paths resolved at install; `core.hooksPath` points here. Tracked, so it travels with a clone. |
 | `project_hub.md` | scaffold-once | `DRIFT-ATTENTION-START/END` | Exception: the Attention block *is* tool-written by drift-check, under an older marker naming scheme predating the `MANAGED:` convention. Reconciling the two names requires updating `drift_check.py` in the same change. |
 
 Keep this table current when the plugin gains or drops a managed file — it is what makes "who owns this line" answerable without opening every file.

@@ -268,3 +268,34 @@ The 2026-07-23/24 handoff decision said "`pm-install-handoff` updated to place h
 | `process/handoff/session-handoff.md` | **Ephemeral — gitignored** | The session-close baton. Written by `pm-close-session`, single-slot; the next kickoff reads it, promotes the durable content, deletes it. New in v0.1.16. |
 
 Shipped: `process/handoff/` added to the vault `.gitignore` written by `pm-init-vault`; `1_Project/Handoff/` added to this repo's `.gitignore` (the stale 2026-07-23 handoff is now correctly ignored); `pm-close-session` names the path explicitly and warns against the confusion.
+
+## Claude Code hooks — dropped entirely (2026-07-27)
+
+Confirmed by Jamie. Not "CLI-only", not "deferred" — **off the roadmap**.
+
+Rationale: they do not run in Cowork (see "Hooks in Cowork" above), and consumer vaults run in Cowork. A CLI-only hook would be a second enforcement path protecting the one environment least in need of it — the dev loop, where attention is already high — while adding a mechanism to maintain, document, and keep in sync with the skill it duplicates. One mechanism per job.
+
+Replaced by three layers, all runtime-independent:
+
+| Layer | Mechanism | Trigger |
+|---|---|---|
+| Orientation | `CLAUDE.md` router + the hub's `## Attention` block (written by `drift_check`) | session start — by *content*, not execution |
+| **Enforcement** | **git `post-commit` hook** (`pm-install-git-hooks`) | every commit |
+| Sweep | scheduled `pm-run-drift-check` (via `pm-schedule-review`) | periodic |
+
+**Why the commit is the right trigger.** The control model is that *git is the consent mechanism* and consent happens at commit. Session-close was always a proxy for "before this work becomes permanent" — the commit **is** that moment. Unlike session-close it cannot be forgotten, and unlike a Claude Code hook it runs in every runtime, because git runs on the host and no agent runtime is involved.
+
+**Why `post-commit`, not `pre-commit`.** It cannot block, deliberately. A blocking check gets `--no-verify`'d the first time someone is in a hurry, and a check that is routinely bypassed is worse than one that always reports. The findings are things to notice, not reasons to reject a commit.
+
+**What orientation loses without a hook.** A hook could *execute* and inject computed state; `CLAUDE.md` can only *instruct*. The gap is covered by the hub's Attention block, which the scheduled drift check pre-computes into a file the router already points at. What cannot be recovered is a compliance guarantee — the router steers, it does not enforce.
+
+## DRIFT-ATTENTION markers — kept as a distinct family, not renamed (2026-07-27)
+
+Previously flagged as an inconsistency to reconcile (spine §10.9). **Decided: do not rename.** These are two marker families with genuinely different semantics:
+
+| Family | Written by | Meaning |
+|---|---|---|
+| `BEGIN/END WRITING-COWORK MANAGED:` | plugin sync | regenerated from template; hand edits inside are lost |
+| `DRIFT-ATTENTION-START/END` | `drift_check.py` at runtime | tool-written state, refreshed every run |
+
+Renaming would force one vocabulary onto two different things and require migrating every live vault's hub for cosmetic gain. The ownership question is already answered by the distinct name plus the row in `file_ownership.md`. Recorded so this stops resurfacing as drift.

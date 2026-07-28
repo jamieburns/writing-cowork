@@ -207,7 +207,7 @@ Folders enforce nothing. The spine rots the moment promote-and-log is skipped. S
 
   One wrinkle worth knowing: the log entry names the commit that carried the change, but the log is itself committed — and `--amend` cannot resolve that, since amending changes the hash the entry would name. Resolution is **two commits**: content first, then the log entry naming that hash. The log trails the work by one commit. Correct rather than elegant, but the hash is real and greppable.
 - **Session-start orientation (convention now, hook later):** read the bounded set + log tail, then state back "here's what I read, the state as I understand it, and what I'm about to do and why" before acting.
-- **Session-start/-end hooks (v0.17):** move the above from convention to enforced. Already on the roadmap.
+- ~~**Session-start/-end hooks (v0.17)**~~ — **dropped 2026-07-27.** Claude Code hooks do not run in Cowork, and consumer vaults run in Cowork. Enforcement moved to a **git `post-commit` hook** (`pm-install-git-hooks`), which runs on the host in every runtime and fires at the moment consent actually happens — the commit. Orientation stays with the router plus the hub's Attention block; a periodic scheduled drift check is the third layer. Full record in `Decisions.md` → "Claude Code hooks — dropped entirely".
 
 ---
 

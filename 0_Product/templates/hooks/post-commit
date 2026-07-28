@@ -1,0 +1,47 @@
+#!/bin/sh
+# =============================================================================
+# writing-cowork — post-commit session-hygiene check
+#
+# Installed by pm-install-git-hooks. Paths below are resolved AT INSTALL TIME,
+# the same compute-at-install pattern used for autoMemoryDirectory: a shipped
+# template cannot carry a machine-specific absolute path.
+#
+# WHY A GIT HOOK, AND WHY post-commit
+#   Claude Code hooks do not run in Cowork (see Decisions.md, "Hooks in
+#   Cowork"). Git hooks are unrelated to those — they run wherever `git` runs,
+#   on the host, and no agent runtime has any say in it. That makes this the
+#   only enforcement mechanism available in every runtime.
+#
+#   post-commit rather than pre-commit is deliberate. The project's control
+#   model is "git is the consent mechanism" and consent happens at commit, so
+#   the commit is the right moment to look. A pre-commit hook that BLOCKS gets
+#   --no-verify'd the first time someone is in a hurry, and a check that is
+#   routinely bypassed is worse than one that always reports. This warns; it
+#   never blocks. Nothing you do here can fail a commit.
+#
+# Set WRITING_COWORK_SKIP_HYGIENE=1 to silence it (scripted or batch commits).
+# =============================================================================
+
+[ -n "$WRITING_COWORK_SKIP_HYGIENE" ] && exit 0
+
+DRIFT_CHECK="{{drift_check_path}}"
+CONFIG="{{config_path}}"
+PYTHON="{{python_path}}"
+
+# Never let a missing dependency interfere with committing.
+[ -x "$PYTHON" ] || exit 0
+[ -f "$DRIFT_CHECK" ] || exit 0
+[ -f "$CONFIG" ] || exit 0
+
+# --dry-run: report only. The scheduled drift check owns writing the hub's
+# Attention block and the report files; this hook is a fast visible warning.
+OUT=$("$PYTHON" "$DRIFT_CHECK" --config "$CONFIG" --dry-run 2>/dev/null \
+      | grep -i 'session hygiene')
+
+if [ -n "$OUT" ]; then
+  printf '\n\033[33m── writing-cowork: session hygiene ──\033[0m\n' >&2
+  printf '%s\n' "$OUT" >&2
+  printf '\033[2mRun pm-close-session to promote, log, and clear these.\033[0m\n\n' >&2
+fi
+
+exit 0

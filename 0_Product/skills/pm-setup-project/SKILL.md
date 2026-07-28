@@ -77,14 +77,18 @@ return the failure message plus the resume instruction.
 | 19 | `pm-init-reader-review-tracking` | Create empty `process/active/reviewer_tracking.md` | — |
 | 20 | `pm-init-roadmap` | Create empty `process/active/roadmap.md` | — |
 | 21 | `pm-init-todos` | Create empty `process/active/todos.md` | — |
-| 22 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
-| 23 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
+| 22 | `pm-install-git-hooks` | Install `post-commit` session-hygiene hook + set `core.hooksPath` | `--git=none` |
+| 23 | `pm-finalize-scaffold-commit` | `git add -A && git commit -m "[data-mgmt] initial vault scaffold..."`, push if origin configured | `--git=none` |
+| 24 | `pm-register-project` | Add entry to `~/.config/cowork/registry.yaml` | — |
 
 `pm-install-router` runs directly after `pm-install-project-hub` because the
 router points at the hub. `pm-init-memory` and `pm-init-log` sit with the
 data-management scaffolding: `process/memory/INDEX.md` is the Reference manifest
 the router's orientation block names, and `process/Log.md` is the project's
 activity record rather than a planning artifact.
+
+`pm-install-git-hooks` runs immediately before `pm-finalize-scaffold-commit`
+so the post-commit hook is already live for the scaffold commit itself.
 
 Skip rules apply at the orchestrator level. Each sub-skill is independently
 invokable from chat for ad-hoc use; the orchestrator simply chains them.
@@ -115,7 +119,7 @@ Format:
 }
 ```
 
-Track all 23 sub-skills individually in `completed_steps` (granular).
+Track all 24 sub-skills individually in `completed_steps` (granular).
 Resume needs to know which specific sub-skill failed; user-facing narration
 gangs steps into groups but the state file does not.
 
@@ -124,15 +128,15 @@ Update the file atomically — write to `<name>_setup_state.json.tmp`, then
 from the manual phase; the registry and other long-lived files use it to
 avoid torn reads.
 
-On success of the final step (`pm-register-project`, step 23), set `status: "complete"`.
+On success of the final step (`pm-register-project`, step 24), set `status: "complete"`.
 Keep the file — `pm-resume-setup` checks status before doing anything; a
 completed file is a no-op signal, not stale state.
 
 ## Output
 
-Narrate progress in groups, not per-step. The 23 sub-skills fall into 8
+Narrate progress in groups, not per-step. The 24 sub-skills fall into 8
 narration groups; gang the low-impact steps (file copies, touches) so the
-user-facing output stays scannable. The state file still tracks all 23
+user-facing output stays scannable. The state file still tracks all 24
 sub-skills individually.
 
 Narration groups:
@@ -144,7 +148,7 @@ Narration groups:
 | 3 | `pm-install-charter`, `pm-install-handoff`, `pm-install-for-other-contexts`, `pm-install-project-hub`, `pm-install-router`, `pm-install-claim-dispute-protocol`, `pm-install-tagging-conventions`, `pm-place-lift-decisions` (when not skipped) | Install orienting docs (charter, handoff, for-other-contexts, project-hub, router, claim-dispute-protocol, tagging-conventions[, decisions]) |
 | 4 | `pm-install-hierarchy-and-ownership`, `pm-init-memory`, `pm-init-log`, `pm-install-drift-check-config` | Install data-management scaffolding (file hierarchy, ownership table, memory index, activity log, drift-check config) |
 | 5 | `pm-init-voice-handoff`, `pm-init-voice-exceptions` | Install voice scaffolding (voice handoff, voice exceptions) |
-| 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos` | Initialize active planning files (reviewer tracking, roadmap, todos) |
+| 6 | `pm-init-reader-review-tracking`, `pm-init-roadmap`, `pm-init-todos`, `pm-install-git-hooks` | Initialize active planning files (reviewer tracking, roadmap, todos) + install git hooks |
 | 7 | `pm-finalize-scaffold-commit` | Finalize scaffold (commit + push) |
 | 8 | `pm-register-project` | Register project in cowork registry |
 
@@ -157,7 +161,7 @@ narration only then. Group 7 is also conditional: skipped entirely when
 `--git=none` (no repo to commit to); narrated as "Finalize scaffold (commit)"
 — without "+ push" — when `--git=local` (no remote yet).
 
-Group numbering is fixed at 8 in the standard case (all 23 sub-skills run);
+Group numbering is fixed at 8 in the standard case (all 24 sub-skills run);
 when groups are entirely skipped (groups 2 and 7 are the only candidates),
 reduce the denominator so the user sees, e.g., `[1/6]` through `[6/6]`. Do
 not renumber mid-run.
@@ -188,7 +192,7 @@ Git mode: new-github
 [3/8] Install orienting docs (charter, handoff, for-other-contexts, project-hub, router, claim-dispute-protocol, tagging-conventions)… done
 [4/8] Install data-management scaffolding (file hierarchy, ownership table, memory index, activity log, drift-check config)… done
 [5/8] Install voice scaffolding (voice handoff, voice exceptions)… done
-[6/8] Initialize active planning files (reviewer tracking, roadmap, todos)… done
+[6/8] Initialize active planning files (reviewer tracking, roadmap, todos) + install git hooks… done
 [7/8] Finalize scaffold (commit + push)… done
 [8/8] Register project in cowork registry… done
 
@@ -246,7 +250,7 @@ for a pre-flight abort; state file only tracks runs that began step 1.
 ## Related skills
 
 - `pm-resume-setup` — recovery skill for partial setups.
-- `pm-init-vault` through `pm-register-project` — the 23 sub-skills enumerated
+- `pm-init-vault` through `pm-register-project` — the 24 sub-skills enumerated
   above. Each is independently invokable.
 - `pm-list-projects` — list registered projects.
 - `pm-enable-project` / `pm-disable-project` — toggle a project's registry
