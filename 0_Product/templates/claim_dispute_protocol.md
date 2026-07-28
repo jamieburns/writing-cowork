@@ -1,3 +1,12 @@
+<!-- =====================================================================
+     WRITING-COWORK PLUGIN - MANAGED FILE
+     This file is plugin-owned and is REGENERATED on plugin sync.
+     Hand edits inside the MANAGED block are lost on the next sync.
+     Ownership is recorded in process/data_management/file_ownership.md;
+     the marker convention is documented in CLAUDE.md.
+     ===================================================================== -->
+<!-- BEGIN WRITING-COWORK MANAGED: claim-dispute-protocol -->
+
 # Claim-dispute protocol — {{title}}
 
 When two or more contexts (chats, automated tasks) want to edit the same file concurrently, this protocol determines how the conflict resolves.
@@ -85,3 +94,7 @@ Substance context is mid-edit on `<main-draft>.md` §3.5 (claimed:substance). Re
 
 **Example 3 — Writer out-of-band edit.**
 Data-mgmt context holds `claimed:data-mgmt` on `process/data_management/file_ownership.md` to update the ownership table. Writer notices a typo on iPad in the same file and fixes it. Data-mgmt context next op: sees writer's typo fix, accepts it, re-applies its own pending update on top, releases the claim.
+
+*Plugin-managed reference document — regenerated on plugin sync. Edits made here are lost; project-specific notes belong in the project's own docs.*
+
+<!-- END   WRITING-COWORK MANAGED: claim-dispute-protocol -->

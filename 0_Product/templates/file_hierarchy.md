@@ -1,3 +1,12 @@
+<!-- =====================================================================
+     WRITING-COWORK PLUGIN - MANAGED FILE
+     This file is plugin-owned and is REGENERATED on plugin sync.
+     Hand edits inside the MANAGED block are lost on the next sync.
+     Ownership is recorded in process/data_management/file_ownership.md;
+     the marker convention is documented in CLAUDE.md.
+     ===================================================================== -->
+<!-- BEGIN WRITING-COWORK MANAGED: file-hierarchy -->
+
 # File hierarchy — {{title}}
 
 Navigational map of the project. Layout, structure, and "where to find X" guidance. The librarian-facing exhaustive inventory with status and ownership is in `file_ownership.md`.
@@ -77,3 +86,15 @@ Additional rows added by the writer as project structure develops (e.g., "Brief 
 - **Scratch convention.** Any filename prefixed with `_`, any `_scratch/` or `scratch/` folder at any depth, or any `.scratch.md` file — ignored by drift checks and gitignored.
 - **Attention block convention (`project_hub.md` § Attention).** Tools may post status into the hub's Attention section by writing their own HTML-comment-delimited block, e.g., `<!-- TOOL-NAME-START --> ... <!-- TOOL-NAME-END -->`. The tool owns its block — auto-rewrites it on each run and clears to a benign state when its condition resolves. Reference implementation: `drift_check.py` (`<!-- DRIFT-ATTENTION-START/END -->`).
 - **Folder-naming consistency across projects.** `research_and_analysis/` and `production/` are the standard names — cross-project consistency is a deliberate design goal of this plugin, not a per-vault style choice. Vaults on the older `analysis/` naming (or ad hoc `BookDeliverables/`-style output folders) are expected to migrate onto the standard names via `pm-sync-project-to-plugin --target=layout`, not to keep the old names indefinitely. That case tags a rollback point (`pm-tag-snapshot`) before moving anything, runs with the vault owner concurrent (not unattended), and rewrites internal cross-references it can find — see the skill's own docs for what it catches automatically vs. what needs manual follow-up. Git history remains the safety net for anything the automated rewrite misses.
+
+*Sections above are plugin-managed and regenerated on sync — record project-specific layout below instead.*
+
+<!-- END   WRITING-COWORK MANAGED: file-hierarchy -->
+
+<!-- BEGIN PROJECT-OWNED -->
+
+## Project-specific layout
+
+(Add folders and navigation notes particular to this project as it develops — `research_and_analysis/`, `resources/`, `graphics/`, `production/`, subprojects, and anything else the writer creates. The plugin never edits below this line.)
+
+<!-- END PROJECT-OWNED -->

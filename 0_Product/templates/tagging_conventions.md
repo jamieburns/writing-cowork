@@ -1,3 +1,12 @@
+<!-- =====================================================================
+     WRITING-COWORK PLUGIN - MANAGED FILE
+     This file is plugin-owned and is REGENERATED on plugin sync.
+     Hand edits inside the MANAGED block are lost on the next sync.
+     Ownership is recorded in process/data_management/file_ownership.md;
+     the marker convention is documented in CLAUDE.md.
+     ===================================================================== -->
+<!-- BEGIN WRITING-COWORK MANAGED: tagging-conventions -->
+
 # Tagging conventions — {{title}}
 
 Git tags in this repo follow a three-namespace convention. Pattern source: writing-cowork plugin v0.1 (lifted from Reconciliation Hypothesis).
@@ -98,3 +107,7 @@ git tag -l 'lock/*' --sort=-creatordate        # locks, newest first
 git show release/v1.0-reviewer-r1              # tag message + diff from prior
 git log --decorate --oneline                   # commits with their tags
 ```
+
+*Plugin-managed reference document — regenerated on plugin sync. Edits made here are lost; project-specific notes belong in the project's own docs.*
+
+<!-- END   WRITING-COWORK MANAGED: tagging-conventions -->

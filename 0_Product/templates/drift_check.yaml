@@ -119,3 +119,6 @@ session_hygiene:
     project_end: "END PROJECT-OWNED"
     files:
       - CLAUDE.md
+      - process/data_management/claim_dispute_protocol.md
+      - process/data_management/tagging_conventions.md
+      - process/data_management/file_hierarchy.md
