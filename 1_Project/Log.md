@@ -35,4 +35,4 @@ The single **shared, append-only** activity log for this repo — the semantic l
 - 2026-07-29 · claude · Closed out the information-architecture / memory workstream; v0.1.17 content complete.
   why: memory management moved from an open problem to a shipped model, and the enforcement mechanism changed twice as evidence arrived — hooks do not run in Cowork, so enforcement moved to a git post-commit hook that fires where consent actually happens.
   inputs: spine §5/§6/§8; `Decisions.md`; GitHub #40495/#47993/#63360; `drift_check.py`
-  changed: `Roadmap.md` (stale narrative sections corrected); `drift_check.py` (v0.3.1 — log_unlanded no longer flags the schema example)  · commit: PENDING
+  changed: `Roadmap.md` (stale narrative sections corrected); `drift_check.py` (v0.3.1 — log_unlanded no longer flags the schema example)  · commit: 417c755
