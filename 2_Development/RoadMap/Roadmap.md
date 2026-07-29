@@ -16,12 +16,19 @@ High-level phase/version summary. Full detail for each version lives in its own 
 
 **Version shorthand:** elsewhere in this repo (`Decisions.md`, the spine doc) these are written as v0.16, v0.17, v0.19 — dropping the leading `1.`. They mean v0.1.16, v0.1.17, v0.1.19. v0.2.0 is genuinely the next minor and comes after v0.1.19.
 
-### v0.1.16 — outstanding before release
+### v0.1.16 / v0.1.17 — content complete; only the release remains
 
-- Handoff lifecycle: `.gitignore` entry + single-slot placement + drift-check flag for stragglers. (Decision locked 2026-07-23/24; not yet implemented — the 2026-07-23 handoff is still untracked in this repo.)
-- Ownership markers rolled across the remaining *regenerated* templates (`claim_dispute_protocol.md`, `tagging_conventions.md`, `file_hierarchy.md`). Scaffold-once templates need only a provenance row, not markers.
-- Reconcile `DRIFT-ATTENTION-START/END` into the `MANAGED:` naming — requires changing `drift_check.py` in the same commit, and migrating any live vault's hub.
-- Release: version bump in all three places per the release checklist, then the Cowork-side marketplace refresh.
+Everything previously listed here is **done**: handoff lifecycle (both gitignores, single-slot path, `pm-close-session` names it), ownership markers across the regenerated templates, and the `DRIFT-ATTENTION` question — **resolved by deciding not to rename** (two marker families with different semantics; see `Decisions.md`).
+
+Outstanding is the release itself, and two of the three steps are Jamie's:
+
+1. ~~`plugin.json` version + description~~ **done** (v0.1.17).
+2. ~~`pm-version` EXPECTED VERSION sentinel~~ **done** (v0.1.17).
+3. **Marketplace catalog description** in `cowork-plugins-marketplace` — not a connected folder in the working session, so untouched.
+4. **Cowork-side refresh** — the marketplace uninstall/reinstall procedure in `1_Project/Process/dev-workflow-and-release.md`.
+5. Optional: a `release/v0.1.17-*` tag, matching `release/v0.1.14`.
+
+**Known risk going in:** the `post-commit` hook has been written and its underlying checks tested, but `pm-install-git-hooks` has **never been executed** and the hook has never fired. This dev repo is the obvious first test. The memory settings are likewise unverified in Cowork, and #40495 suggests they may be inert — the hook does not depend on them, which is the point of putting enforcement there.
 
 ### v0.1.17 gate — **ANSWERED 2026-07-27: hooks do not run in Cowork**
 
@@ -34,21 +41,21 @@ Hooks are a **Claude Code CLI** mechanism. The 2026-07-25 research established t
 
 **So enforcement-by-hook cannot reach consumer vaults.** Convention plus `pm-close-session` is the ceiling there. Note also that #47993 lists "CLAUDE.md with blocking instructions" among the *inadequate* workarounds — that is our Tier-1 router, so the router should be understood as steering, not enforcing.
 
-**Rescoped v0.1.17 — what to build instead:**
+**Final v0.1.17 shape — Claude Code hooks dropped entirely (2026-07-27).** Not CLI-only, not deferred: a CLI-only hook would protect the one environment least in need of it while adding a mechanism to maintain alongside the skill it duplicates. Three runtime-independent layers replace it:
 
-- **Scheduled-task enforcement backstop (primary).** Scheduled tasks *do* work in Cowork, and `pm-schedule-review` already exists. A scheduled `pm-run-drift-check` catches what an unrun `pm-close-session` would have missed — uncommitted durable content, stranded log entries, memory-path drift. Periodic rather than guaranteed-at-close, but it is the strongest mechanism available in the runtime that actually matters.
-- **Hooks for the Claude Code CLI dev loop only**, explicitly scoped as such — they genuinely help Jamie's own workflow and should not be advertised as a consumer-vault feature.
-- **Watch #40495.** If Cowork ever honours settings sources, both the hook plan and the memory-settings approach become viable together.
+| Layer | Mechanism | Trigger |
+|---|---|---|
+| Orientation | `CLAUDE.md` router + the hub's `## Attention` block (pre-computed by `drift_check`) | session start — by *content*, not execution |
+| **Enforcement** | **git `post-commit` hook** (`pm-install-git-hooks`) | every commit |
+| Sweep | scheduled `pm-run-drift-check` (via `pm-schedule-review`) | periodic |
 
-Superseded — the original plan, retained for context:
+Git hooks are unrelated to Claude Code hooks — they run on the host wherever `git` runs, so no agent runtime is involved. And the commit is the *right* trigger: the control model is that git is the consent mechanism, consent happens at commit, and session-close was only ever a proxy for "before this becomes permanent." Unlike session-close it cannot be forgotten. `post-commit` rather than `pre-commit` is deliberate — it cannot block, because a blocking check gets `--no-verify`'d and these findings are things to notice, not reasons to reject a commit.
 
-- **SessionStart hook** — read the bounded set + log tail, then state back what was read, the state as understood, and what is about to be done. Convention today.
-- **SessionEnd/Stop hook** — invoke `pm-close-session` rather than reimplementing it; the skill already exists.
-- **`PreToolUse` consent-gate on memory writes** — spine §6c-1, deliberately deferred from the v0.1.16 memory pass precisely because it depends on both unknowns above.
+Superseded — the original hook-based plan, retained for context: SessionStart hook for orientation, SessionEnd/Stop hook invoking `pm-close-session`, and a `PreToolUse` consent-gate on memory writes (spine §6c-1). All three are dead in Cowork.
 
 ## Carried-over decisions from `DECISIONS_v014.md` — not yet shipped
 
-`DECISIONS_v014.md` locked three workstreams for v0.1.14: Assignee Column, Review Skills (Subset 4, 13 skills), and Drift Enhancements. Only Assignee Column shipped — confirmed by skill listing: no `review-*` or `cycle-*` skills exist anywhere in the current 60 skills (only the pre-existing `pm-init-reader-review-tracking` and `pm-schedule-review`). Drift Enhancements' status wasn't independently re-verified in this pass (they may be embedded as code changes to `pm-run-drift-check`/`drift_check.py` rather than new skill names, which wouldn't show up in a skill-name check).
+`DECISIONS_v014.md` locked three workstreams for v0.1.14: Assignee Column, Review Skills (Subset 4, 13 skills), and Drift Enhancements. Only Assignee Column shipped — confirmed by skill listing: no `review-*` or `cycle-*` skills exist anywhere in the current 65 skills (only the pre-existing `pm-init-reader-review-tracking` and `pm-schedule-review`). Drift Enhancements' status wasn't independently re-verified in this pass (they may be embedded as code changes to `pm-run-drift-check`/`drift_check.py` rather than new skill names, which wouldn't show up in a skill-name check).
 
 These are open, not urgent — pick up whenever you're ready to resume feature work:
 

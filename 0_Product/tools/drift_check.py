@@ -72,7 +72,7 @@ except ImportError:
 # release. Printed via --version and stamped into every report header, so
 # a project's actual running script version can be confirmed directly
 # rather than assumed from the plugin version alone.
-DRIFT_CHECK_VERSION = "0.3.0"  # 2026-07-27: session-hygiene checks
+DRIFT_CHECK_VERSION = "0.3.1"  # 2026-07-29: log_unlanded skips fenced code blocks
 
 DEFAULT_REGISTRY = Path.home() / ".config" / "cowork" / "registry.yaml"
 
@@ -776,7 +776,16 @@ def check_session_hygiene(config: ProjectConfig):
                 lines = log_path.read_text(encoding="utf-8").splitlines()
             except Exception:
                 lines = []
+            in_fence = False
             for i, line in enumerate(lines, 1):
+                # Skip fenced code blocks: the log template documents its own
+                # entry schema with a literal "commit: <hash | uncommitted>"
+                # example, which is documentation, not a stranded entry.
+                if line.lstrip().startswith("```"):
+                    in_fence = not in_fence
+                    continue
+                if in_fence:
+                    continue
                 if "commit:" in line and placeholder in line:
                     stranded.append({"line": i, "text": line.strip()[:120]})
             if stranded:
