@@ -38,7 +38,8 @@
 1. `1_Project/Decisions.md` — current resting state of every decision. **Start here.**
 2. `1_Project/Memory/INDEX.md` — memory manifest; pull topic files on demand, don't read them all.
 3. `1_Project/Process/README.md` — how we work: dev cycle, release procedure, tool lanes.
-4. `2_Development/RoadMap/Roadmap.md` — what's next.
+4. `2_Development/RoadMap/Roadmap.md` — version status.
+5. `1_Project/Todos.md` — the work list: what is open, who owns it, what blocks it.
 
 That is the whole orientation set. It is fixed-size and does not grow with project age. Do **not** reconstruct project state by reading `1_Project/Handoff/` or `1_Project/History/` — those are ephemeral and historical respectively, never sources of truth.
 

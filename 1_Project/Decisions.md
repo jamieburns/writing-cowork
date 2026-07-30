@@ -299,3 +299,66 @@ Previously flagged as an inconsistency to reconcile (spine §10.9). **Decided: d
 | `DRIFT-ATTENTION-START/END` | `drift_check.py` at runtime | tool-written state, refreshed every run |
 
 Renaming would force one vocabulary onto two different things and require migrating every live vault's hub for cosmetic gain. The ownership question is already answered by the distinct name plus the row in `file_ownership.md`. Recorded so this stops resurfacing as drift.
+
+## Status files carry no history (2026-07-29) — LOCKED
+
+**Decided:** `2_Development/RoadMap/Roadmap.md` is a **status file**. It answers
+"where is each version, right now" and nothing else. Narrative, research trails,
+superseded plans, and "here is how we got here" do not belong in it.
+
+This is the State record kind applied honestly: State is *overwritten in place
+and kept small*. A roadmap that accretes the reasoning behind every version is a
+Log wearing a State file's name, and it stops being readable at a glance — which
+is the only thing a status file is for.
+
+**Three destinations, one home per fact:**
+
+| Kind | Home |
+|---|---|
+| Version status, right now | `2_Development/RoadMap/Roadmap.md` |
+| Work not yet done | `1_Project/Todos.md` |
+| A commitment already made | `1_Project/Decisions.md` |
+| Superseded narrative worth keeping | `2_Development/RoadMap/history/` |
+
+The 2026-07-29 sweep moved 82 lines of roadmap down to 45, archiving the
+narrative verbatim to `history/2026-07-29_roadmap-narrative-archive.md`. It was
+archived rather than deleted: "git has it" is technically true and practically
+useless, because recovering a rationale then means bisecting commits, which
+nobody does.
+
+## Todos.md — the work list (2026-07-29) — LOCKED
+
+**Decided:** work items live in `1_Project/Todos.md`, using the plugin's own
+`pm-init-todos` schema (`ID | Description | Milestone | Assignee | Status |
+Added | Notes`), so this repo dogfoods `pm-add-task` / `pm-update-task` /
+`pm-list-tasks` / `pm-close-task` rather than inventing a private format.
+
+It sits in `1_Project/` as a peer of `Decisions.md` rather than in
+`process/active/` — this repo is plugin *source*, not a writing vault, and
+introducing a `process/` tree here would put a second organizing scheme in
+competition with `1_Project/` and `2_Development/`.
+
+**Dogfooding paid immediately.** Adopting the schema surfaced a real defect
+within minutes: `drift_check.py:496` expects `id | title | status | priority |
+milestone | depends-on` — a column set **no template produces**. Any checker
+reading todos rows is operating on a schema that does not exist in the wild.
+Tracked as task `a4e1c7b2`; it also unblocks the long-stalled dependency-gate
+work (`5b3e8c72`), whose "the `depends-on` column doesn't exist" objection turns
+out to have been half right in the most confusing possible way.
+
+## Dated handoffs — swept, not deleted (2026-07-29)
+
+The four dated handoffs in `1_Project/Handoff/` were reviewed item by item
+against current source. Findings:
+
+- Both 2026-07-23 manual cleanup steps are **done** (`pm-migrate-existing-project/`
+  removed, no stale `.git/index.lock`).
+- Everything still genuinely open was promoted to `Todos.md` with its provenance
+  recorded — nine verified items plus four decisions needing Jamie.
+- Several inherited claims were **stale and were corrected rather than copied**,
+  which is the reason this took a source-verification pass rather than a
+  transcription: the `depends-on`-doesn't-exist claim, and the matcher
+  false-positive whose sourcing was already struck on 2026-07-22.
+
+The pile itself is left in place; disposition is Jamie's call, tracked as
+`d84a0c63`. Nothing is lost either way now that the contents are promoted.
