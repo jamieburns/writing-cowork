@@ -25,6 +25,7 @@ is a real defect surfaced by adopting the schema here.
 | b25d6f37 | Optional `release/v0.1.17-*` tag | v0.1.17-release | user | planned | 2026-07-29 | Matches `release/v0.1.14` |
 | e90c4a58 | Run `pm-install-git-hooks` against this repo — first execution ever | v0.1.17-release | pm | planned | 2026-07-29 | Hook has never fired. Verify exec bit, `core.hooksPath`, and that `drift_check.py --dry-run` emits "Session hygiene" lines |
 | 14a7b3e6 | Verify memory settings actually gate, in a fresh Cowork session | v0.1.17-release | pm | planned | 2026-07-29 | Cannot be tested from a session that already loaded them. #40495 suggests they may be inert |
+| 0d92f4a7 | Install `drift_check.yaml` for this repo — it has none, so `pm-install-git-hooks` precondition 4 fails and the post-commit hook would be inert | v0.1.17-release | pm | planned | 2026-07-29 | Blocks `e90c4a58`. Found 2026-07-29 trying to run the checker here; this repo is not registered with a drift config at all |
 
 ## Next — v0.1.18, recovered from the dated handoffs
 
