@@ -36,3 +36,7 @@ The single **shared, append-only** activity log for this repo — the semantic l
   why: memory management moved from an open problem to a shipped model, and the enforcement mechanism changed twice as evidence arrived — hooks do not run in Cowork, so enforcement moved to a git post-commit hook that fires where consent actually happens.
   inputs: spine §5/§6/§8; `Decisions.md`; GitHub #40495/#47993/#63360; `drift_check.py`
   changed: `Roadmap.md` (stale narrative sections corrected); `drift_check.py` (v0.3.1 — log_unlanded no longer flags the schema example)  · commit: 417c755
+- 2026-07-29 · claude · Roadmap reduced to status-only; created Todos.md; swept the dated handoffs into it.
+  why: status files were accreting history, so the roadmap had stopped being readable at a glance, and the only record of unresolved work lived in four ephemeral dated handoffs that the architecture says are never sources of truth.
+  inputs: `1_Project/Handoff/2026-07-2{1,2,3}_*.md`; `1_Project/Documents/v0.1.15_planning_roadmap_2026-07-22.md`; `drift_check.py`; `pm-init-todos`, `pm-show-composite-kanban`, `pm-list-tasks` SKILL.md
+  changed: `2_Development/RoadMap/Roadmap.md` (82 -> 45 lines); `2_Development/RoadMap/history/2026-07-29_roadmap-narrative-archive.md` (new); `1_Project/Todos.md` (new, 29 items); `1_Project/Decisions.md` (3 sections); `CLAUDE.md` (orient list)  · commit: edcbd9b
