@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "enable writing-cowork in
   this project", "set up Cowork project settings", "scope writing-cowork to
   this vault", "configure project memory settings", or any variant of writing
-  the per-project Cowork settings file. Writes `<vault>/.claude/settings.json`
+  the per-project Cowork settings file. Writes `[vault]/.claude/settings.json`
   with `enabledPlugins` so writing-cowork loads only in this project, and
   points auto memory at the vault's visible `process/memory/` directory so
   memory writes land in git-tracked files rather than a hidden store. Invoked

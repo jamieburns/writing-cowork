@@ -3,7 +3,7 @@ name: pm-show-roadmap
 description: >
   This skill should be used when the user asks to "show the roadmap",
   "display the project roadmap", "what's the phase plan", or any variant
-  of rendering `<vault>/process/active/roadmap.md` in a scannable view.
+  of rendering `[vault]/process/active/roadmap.md` in a scannable view.
   Returns the canonical view (whatever shape the roadmap was set up with).
 metadata:
   version: "0.1.0"

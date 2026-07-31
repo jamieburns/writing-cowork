@@ -71,8 +71,8 @@ writer, librarian, or custom roles). See process/data_management/role_taxonomy.m
 for local role definitions.
 Status values: `planned` → `in-progress` → `done`.
 
-| ID | Description | Milestone | Assignee | Status | Added | Notes |
-|----|-------------|-----------|----------|--------|-------|-------|
+| ID | Description | Milestone | Assignee | Status | Added | Depends-On | Notes |
+|----|-------------|-----------|----------|--------|-------|------------|-------|
 | fk9d2c | [Example: pm task — delete this] | phase-1 | pm | planned | <date_iso> | |
 | g2k4e1 | [Example: analysis task — delete this] | phase-1 | analysis | planned | <date_iso> | |
 | h3l5f2 | [Example: voice task — delete this] | phase-1 | voice | planned | <date_iso> | |

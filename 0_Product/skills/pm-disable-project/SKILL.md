@@ -2,7 +2,7 @@
 name: pm-disable-project
 description: >
   This skill should be used when the user asks to "disable a cowork
-  project", "pause drift checks for <project>", "deactivate <project> in
+  project", "pause drift checks for [project]", "deactivate [project] in
   the registry", or any variant of flipping a registered project's
   `enabled` flag to false. Edits ~/.config/cowork/registry.yaml in place.
   Pairs with pm-enable-project. Common use: temporarily pause drift checks

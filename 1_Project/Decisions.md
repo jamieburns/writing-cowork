@@ -504,3 +504,50 @@ distinction decides whether something is recoverable.
 **Recoverability is unaffected.** The files remain in history:
 `git checkout 0c9fc06 -- _trashcan/` restores all 13, verified by retrieving
 one intact. Deleting them from disk afterwards is safe.
+
+## Pre-release bug clearing — the todos/roadmap path (2026-07-31)
+
+Five bugs cleared ahead of the v0.1.17 release. Three of them (`a4e1c7b2`,
+`7e4b1a93`, `c6d05a91`) were one code path, not three defects, and fixing them
+separately would have meant three passes over the same sixty lines.
+
+**Schema direction: the checker adapts to the template** (Jamie, 2026-07-31).
+`load_todos` now reads the table's **header row** and maps columns by name
+instead of assuming fixed positions. `pm-init-todos` gains an optional
+`Depends-On` column, which the parser picks up when present and does not
+require. No existing vault needs migrating.
+
+Measured on this repo's own `Todos.md`: **33/33 rows now parse correctly; under
+the shipped parser it was 0/33** — `milestone` was reading the Status cell.
+
+**Two further defects surfaced only because the fix was executed:**
+
+1. `parse_roadmap_phases` extracted task IDs from `[#abcd1234]` roadmap links.
+   **Neither shipped roadmap template contains one** — zero matches in either.
+   So every phase resolved to "unknown", every comparison was unknown-vs-unknown,
+   and the cross-phase check could not produce a finding *even once enabled*.
+   Shipping the `checks:` block alone — the literal text of `c6d05a91` — would
+   have closed the ticket and left the check dead. Phases now derive from the
+   Milestone column, which todos.md already records; explicit `[#id]` links
+   still win where present.
+
+2. Table rows were split with `line.split("|")`, which also splits on `\|` —
+   markdown's escape for a literal pipe. Any task whose text contains a pipe
+   shifted every column to its right and produced plausible garbage rather than
+   an error. Found on the single row in this repo that documents the column
+   schema and therefore quotes pipes: its Milestone parsed as `title\`.
+
+Both are the same class the 2026-07-30 preflight work was locked against, and
+both were invisible until something actually ran. `drift_check.py` is 0.5.1.
+
+**`d51c9a27` had a false premise.** The task said the wrong invariant text lived
+in `pm-install-router/SKILL.md` and `templates/CLAUDE.md`. It lives in **neither** —
+only in this repo's `CLAUDE.md`. Comparing the two turned up a larger problem,
+logged as `9c14be7f`: this repo's MANAGED block carries five repo-specific
+invariants the template does not, and by the marker convention a
+`pm-install-router` sync regenerates MANAGED content and would silently drop
+them. A corrected generic form of the lane invariant is now in the template,
+which reduces but does not close that exposure.
+
+**`3ca70e52`** — 16 skill descriptions rewritten `<x>` → `[x]`. Frontmatter-only;
+all 62 skill frontmatters re-validated as YAML afterwards.

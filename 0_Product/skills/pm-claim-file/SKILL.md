@@ -3,8 +3,8 @@ name: pm-claim-file
 description: >
   This skill should be used when the user (or a specialist context like
   substance/voice/reader-review) asks to "claim a file", "lock a file for
-  editing", "mark <path> as claimed by <context>", or any variant of
-  setting a file's Status in file_ownership.md to claimed:<context>.
+  editing", "mark [path] as claimed by [context]", or any variant of
+  setting a file's Status in file_ownership.md to claimed:[context].
   Pairs with pm-release-file. Implements the claim/release protocol from
   the data-management charter.
 metadata:

@@ -3,7 +3,7 @@ name: pm-create-promotion-request
 description: >
   This skill should be used when a specialist context (substance, voice,
   reader-review, etc.) asks to "create a promotion request", "hand off this
-  artifact to the librarian", "send <file> to inbox/promotion", or any
+  artifact to the librarian", "send [file] to inbox/promotion", or any
   variant of producing a properly-formatted inbox/promotion/ cover-note
   and dropping the artifact alongside.
 metadata:

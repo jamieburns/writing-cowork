@@ -5,7 +5,7 @@ description: >
   pm-setup-project", "continue setup after fixing an issue", "pick up
   setup where it failed", or any variant of resuming a partial
   pm-setup-project run after a sub-skill failure. Reads the state file
-  at ~/.config/cowork/writing-cowork/setup_state/<name>_setup_state.json
+  at ~/.config/cowork/writing-cowork/setup_state/[name]_setup_state.json
   and continues from the failed step.
 metadata:
   version: "0.1.0"

@@ -2,7 +2,7 @@
 name: pm-archive-to-history
 description: >
   This skill should be used when the user asks to "archive a file",
-  "move <file> to history", "close out an active task doc", or any
+  "move [file] to history", "close out an active task doc", or any
   variant of moving a file from process/active/ to process/history/.
   Optionally renames the file with a date prefix during the move.
 metadata:

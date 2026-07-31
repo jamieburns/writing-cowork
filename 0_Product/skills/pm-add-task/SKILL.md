@@ -3,7 +3,7 @@ name: pm-add-task
 description: >
   This skill should be used when the user asks to "add a task",
   "create a task", "track this work item", or any variant of appending a
-  new row to `<vault>/process/active/todos.md`. Generates a short hash
+  new row to `[vault]/process/active/todos.md`. Generates a short hash
   task ID per writing-cowork locked decision #9. Supports optional assignee
   field for role-based task ownership (v0.1.4+).
 metadata:

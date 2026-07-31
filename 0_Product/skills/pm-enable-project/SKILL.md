@@ -2,7 +2,7 @@
 name: pm-enable-project
 description: >
   This skill should be used when the user asks to "enable a cowork project",
-  "turn on drift checks for <project>", "activate <project> in the
+  "turn on drift checks for [project]", "activate [project] in the
   registry", or any variant of flipping a registered project's `enabled`
   flag to true. Edits ~/.config/cowork/registry.yaml in place. Pairs with
   pm-disable-project.

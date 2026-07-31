@@ -5,7 +5,7 @@ description: >
   "copy the pre-lift decisions doc to the vault", "install the decisions
   document for this lift", or any variant of placing a writer-supplied
   pre-lift decisions doc at the vault root. Conditional sub-skill: only
-  runs when pm-setup-project is invoked with `--decisions=<file>`.
+  runs when pm-setup-project is invoked with `--decisions=[file]`.
 metadata:
   version: "0.1.0"
   role: pm

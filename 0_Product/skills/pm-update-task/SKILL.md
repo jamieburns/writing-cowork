@@ -3,7 +3,7 @@ name: pm-update-task
 description: >
   This skill should be used when the user asks to "update a task",
   "mark task done", "change task status", "assign a task", or any variant
-  of editing an existing task row in `<vault>/process/active/todos.md`.
+  of editing an existing task row in `[vault]/process/active/todos.md`.
   Tasks are identified by their 8-char hash ID. Supports assignee changes
   (v0.1.4+).
 metadata:

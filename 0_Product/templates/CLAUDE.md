@@ -52,6 +52,7 @@ That is the whole orientation set. It is fixed-size and does not grow with proje
 - **One home per fact.** No fact lives in two places. If it belongs in two, one of them is a pointer.
 - **Every record is one of four kinds** — State (overwrite in place, kept small), Log (append-only), Queue (`inbox/`, process then archive), Ephemeral (handoffs, scratch — never a source of truth).
 - **Claim before editing.** Files are claimed in `process/data_management/file_ownership.md` before edits and released on commit.
+- **If this vault is reached through a mounted view, git goes through the host.** Any `git` command that touches the index — `add`, `commit`, `push`, `tag`, and **`git status`** — must run on the host, not through a mounted-view shell. `git status` refreshes the index, so it creates `.git/index.lock`; from a mount the create succeeds and the unlink fails, and the orphaned lock blocks the next host-side commit with a message that looks like a crashed git process. `git log`, `git show`, and `git diff` never touch the index and are safe anywhere.
 
 <!-- END WRITING-COWORK MANAGED: router-orientation -->
 

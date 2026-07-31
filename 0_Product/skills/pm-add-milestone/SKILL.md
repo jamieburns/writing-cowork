@@ -4,7 +4,7 @@ description: >
   This skill should be used when the user asks to "add a milestone",
   "add a phase", "add to the roadmap", "create a milestone in the
   now/next/later", or any variant of appending a new milestone entry to
-  `<vault>/process/active/roadmap.md`. Works with both roadmap shapes
+  `[vault]/process/active/roadmap.md`. Works with both roadmap shapes
   (phase-based and now-next-later).
 metadata:
   version: "0.1.0"

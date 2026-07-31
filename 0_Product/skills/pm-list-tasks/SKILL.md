@@ -3,7 +3,7 @@ name: pm-list-tasks
 description: >
   This skill should be used when the user asks to "list tasks",
   "show my todos", "what tasks are open", "tasks for analysis", or any
-  variant of querying `<vault>/process/active/todos.md` with optional
+  variant of querying `[vault]/process/active/todos.md` with optional
   filters (status, milestone, assignee). Supports combined filters.
 metadata:
   version: "0.1.4"

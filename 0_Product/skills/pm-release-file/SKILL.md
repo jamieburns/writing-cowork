@@ -2,7 +2,7 @@
 name: pm-release-file
 description: >
   This skill should be used when the user (or a specialist context) asks
-  to "release a file", "unlock a file", "clear the claim on <path>", or
+  to "release a file", "unlock a file", "clear the claim on [path]", or
   any variant of returning a claimed file's Status in file_ownership.md to
   its working canonical value. Pairs with pm-claim-file. Typically runs
   on commit.

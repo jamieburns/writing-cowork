@@ -2,7 +2,7 @@
 name: voice-shift-terminology
 description: >
   This skill should be used when the user asks to "shift a term",
-  "rename a term across the draft", "change <X> to <Y> in voice-edited
+  "rename a term across the draft", "change [X] to [Y] in voice-edited
   sections", or any variant of a zone-aware terminology rename. Applies
   the rename only to voice-edited zones (detected via [voice] commit
   prefix scan + writer override); leaves not-yet-voice-edited zones

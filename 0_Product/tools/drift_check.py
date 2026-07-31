@@ -72,7 +72,7 @@ except ImportError:
 # release. Printed via --version and stamped into every report header, so
 # a project's actual running script version can be confirmed directly
 # rather than assumed from the plugin version alone.
-DRIFT_CHECK_VERSION = "0.4.0"  # 2026-07-31: config preflight — unreadable input is a finding, not silence
+DRIFT_CHECK_VERSION = "0.5.1"  # 2026-07-31: table rows split on unescaped pipes only
 
 DEFAULT_REGISTRY = Path.home() / ".config" / "cowork" / "registry.yaml"
 
@@ -85,6 +85,7 @@ CONFIG_KNOWN_KEYS = {
     "project_name", "vault", "hub", "ownership_table", "drift_flag",
     "reports_dir", "exclude_prefixes", "exclude_patterns", "generated_patterns",
     "build", "xref_targets", "inbox", "markers", "checks", "session_hygiene",
+    "todos", "roadmap",
 }
 
 DEFAULT_MARKERS = {
@@ -113,6 +114,13 @@ class ProjectConfig:
 
         # Resolved file paths
         self.hub             = self.vault / data.get("hub", "project_hub.md")
+        # 2026-07-31 (task 7e4b1a93): these were hardcoded to the scaffolded
+        # consumer layout, so no vault laid out any other way could point the
+        # todos/roadmap checks at its real files — they just found nothing.
+        self.todos_rel       = data.get("todos", "process/active/todos.md")
+        self.roadmap_rel     = data.get("roadmap", "process/active/roadmap.md")
+        self.todos           = self.vault / self.todos_rel
+        self.roadmap         = self.vault / self.roadmap_rel
         self.ownership_table = self.vault / data.get(
             "ownership_table", "process/data_management/file_ownership.md"
         )
@@ -366,10 +374,10 @@ def check_config_preflight(config: ProjectConfig):
          "no provenance registry; the unaccounted-files check cannot run"),
         ("hub", config.hub,
          "the attention block has nowhere to be written"),
-        ("cross-phase dependency", config.vault / "process/active/todos.md",
-         "task rows cannot be read (this path is hardcoded, not configurable — task 7e4b1a93)"),
-        ("workstream status staleness", config.vault / "process/active/roadmap.md",
-         "phases cannot be read (this path is hardcoded, not configurable — task 7e4b1a93)"),
+        ("cross-phase dependency", config.todos,
+         "task rows cannot be read; set the `todos:` key if this vault stores them elsewhere"),
+        ("workstream status staleness", config.roadmap,
+         "phases cannot be read; set the `roadmap:` key if this vault stores it elsewhere"),
     ]
 
     sh_log = (config.sh_log or {}).get("path")
@@ -561,60 +569,135 @@ def check_inbox(config: ProjectConfig):
     return issues
 
 
-def load_todos(todos_path: Path):
-    """Load todos.md and parse task rows. Returns dict: task_id -> task_dict."""
-    tasks = {}
-    if not todos_path.exists():
-        return tasks
+_ROW_SPLIT = re.compile(r"(?<!\\)\|")
 
-    for line in todos_path.read_text(encoding="utf-8", errors="replace").splitlines():
+
+def split_table_row(line: str):
+    r"""Split a markdown table row on **unescaped** pipes.
+
+    2026-07-31: a plain `line.split("|")` also splits on `\|`, which markdown
+    renders as a literal pipe inside a cell. Any task whose text contains a
+    pipe — a code sample, a regex, a shell pipeline — shifted every column to
+    its right, silently, producing plausible-looking garbage rather than an
+    error. Found on the one row in this repo that documents the column schema
+    and therefore quotes pipes: its Milestone parsed as "title\\".
+    """
+    return [c.strip().replace("\\|", "|") for c in _ROW_SPLIT.split(line)]
+
+
+def _todos_columns(header_cells):
+    """Map a todos table header to column indices.
+
+    2026-07-31 (task a4e1c7b2): this used to be fixed positions matching
+    `| id | title | status | priority | milestone | depends-on |` — a layout
+    **no template has ever produced**. `pm-init-todos` writes
+    `| ID | Description | Milestone | Assignee | Status | Added | Notes |`.
+    Every consumer vault was therefore parsed with the wrong columns, silently:
+    `milestone` read the Status cell, `depends_on` read Added.
+
+    Reading the header instead of assuming it means both layouts work and a
+    future column change does not silently corrupt the parse.
+    """
+    alias = {
+        "id": "id",
+        "description": "description", "title": "description",
+        "milestone": "milestone", "phase": "milestone",
+        "assignee": "assignee", "owner": "assignee",
+        "status": "status",
+        "added": "added",
+        "notes": "notes",
+        "depends-on": "depends_on", "depends_on": "depends_on",
+        "dependson": "depends_on", "priority": "priority",
+    }
+    cols = {}
+    for i, c in enumerate(header_cells):
+        key = alias.get(c.strip().lower())
+        if key and key not in cols:
+            cols[key] = i
+    return cols
+
+
+def load_todos_text(text: str):
+    """Parse todos table rows from markdown text. Returns dict: id -> task."""
+    tasks = {}
+    cols = None
+    for line in text.splitlines():
         stripped = line.lstrip()
         if not stripped.startswith("|"):
             continue
-        if "----" in stripped or stripped.lower().startswith("| id |"):
+        cells = split_table_row(stripped)
+        if "----" in stripped:
             continue
-
-        cells = [c.strip() for c in stripped.split("|")]
-        if len(cells) < 6:
+        low = stripped.lower()
+        if low.startswith("| id |") or " description |" in low or " title |" in low:
+            found = _todos_columns(cells)
+            if "id" in found:
+                cols = found          # a later table may re-declare its own header
+                continue
+        if len(cells) < 3:
             continue
-
-        # Expected format: | id | title | status | priority | milestone | depends-on |
-        task_id = cells[1]
-        if task_id and len(task_id) == 8:  # hash ID format
-            depends_on = cells[5] if len(cells) > 5 else ""
-            milestone = cells[4] if len(cells) > 4 else ""
-            tasks[task_id] = {
-                "id": task_id,
-                "depends_on": depends_on,
-                "milestone": milestone,
-            }
+        if cols is None:
+            # No header seen yet — fall back to the historical fixed layout so a
+            # headerless fragment still parses rather than silently yielding {}.
+            cols = {"id": 1, "description": 2, "status": 3, "priority": 4,
+                    "milestone": 5, "depends_on": 6}
+        task_id = cells[cols["id"]] if cols["id"] < len(cells) else ""
+        if not (task_id and len(task_id) == 8 and re.fullmatch(r"[0-9a-f]{8}", task_id)):
+            continue
+        def cell(name):
+            i = cols.get(name)
+            return cells[i] if i is not None and i < len(cells) else ""
+        tasks[task_id] = {
+            "id": task_id,
+            "description": cell("description"),
+            "milestone": cell("milestone"),
+            "assignee": cell("assignee"),
+            "status": cell("status"),
+            "depends_on": cell("depends_on"),
+            "notes": cell("notes"),
+        }
     return tasks
 
 
-def parse_roadmap_phases(roadmap_path: Path):
-    """Extract phase information from roadmap.md.
-    Returns dict: task_id -> phase_name (or milestone for now-next-later)
+def load_todos(todos_path: Path):
+    """Load a todos.md and parse task rows. Returns dict: task_id -> task_dict."""
+    if not todos_path.exists():
+        return {}
+    return load_todos_text(todos_path.read_text(encoding="utf-8", errors="replace"))
+
+
+def parse_roadmap_phases(roadmap_path: Path, todos: dict = None):
+    """Map task_id -> phase name.
+
+    2026-07-31: this used to scan the roadmap for `[#abcd1234]` markdown links.
+    **Neither shipped roadmap template contains one** (verified: zero matches in
+    roadmap_phase.md and roadmap_now_next_later.md), so every task resolved to
+    "unknown", every comparison was unknown-vs-unknown, and the cross-phase
+    check could not produce a finding even when enabled. Fixing c6d05a91 by
+    shipping the `checks:` block alone would have produced a check that still
+    found nothing.
+
+    A task's phase is its **milestone**, which todos.md already records and
+    which the roadmap already uses as its section headings. Explicit `[#id]`
+    links still win where present, for roadmaps that use them.
     """
     phases = {}
-    if not roadmap_path.exists():
-        return phases
+    for tid, info in (todos or {}).items():
+        m = (info.get("milestone") or "").strip()
+        if m:
+            phases[tid] = m
 
-    current_phase = None
-    for line in roadmap_path.read_text(encoding="utf-8", errors="replace").splitlines():
-        stripped = line.lstrip()
-
-        # Detect phase headers (##  or ### )
-        m_phase = re.match(r"^##\s+(.+)$", stripped)
-        if m_phase:
-            current_phase = m_phase.group(1).strip()
-            continue
-
-        # Extract task IDs from task rows (assuming markdown links like [#ID](link))
-        if current_phase:
-            for m in re.finditer(r"\[#([a-f0-9]{8})\]", stripped):
-                task_id = m.group(1)
-                phases[task_id] = current_phase
-
+    if roadmap_path and roadmap_path.exists():
+        current_phase = None
+        for line in roadmap_path.read_text(encoding="utf-8", errors="replace").splitlines():
+            stripped = line.lstrip()
+            m_phase = re.match(r"^##\s+(.+)$", stripped)
+            if m_phase:
+                current_phase = m_phase.group(1).strip()
+                continue
+            if current_phase:
+                for m in re.finditer(r"\[#([a-f0-9]{8})\]", stripped):
+                    phases[m.group(1)] = current_phase
     return phases
 
 
@@ -626,7 +709,7 @@ def check_cross_phase_dependency(config: ProjectConfig):
         return []  # check disabled
 
     issues = []
-    todos_path = config.vault / "process/active/todos.md"
+    todos_path = config.todos
     if not todos_path.exists():
         return issues
 
@@ -636,7 +719,7 @@ def check_cross_phase_dependency(config: ProjectConfig):
     # Try to load previous version via git
     try:
         result = subprocess.run(
-            ["git", "-C", str(config.vault), "show", "HEAD~1:process/active/todos.md"],
+            ["git", "-C", str(config.vault), "show", "HEAD~1:" + config.todos_rel],
             capture_output=True,
             text=True,
             timeout=5
@@ -645,32 +728,12 @@ def check_cross_phase_dependency(config: ProjectConfig):
             return issues  # no previous version
 
         previous_content = result.stdout
-        # Parse previous todos by simulating load_todos on the string
-        previous_todos = {}
-        for line in previous_content.splitlines():
-            stripped = line.lstrip()
-            if not stripped.startswith("|"):
-                continue
-            if "----" in stripped or stripped.lower().startswith("| id |"):
-                continue
-            cells = [c.strip() for c in stripped.split("|")]
-            if len(cells) < 6:
-                continue
-            task_id = cells[1]
-            if task_id and len(task_id) == 8:
-                depends_on = cells[5] if len(cells) > 5 else ""
-                milestone = cells[4] if len(cells) > 4 else ""
-                previous_todos[task_id] = {
-                    "id": task_id,
-                    "depends_on": depends_on,
-                    "milestone": milestone,
-                }
+        previous_todos = load_todos_text(previous_content)
     except Exception:
         return issues  # can't get git history
 
     # Load phase map
-    roadmap_path = config.vault / "process/active/roadmap.md"
-    phases = parse_roadmap_phases(roadmap_path)
+    phases = parse_roadmap_phases(config.roadmap, current_todos)
 
     # Find NEW cross-phase dependencies
     exceptions = config.cross_phase_config.get("exceptions", [])

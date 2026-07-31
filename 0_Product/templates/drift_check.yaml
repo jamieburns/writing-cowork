@@ -11,6 +11,12 @@ vault: "{{vault_path}}"
 # Files written to (vault-relative)
 hub: project_hub.md
 ownership_table: process/data_management/file_ownership.md
+
+# Planning documents. Point these at wherever this vault actually keeps them —
+# before 2026-07-31 they were hardcoded to the paths below, so any vault on a
+# different layout had its todos and roadmap checks silently find nothing.
+todos:   process/active/todos.md
+roadmap: process/active/roadmap.md
 drift_flag: process/data_management/.drift_flag
 reports_dir: process/data_management/drift_reports
 
@@ -58,6 +64,24 @@ inbox:
     - hub-updates
     - issues            # written by pm-create-issue-report; was missing before 2026-07-27
   overdue_days: 14
+
+# ---------------------------------------------------------------------------
+# Optional checks. Before 2026-07-31 this block was absent from the shipped
+# template while drift_check.py gated on it, so both checks below were dead code
+# in every scaffolded vault — present, documented, and unreachable (c6d05a91).
+# Delete an entry to turn its check off; the config preflight will then say so
+# rather than leaving you to assume it ran.
+# ---------------------------------------------------------------------------
+checks:
+  # Flags a NEW dependency between tasks in different milestones. A task's
+  # phase is its Milestone column; explicit [#id] links in the roadmap win where
+  # present. Compares against HEAD~1, so it needs git history.
+  - type: cross-phase-dependency-change
+    exceptions: []          # task IDs exempt from the check
+
+  # Flags workstream status blocks whose embedded timestamp has gone stale.
+  - type: workstream-status-staleness
+    max_age_days: 30
 
 # Markers — keep stable unless you have a reason to vary
 markers:

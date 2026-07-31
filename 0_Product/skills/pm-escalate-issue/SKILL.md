@@ -2,7 +2,7 @@
 name: pm-escalate-issue
 description: >
   This skill should be used when the librarian asks to "escalate an
-  issue", "file this as a GitHub issue", "send <issue-file> to the
+  issue", "file this as a GitHub issue", "send [issue-file] to the
   writing-cowork repo", or any variant of taking a cover-note from
   inbox/issues/ and creating a corresponding GitHub Issue on the
   writing-cowork plugin repository. Librarian-side counterpart to

@@ -16,11 +16,9 @@
 # hook itself takes an absolute {{config_path}} at install and does not care
 # where the file lives. Pass this path explicitly.
 #
-# WHAT THIS CONFIG CANNOT REACH. drift_check.py hardcodes
-# process/active/todos.md and process/active/roadmap.md (task 7e4b1a93), so the
-# todos and roadmap checks find nothing here and return empty — silently. Do
-# not read a clean report as covering them. The session_hygiene checks below
-# ARE fully path-configurable and are the reason this file exists.
+# RESOLVED 2026-07-31 (task 7e4b1a93). The todos and roadmap paths used to be
+# hardcoded to the consumer layout and unreachable from here. drift_check 0.5.0
+# makes them config keys, and they are set below to this repo's real files.
 
 project_name: "writing-cowork (plugin source)"
 vault: "/Users/jburns/code/writing-cowork"
@@ -34,6 +32,12 @@ hub: CLAUDE.md
 # ownership_table: this repo does not run the claim/release protocol — that is a
 # consumer-vault mechanism. Path is intentionally absent; ownership checks no-op.
 ownership_table: 1_Project/Process/file_ownership.md
+
+# Planning documents (configurable as of drift_check 0.5.0 / task 7e4b1a93).
+# These now point at this repo's real files, so the todos and roadmap checks
+# actually run here instead of reporting "no input".
+todos:   1_Project/Todos.md
+roadmap: 2_Development/RoadMap/Roadmap.md
 
 drift_flag:  1_Project/Process/.drift_flag
 reports_dir: 1_Project/Process/drift_reports
@@ -90,6 +94,13 @@ inbox:
     - hub-updates
     - issues
   overdue_days: 14
+
+# Dogfood the checks block that the template was missing until 2026-07-31.
+checks:
+  - type: cross-phase-dependency-change
+    exceptions: []
+  - type: workstream-status-staleness
+    max_age_days: 30
 
 markers:
   attention_start: "<!-- DRIFT-ATTENTION-START -->"
