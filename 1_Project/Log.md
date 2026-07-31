@@ -56,3 +56,9 @@ The single **shared, append-only** activity log for this repo — the semantic l
   inputs: `Decisions.md` ("Hygiene checks fail loudly"); `drift_check.py` ProjectConfig + check_inventory; 2026-07-30 session findings
   changed: `drift_check.py` (0.4.0 — check_config_preflight, unknown-key detection, inventory early-return); `plugin.json` (description); `.gitignore` (+_trashcan/); `Decisions.md` (2 sections); `Todos.md` (7e4b1a93 annotated); `_trashcan/` (13 files untracked, kept on disk)  · commit: d431f75
 \n
+
+- 2026-07-31 · claude · Cleared 5 pre-release bugs; drift_check 0.5.1.
+  why: Jamie is feature complete and wants defects down before releasing v0.1.17. Three of the five were a single code path — the todos/roadmap reading in drift_check — and two more defects surfaced only once that code was actually executed against real data.
+  inputs: `Todos.md`; `drift_check.py` load_todos/parse_roadmap_phases/check_cross_phase_dependency; `pm-init-todos`; both roadmap templates; `templates/CLAUDE.md` vs this repo's `CLAUDE.md`
+  changed: `drift_check.py` (0.5.1 — header-driven columns, configurable todos/roadmap, milestone-derived phases, unescaped-pipe split); `templates/drift_check.yaml` (+todos/roadmap keys, +checks block); `pm-init-todos` (+Depends-On); 16 skill descriptions; `CLAUDE.md`; `templates/CLAUDE.md`; `Decisions.md`; `Todos.md` (5 closed, +9c14be7f)  · commit: 0e15efc
+\n
