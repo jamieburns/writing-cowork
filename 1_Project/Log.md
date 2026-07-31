@@ -51,3 +51,8 @@ The single **shared, append-only** activity log for this repo — the semantic l
   inputs: observed EPERM on `git status` from the mount; `feedback_sandbox_host_lanes.md`; `CLAUDE.md` invariants
   changed: `1_Project/Memory/feedback_git_status_creates_index_lock.md` (new); `1_Project/Memory/INDEX.md`; `1_Project/Todos.md` (+d51c9a27)  · commit: 2e7f0b3
 
+- 2026-07-31 · claude · drift_check 0.4.0: config preflight; `_trashcan/` untracked.
+  why: the 2026-07-30 fix made the *hook* fail loudly, but the checker it calls still reported "clean" whenever it could not read its inputs or was handed a key it does not implement — the general form of a4e1c7b2 / c6d05a91 / 7e4b1a93 / 6b91e2a5.
+  inputs: `Decisions.md` ("Hygiene checks fail loudly"); `drift_check.py` ProjectConfig + check_inventory; 2026-07-30 session findings
+  changed: `drift_check.py` (0.4.0 — check_config_preflight, unknown-key detection, inventory early-return); `plugin.json` (description); `.gitignore` (+_trashcan/); `Decisions.md` (2 sections); `Todos.md` (7e4b1a93 annotated); `_trashcan/` (13 files untracked, kept on disk)  · commit: d431f75
+\n
