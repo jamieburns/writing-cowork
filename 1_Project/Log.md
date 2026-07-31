@@ -45,3 +45,9 @@ The single **shared, append-only** activity log for this repo — the semantic l
   why: the first real host run showed the post-commit hook was inert — `command -v python3` resolves to Homebrew's python3, which lacked PyYAML, so drift_check exited 2 onto a stderr the hook discarded while ignoring the exit code. A broken checker was indistinguishable from a clean repo, in the one component v0.1.17 exists to ship.
   inputs: `0_Product/skills/pm-install-git-hooks/SKILL.md`; `templates/hooks/post-commit`; `drift_check.py:60-64,701-716`; `Decisions.md` (status-file rule, process/-tree prohibition)
   changed: `templates/hooks/post-commit` (4 silent exits now report); `drift_check.py` (0.3.2 — unconfigured session_hygiene is a finding); `pm-install-git-hooks/SKILL.md` (precondition 6, step 7); `1_Project/Process/drift_check.yaml` (new, hand-authored for this layout); `1_Project/Process/git-hooks/post-commit` (installed; core.hooksPath set); `Decisions.md` (2 sections); `Todos.md` (+c3f80b6e, +7e4b1a93, 6b91e2a5 reclassified)  · commit: e210d0b
+
+- 2026-07-30 · claude · Corrected the lane invariant: `git status` is not a safe read from the sandbox mount.
+  why: the session's first commit attempt failed on a stale `.git/index.lock` that a sandbox-side `git status` had created and been unable to unlink. `Decisions.md` recorded this cleanup as done on 2026-07-23; it recurred because the invariant blames mutations, and the actual trigger is any index-refreshing read.
+  inputs: observed EPERM on `git status` from the mount; `feedback_sandbox_host_lanes.md`; `CLAUDE.md` invariants
+  changed: `1_Project/Memory/feedback_git_status_creates_index_lock.md` (new); `1_Project/Memory/INDEX.md`; `1_Project/Todos.md` (+d51c9a27)  · commit: 2e7f0b3
+
