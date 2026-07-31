@@ -7,6 +7,7 @@ Reached from the repo-root `CLAUDE.md` router. Pull topic files on demand; don't
 - [No sync capability](feedback_no_sync_capability.md) — this plugin does not and will not deliver device-sync; that's handled manually via Obsidian + iCloud across Mac/phone/tablet.
 - [Visible memory only](feedback_visible_memory_only.md) — the management rule: no new memory files outside `1_Project/Memory/` without explicit consent.
 - [Sandbox vs. host lane discipline](feedback_sandbox_host_lanes.md) — file tools/inspection use sandbox or device_bash; git, gh, and any host CLI go through osascript on the real filesystem. Confirmed again 2026-07-21: device_bash hit the same stale `.git/index.lock` EPERM pattern as the original cloud-sandbox case.
+- [`git status` from the sandbox view is a WRITE](feedback_git_status_creates_index_lock.md) — corrects the "read-only inspection is fine anywhere" clause in the CLAUDE.md invariant: `git status` creates `.git/index.lock`, fails to unlink it from the mount, and the orphan blocks the next host-side commit.
 - [Verify agent-supplied citations](feedback_verify_agent_citations.md) — research subagents can generate plausible-looking but wrong identifiers; verify before quoting.
 - [Self-contained scripts when Cowork must be quit](feedback_self_contained_quit_scripts.md) — package the full workflow into one Terminal-runnable script before the user quits.
 - [When workarounds pile up, check the docs](feedback_workarounds_warrant_doc_check.md) — stop and read canonical docs before adding a 3rd/4th workaround for the same problem.
