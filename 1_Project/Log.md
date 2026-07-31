@@ -62,3 +62,9 @@ The single **shared, append-only** activity log for this repo — the semantic l
   inputs: `Todos.md`; `drift_check.py` load_todos/parse_roadmap_phases/check_cross_phase_dependency; `pm-init-todos`; both roadmap templates; `templates/CLAUDE.md` vs this repo's `CLAUDE.md`
   changed: `drift_check.py` (0.5.1 — header-driven columns, configurable todos/roadmap, milestone-derived phases, unescaped-pipe split); `templates/drift_check.yaml` (+todos/roadmap keys, +checks block); `pm-init-todos` (+Depends-On); 16 skill descriptions; `CLAUDE.md`; `templates/CLAUDE.md`; `Decisions.md`; `Todos.md` (5 closed, +9c14be7f)  · commit: 0e15efc
 \n
+
+- 2026-07-31 · claude · Cleared the last two in-scope pre-release bugs.
+  why: both were cases of the tooling documenting a capability it lacked — a migration warning naming no runnable skill, and a release command that could not tell bookkeeping from a break-in.
+  inputs: `pm-list-tasks` legacy-schema branch; `pm-show-composite-kanban`; `pm-release-file`; `Todos.md`
+  changed: `pm-migrate-todos-schema/SKILL.md` (new); `pm-release-file/SKILL.md` (0.2.0); `pm-list-tasks/SKILL.md` (warning names the skill); `plugin.json` (description); `Decisions.md`; `Todos.md` (2 closed)  · commit: 0cb98e8
+\n
