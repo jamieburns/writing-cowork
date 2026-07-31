@@ -72,9 +72,20 @@ except ImportError:
 # release. Printed via --version and stamped into every report header, so
 # a project's actual running script version can be confirmed directly
 # rather than assumed from the plugin version alone.
-DRIFT_CHECK_VERSION = "0.3.2"  # 2026-07-30: unconfigured session_hygiene is reported, not silent
+DRIFT_CHECK_VERSION = "0.4.0"  # 2026-07-31: config preflight — unreadable input is a finding, not silence
 
 DEFAULT_REGISTRY = Path.home() / ".config" / "cowork" / "registry.yaml"
+
+# Every top-level key this script understands. Anything else in a
+# drift_check.yaml is reported rather than ignored — see check_config_preflight.
+# A key that is silently dropped is indistinguishable from a key that works,
+# which is how `priority_prefixes` sat in planning docs for over a week as a
+# settled mechanism that had never been written (task 6b91e2a5).
+CONFIG_KNOWN_KEYS = {
+    "project_name", "vault", "hub", "ownership_table", "drift_flag",
+    "reports_dir", "exclude_prefixes", "exclude_patterns", "generated_patterns",
+    "build", "xref_targets", "inbox", "markers", "checks", "session_hygiene",
+}
 
 DEFAULT_MARKERS = {
     "attention_start": "<!-- DRIFT-ATTENTION-START -->",
@@ -91,6 +102,8 @@ class ProjectConfig:
         self.config_path = config_path
         with open(config_path, "r", encoding="utf-8") as f:
             data = yaml.safe_load(f) or {}
+
+        self.unknown_keys = sorted(set(data.keys()) - CONFIG_KNOWN_KEYS)
 
         self.name = data.get("project_name") or config_path.parent.parent.parent.name
         vault_str = data.get("vault")
@@ -319,9 +332,81 @@ def record_drift_run_time(vault_path: Path, dry_run=False):
     last_run_file.write_text(datetime.now().isoformat(), encoding="utf-8")
 
 
+def check_config_preflight(config: ProjectConfig):
+    """Report configuration this script cannot act on, before any check runs.
+
+    Two failure modes, both of which previously produced a clean report:
+
+      1. A key in drift_check.yaml that this script does not read. YAML accepts
+         it, ProjectConfig ignores it, and nothing ever says so.
+      2. A check whose input file does not exist. The check returns [], which
+         renders identically to "ran and found nothing".
+
+    Neither is an error — a project may legitimately not use a mechanism. But
+    the difference between "clean" and "not looked at" has to be visible, or a
+    green report means nothing. See Decisions.md, "Hygiene checks fail loudly".
+    """
+    issues = []
+
+    if config.unknown_keys:
+        issues.append({
+            "kind": "config_unknown_keys",
+            "summary": "Config — %d unrecognized key(s) in drift_check.yaml, silently ignored: %s"
+                       % (len(config.unknown_keys), ", ".join(config.unknown_keys)),
+            "details": {
+                "config": str(config.config_path),
+                "unknown": config.unknown_keys,
+                "known": sorted(CONFIG_KNOWN_KEYS),
+            },
+        })
+
+    # (label, path, what is lost when it is missing)
+    declared = [
+        ("inventory/ownership", config.ownership_table,
+         "no provenance registry; the unaccounted-files check cannot run"),
+        ("hub", config.hub,
+         "the attention block has nowhere to be written"),
+        ("cross-phase dependency", config.vault / "process/active/todos.md",
+         "task rows cannot be read (this path is hardcoded, not configurable — task 7e4b1a93)"),
+        ("workstream status staleness", config.vault / "process/active/roadmap.md",
+         "phases cannot be read (this path is hardcoded, not configurable — task 7e4b1a93)"),
+    ]
+
+    sh_log = (config.sh_log or {}).get("path")
+    if sh_log:
+        declared.append(("session hygiene / log_unlanded", config.vault / sh_log,
+                         "unlanded activity-log entries cannot be detected"))
+    for f in (config.sh_markers or {}).get("files", []):
+        declared.append(("session hygiene / managed_markers", config.vault / f,
+                         "marker balance cannot be verified for this file"))
+    for x in config.xref_targets:
+        declared.append(("xref target", x, "its links cannot be validated"))
+
+    missing = [(label, str(path), why) for label, path, why in declared
+               if not Path(path).exists()]
+    for label, path, why in missing:
+        rel = path.replace(str(config.vault) + "/", "")
+        issues.append({
+            "kind": "config_input_missing",
+            "summary": 'Config — check "%s" has no input at %s; %s' % (label, rel, why),
+            "details": {"check": label, "path": path},
+        })
+
+    return issues
+
+
 def check_inventory(config: ProjectConfig):
     issues = []
     vault_files = set(all_vault_files(config))
+
+    # 2026-07-31: with no ownership table every file is "unaccounted", which
+    # produced a single 131-file line that drowned the real findings under it.
+    # check_config_preflight already reports the absent table once, precisely;
+    # repeating it per-file is the noise this project keeps trying to kill.
+    if not config.ownership_table.exists():
+        generated_present = [r for r in sorted(vault_files) if is_generated(r, config)]
+        return issues, generated_present
+
     ownership_paths = parse_ownership_paths(config)
 
     unaccounted = []
@@ -1055,6 +1140,9 @@ def run_one(config: ProjectConfig, dry_run=False):
         return [], [], None, when
 
     issues = []
+    # First: say what cannot be checked at all. Everything below reports on
+    # what it could read; this reports on what it could not.
+    issues.extend(check_config_preflight(config))
     issues.extend(check_xrefs(config))
     issues.extend(check_build_freshness(config))
     issues.extend(check_inbox(config))

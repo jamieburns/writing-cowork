@@ -1,3 +1,10 @@
+# Disposal area. Content moved here is dead but deliberately not deleted, so it
+# should not be version-tracked. The _* rule below already matches it; this line
+# is explicit because _trashcan is disposal, not scratch, and the distinction
+# matters when deciding whether something is recoverable. Untracked 2026-07-31;
+# the 13 sync-mobile files remain recoverable from commit 0c9fc06.
+_trashcan/
+
 # Scratch / unsync conventions inherited from manual phase
 _scratch/
 **/scratch/

@@ -448,3 +448,59 @@ responsible for proving the check runs.
 **Escape hatch unchanged.** `WRITING_COWORK_SKIP_HYGIENE=1` still silences the
 hook entirely — verified. Routine use means the check is too noisy and should be
 tuned, not muted.
+
+## Config preflight — "not looked at" is not "clean" (2026-07-31) — LOCKED
+
+**The change.** `drift_check.py` 0.4.0 runs `check_config_preflight` before any
+other check. It reports two things that previously produced silence:
+
+1. **Unrecognized top-level keys** in `drift_check.yaml`. `ProjectConfig`
+   reads its keys with `data.get(...)` and ignored everything else, so a key
+   the script does not implement — or a plain typo — was accepted by YAML,
+   dropped by the parser, and never mentioned. Verified against both cases:
+   injecting `priority_prefixes` and `exclude_prefixe` produces one line naming
+   both.
+2. **Declared inputs that do not exist.** Each check's input paths are resolved
+   up front; a missing one yields `check "<name>" has no input at <path>;
+   <what is lost>` instead of an empty result that renders as clean.
+
+**Why it is worth its own lock.** This is the general form of the four specific
+bugs found on 2026-07-30 (`a4e1c7b2`, `c6d05a91`, `7e4b1a93`, `6b91e2a5`) and of
+the hook bug fixed that day (`c3f80b6e`). Each was a component reporting success
+because it could not find what it was supposed to read. A green report is only
+worth something if the checker can distinguish *ran and found nothing* from
+*never ran*. New checks must declare their inputs.
+
+**Side effect worth keeping.** `check_inventory` used to emit a single
+"131 file(s) in vault not listed in file_ownership.md" line for any project
+without an ownership table — the exact "real issues buried under expected
+non-issues" failure this project has chased since the v0.1.15 planning pass.
+It now returns early and lets the preflight report the absent table once,
+precisely. Noise down from 131 to 1.
+
+**Noise budget.** Preflight findings do **not** reach the post-commit hook: the
+hook greps for `session hygiene` only, so per-commit output is unchanged. They
+appear on a deliberate `pm-run-drift-check`, which is the right place for
+"here is what this project is not checking."
+
+**Folded into v0.1.17, not released as v0.1.18.** v0.1.17 is content-complete
+but unreleased, and shipping the hook without the change that makes its failures
+visible would ship the bug it fixes. Same precedent as v0.1.15 and v0.1.16,
+both folded into v0.1.17 rather than released standalone. `plugin.json` stays
+at 0.1.17; its description records drift_check 0.4.0.
+
+## _trashcan/ is untracked (2026-07-31)
+
+Disposal is not version control. `_trashcan/` held 13 `sync-mobile-*.md` files
+moved there on 2026-07-21 (commit `0c9fc06`) when sync was ruled out —
+see `Memory/feedback_no_sync_capability.md`. They stayed tracked, so dead
+content kept appearing in every inventory pass.
+
+`git rm -r --cached _trashcan/` untracks without deleting; an explicit
+`_trashcan/` line is added to `.gitignore` alongside the `_*` rule that already
+matched it, because disposal and scratch are different intents and the
+distinction decides whether something is recoverable.
+
+**Recoverability is unaffected.** The files remain in history:
+`git checkout 0c9fc06 -- _trashcan/` restores all 13, verified by retrieving
+one intact. Deleting them from disk afterwards is safe.
