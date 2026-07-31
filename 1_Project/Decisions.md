@@ -551,3 +551,49 @@ which reduces but does not close that exposure.
 
 **`3ca70e52`** — 16 skill descriptions rewritten `<x>` → `[x]`. Frontmatter-only;
 all 62 skill frontmatters re-validated as YAML afterwards.
+
+## pm-migrate-todos-schema and the force-release split (2026-07-31)
+
+Two more pre-release bugs, both of the same shape: **the tooling described a
+behaviour it did not have.**
+
+**`8a45c0e3` — the migration that was only ever referenced.** `pm-list-tasks`
+detected the legacy checkbox format and printed a warning telling the user to
+migrate, pointing at "the Phase 9 milestone in roadmap.md (if planned)."
+`pm-show-composite-kanban` special-cased the same format. No migration skill
+existed. A vault scaffolded before the table schema was therefore permanently
+read-only for task management, and was told to fix it by a message naming
+nothing that could be run.
+
+`pm-migrate-todos-schema` ships it. Design points worth keeping:
+
+- **Idempotent by refusal**, not by cleverness — it stops if an `ID` column is
+  already present. IDs get referenced from roadmaps, decisions and commit
+  messages once they exist, so regenerating them on a second run would be worse
+  than doing nothing.
+- **Refuses on a dirty working tree** for that file. It rewrites wholesale;
+  an uncommitted edit would vanish with no diff to recover from.
+- **IDs derive from description text**, so a re-run over the same input is
+  stable rather than random.
+- **Escapes `|` in cell content.** Prose bullets routinely contain pipes, and a
+  raw one shifts every column to its right — the defect fixed the same day in
+  `drift_check` 0.5.1. A migration that silently corrupts what it writes is a
+  worse outcome than no migration.
+- Records `migrated from checkbox schema [date]` rather than inventing a
+  creation date the legacy format never stored.
+
+`pm-list-tasks`' warning now names the skill.
+
+**`1f6a4d90` — release and break-in were the same command.** Clearing your own
+claim is bookkeeping. Clearing someone else's is an assertion that their lock is
+stale. Both ran the same code path, needed no flag, and left no record, so an
+accidental unlock of live work was indistinguishable from a routine release.
+
+`pm-release-file` 0.2.0 splits them: `--as=[context]` makes self-vs-other
+decidable, releasing another context's claim requires `--force`, and a forced
+release appends `force-released from claimed:[holder] by [releaser] [date]` to
+the row's Notes. **The trace goes in the ownership table, not the chat
+transcript** — the table is what the next session reads.
+
+A claim outliving its session is normal and expected; the fix is not to make
+forcing hard, it is to make it leave a mark.

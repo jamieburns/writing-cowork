@@ -4,10 +4,10 @@ description: >
   This skill should be used when the user (or a specialist context) asks
   to "release a file", "unlock a file", "clear the claim on [path]", or
   any variant of returning a claimed file's Status in file_ownership.md to
-  its working canonical value. Pairs with pm-claim-file. Typically runs
-  on commit.
+  its working canonical value, or to "force release" / "break" another
+  context's stale claim. Pairs with pm-claim-file. Typically runs on commit.
 metadata:
-  version: "0.1.0"
+  version: "0.2.0"
   role: pm
   subset: mvp-foundation
 ---
@@ -60,5 +60,13 @@ Released claim on <file-path>
 
 ## Standalone use
 
-Specialist contexts invoke this on commit. Can also be invoked manually
-to clear a stale claim (e.g., a chat ended mid-claim and never released).
+Specialist contexts invoke this on commit — always the self-release path.
+
+The manual case is the stale claim: a chat ended mid-claim and never released.
+That is a forced release and needs `--force`, which is the point. A claim
+outliving its session is normal; an unlock leaving no record is not.
+
+## Related skills
+
+- `pm-claim-file` — the other half of the protocol.
+- `pm-show-claims` — list what is currently claimed, and by whom, before forcing.

@@ -67,9 +67,9 @@ Based on detected schema:
    (e.g., `B1`, `B2` from `**B1.**` prefixes if present, otherwise
    sequential), or surface the original bullet text.
 4. Prepend a soft warning to the output:
-   `Note: todos.md is in legacy checkbox format. Full task CRUD via
-   pm-add-task etc. requires migration to plugin schema. See the Phase 9
-   milestone in roadmap.md (if planned).`
+   `Note: todos.md is in legacy checkbox format, so this view is
+   read-only. Run pm-migrate-todos-schema to convert it and enable
+   pm-add-task / pm-update-task / pm-close-task.`
 
 **If empty / header-only:**
 
