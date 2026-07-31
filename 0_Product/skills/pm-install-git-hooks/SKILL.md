@@ -76,6 +76,16 @@ resolves them at install time and substitutes them into the hook.
    drift-check config first, or the hook is inert.
 5. If `core.hooksPath` is **already set to something else**, stop and report it.
    Silently repointing it would disable hooks the user set up deliberately.
+6. **The resolved interpreter can import PyYAML.** Check with
+   `<python> -c 'import yaml'`. `drift_check.py` exits 2 on a missing PyYAML, and
+   before 2026-07-30 the hook discarded that and printed nothing — a broken
+   checker looked exactly like a clean repo (task `c3f80b6e`). The hook now
+   reports the failure, but an installer that knowingly wires up a checker that
+   cannot run is still the wrong default. If the import fails, stop and report:
+   `pip3 install pyyaml --break-system-packages` against **that** interpreter.
+   Note the interpreter is machine-specific: `command -v python3` resolved to
+   Homebrew's `/opt/homebrew/bin/python3` on the dev machine, not `/usr/bin/python3`,
+   and only one of the two had PyYAML.
 
 ## Execution
 
@@ -89,6 +99,14 @@ resolves them at install time and substitutes them into the hook.
    verify the bit is set rather than assuming.
 5. `git -C <vault> config core.hooksPath <hooks-dir>` (repo-local, not global).
 6. Verify: `git -C <vault> config --get core.hooksPath` returns the expected value.
+7. **Smoke-test the checker before declaring success**, do not just verify the
+   wiring: run
+   `<python> <drift_check> --config <config> --dry-run` and confirm it exits 0
+   and emits at least one line. An installer that reports success while the
+   thing it installed cannot run is the failure this step exists to prevent.
+   An exit of 2 means PyYAML (precondition 6); a `session_hygiene — NOT
+   CONFIGURED` line means the vault's `drift_check.yaml` has no
+   `session_hygiene:` block and the hook would have nothing to say.
 
 The hooks directory is **tracked**, unlike `.git/hooks/`, so the hook travels
 with a clone. Each machine still needs `core.hooksPath` set once — that is what
@@ -109,6 +127,8 @@ Resolved: python3 <path>, drift_check.py <path>, config <path>
 - `core.hooksPath is already set to <other>; refusing to repoint it — remove or merge manually`
 - `post-commit already exists at <path>; pass --force to overwrite (a backup will be written)`
 - `drift_check.yaml not found; run pm-install-drift-check-config first or the hook will be inert`
+- `<python> cannot import PyYAML; drift_check.py will exit 2 and the hook will report itself unavailable on every commit`
+- `smoke test failed: drift_check.py exited <rc> — refusing to report a successful install`
 
 ## Verifying it works
 

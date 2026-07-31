@@ -24,9 +24,9 @@
 
 [ -n "$WRITING_COWORK_SKIP_HYGIENE" ] && exit 0
 
-DRIFT_CHECK="{{drift_check_path}}"
-CONFIG="{{config_path}}"
-PYTHON="{{python_path}}"
+DRIFT_CHECK="/Users/jburns/code/writing-cowork/0_Product/tools/drift_check.py"
+CONFIG="/Users/jburns/code/writing-cowork/1_Project/Process/drift_check.yaml"
+PYTHON="/opt/homebrew/bin/python3"
 
 # Never let a missing dependency interfere with committing — but never let one
 # pass unnoticed either. These three paths are absolute and resolved at install

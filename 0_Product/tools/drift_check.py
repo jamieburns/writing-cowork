@@ -72,7 +72,7 @@ except ImportError:
 # release. Printed via --version and stamped into every report header, so
 # a project's actual running script version can be confirmed directly
 # rather than assumed from the plugin version alone.
-DRIFT_CHECK_VERSION = "0.3.1"  # 2026-07-29: log_unlanded skips fenced code blocks
+DRIFT_CHECK_VERSION = "0.3.2"  # 2026-07-30: unconfigured session_hygiene is reported, not silent
 
 DEFAULT_REGISTRY = Path.home() / ".config" / "cowork" / "registry.yaml"
 
@@ -712,8 +712,19 @@ def check_session_hygiene(config: ProjectConfig):
     import json
     import subprocess
 
+    # 2026-07-30 (task c3f80b6e): returning [] here made an unconfigured or
+    # disabled hygiene block indistinguishable from a clean one. The
+    # post-commit hook greps for "session hygiene" and prints nothing when it
+    # finds nothing, so a config missing this block reported success forever.
+    # Absence of configuration is now itself a finding.
     if not getattr(config, "session_hygiene_enabled", False):
-        return []
+        return [{
+            "kind": "session_hygiene_unconfigured",
+            "summary": "Session hygiene — NOT CONFIGURED for this project "
+                       "(session_hygiene.enabled is false or the block is absent); "
+                       "no hygiene checking is happening here",
+            "details": {"config": str(config.config_path)},
+        }]
 
     issues = []
     vault = config.vault

@@ -362,3 +362,89 @@ against current source. Findings:
 
 The pile itself is left in place; disposition is Jamie's call, tracked as
 `d84a0c63`. Nothing is lost either way now that the contents are promoted.
+
+## priority_prefixes — the list is settled, the mechanism was never built (2026-07-30)
+
+**Jamie's list, settled 2026-07-30.** For this repo, `priority_prefixes` is
+`0_Product/` plus the status files the router's orient list points at:
+
+```
+0_Product/
+1_Project/Decisions.md
+1_Project/Todos.md
+1_Project/Log.md
+1_Project/Memory/
+2_Development/RoadMap/Roadmap.md
+```
+
+Rationale: the shipped plugin plus exactly the documents a session reads to
+orient. Anything a cold session must trust to be current belongs in the
+front-and-center bucket; working documents and history do not.
+
+**But the mechanism does not exist.** `grep priority_prefix` over
+`0_Product/tools/drift_check.py` returns **zero hits**, and the key is absent
+from `templates/drift_check.yaml`. `ProjectConfig.__init__` reads
+`exclude_prefixes`, `exclude_patterns`, and `generated_patterns` — there is no
+priority bucket to fill.
+
+**Where the confusion came from.** Task `6b91e2a5` carried the note "mechanism
+confirmed 2026-07-22." The source is
+`1_Project/Documents/v0.1.15_planning_roadmap_2026-07-22.md:207` —
+"~~Priority-prefix triage mechanism~~ — confirmed: yes, **build it**." What was
+confirmed was the decision to build, not the existence of a build. Line 219 of
+the same document says the list itself is "still an open detail," which is what
+made the row look like a one-minute decision.
+
+**Consequence, and why it matters more than the item itself.** Writing
+`priority_prefixes:` into a `drift_check.yaml` today would be accepted by the
+YAML parser, ignored by `ProjectConfig`, and reported as nothing. That is the
+same failure signature as `a4e1c7b2` (wrong columns), `c6d05a91` (config block
+the template never ships), and `7e4b1a93` (hardcoded `process/active/` paths):
+**unrecognized or unfindable input produces "clean," not "I could not read
+that."** Four instances now. The class is the defect; the individual items are
+symptoms.
+
+`6b91e2a5` is therefore reclassified from a user-decision row to a v0.1.18
+build row, with the list above as its spec.
+
+## Hygiene checks fail loudly, never silently (2026-07-30) — LOCKED
+
+**The rule.** Any writing-cowork check that cannot run must say so. A check that
+returns nothing when it is broken, unconfigured, or pointed at a path that no
+longer exists is worse than no check at all, because it manufactures the
+confidence a real check would have earned.
+
+**What forced it.** The first-ever host execution of `pm-install-git-hooks`
+(2026-07-30, task `e90c4a58`) found that the `post-commit` hook was completely
+inert on this machine. `command -v python3` resolves to `/opt/homebrew/bin/python3`,
+which had no PyYAML; `drift_check.py:60-64` writes its error to **stderr** and
+exits 2; the hook ran it with `2>/dev/null`, ignored the exit code, and grepped
+stdout for "session hygiene". Empty output, no warning, commit looks clean.
+The enforcement mechanism that is the entire content of v0.1.17 had never
+enforced anything and would not have announced that.
+
+Note the near-miss: `/usr/bin/python3` **does** have PyYAML. Had `command -v`
+resolved the other way the bug would have shipped undetected.
+
+**What changed.** Four silent exits in `templates/hooks/post-commit` now report:
+a non-zero exit from the checker (with its stderr), and each of the three
+stale-absolute-path guards. `drift_check.py` 0.3.2 returns a finding instead of
+`[]` when `session_hygiene` is disabled or absent. `pm-install-git-hooks` gains
+precondition 6 (the resolved interpreter must import PyYAML) and execution
+step 7 (smoke-test the checker; never report a successful install without it).
+All five failure modes verified on the host before commit; the hook still
+exits 0 on every path, so it can never fail a commit.
+
+**Why this is a lock and not a fix.** This was the fifth instance of one defect
+class found in a single session — `a4e1c7b2` (checker expects columns no
+template writes), `c6d05a91` (gate reads a `checks:` block the template never
+ships), `7e4b1a93` (hardcoded `process/active/` paths unreachable by config),
+`6b91e2a5` (`priority_prefixes` key does not exist in the code), and this one.
+Every one of them reports "clean" rather than "I could not read that." Fixing
+them one at a time is treating symptoms. New checks must distinguish
+*ran and found nothing* from *did not run*, and the installer for a check is
+responsible for proving the check runs.
+
+**Escape hatch unchanged.** `WRITING_COWORK_SKIP_HYGIENE=1` still silences the
+hook entirely — verified. Routine use means the check is too noisy and should be
+tuned, not muted.

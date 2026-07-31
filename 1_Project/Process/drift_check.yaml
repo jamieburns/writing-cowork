@@ -1,0 +1,140 @@
+# Per-project drift_check.yaml — writing-cowork (plugin source)
+#
+# Hand-authored 2026-07-30, NOT produced by pm-install-drift-check-config.
+# That skill copies templates/drift_check.yaml, which assumes the consumer vault
+# layout (process/active/, process/data_management/, project_hub.md). This repo
+# is plugin *source* and is laid out 0_Product/ + 1_Project/ + 2_Development/,
+# so every path below is remapped by hand.
+#
+# LOCATION. The template lives at process/data_management/drift_check.yaml.
+# Decisions.md ("Todos.md — the work list", 2026-07-29) forbids introducing a
+# process/ tree here, so this sits in 1_Project/Process/ instead — the existing
+# home for this repo's process documents. Consequence: pm-install-git-hooks
+# precondition 4 hardcodes the template location and the skill has no
+# --config= argument, so it will report "drift_check.yaml not found" against
+# this repo. That precondition fails LOUDLY, which is correct behaviour; the
+# hook itself takes an absolute {{config_path}} at install and does not care
+# where the file lives. Pass this path explicitly.
+#
+# WHAT THIS CONFIG CANNOT REACH. drift_check.py hardcodes
+# process/active/todos.md and process/active/roadmap.md (task 7e4b1a93), so the
+# todos and roadmap checks find nothing here and return empty — silently. Do
+# not read a clean report as covering them. The session_hygiene checks below
+# ARE fully path-configurable and are the reason this file exists.
+
+project_name: "writing-cowork (plugin source)"
+vault: "/Users/jburns/code/writing-cowork"
+
+# --- Files written to (vault-relative) ------------------------------------
+# hub: this repo has no project_hub.md. CLAUDE.md is its router and the nearest
+# analogue. It carries no timestamped status blocks, so the hub-staleness check
+# is a no-op here — pointed at a real file rather than a dangling path.
+hub: CLAUDE.md
+
+# ownership_table: this repo does not run the claim/release protocol — that is a
+# consumer-vault mechanism. Path is intentionally absent; ownership checks no-op.
+ownership_table: 1_Project/Process/file_ownership.md
+
+drift_flag:  1_Project/Process/.drift_flag
+reports_dir: 1_Project/Process/drift_reports
+
+# --- Inventory filters -----------------------------------------------------
+exclude_prefixes:
+  - .git
+  - .obsidian
+  - .claude
+  - _trashcan
+  - 10_DeveloperSpace              # Jamie's personal space; also in .claudeignore
+  - 1_Project/Handoff              # gitignored ephemeral baton
+  - 1_Project/Process/drift_reports
+
+exclude_patterns:
+  - "(^|/)_"                # underscore-prefixed scratch — also .gitignore'd here
+  - "/scratch/"
+  - "\\.scratch\\.md$"
+  - "\\.DS_Store$"
+  - "\\.icloud$"
+  - "__pycache__"
+  - "\\.py[co]$"
+  - "\\.drift_flag$"
+  - "(^|/)\\.gitkeep$"
+
+# Built plugin zip — output of `zip -r ... writing-cowork.plugin`, gitignored.
+generated_patterns:
+  - "\\.plugin$"
+
+# --- Build freshness -------------------------------------------------------
+# The .plugin zip is built ad hoc, not from a declared pipeline. Leave disabled
+# until the release procedure names a reproducible source->output mapping.
+build:
+  enabled: false
+  sources: []
+  outputs: []
+  grace_seconds: 300
+
+# --- Cross-reference validation -------------------------------------------
+# Core docs whose markdown link/image refs must resolve. These are exactly the
+# documents the router's orient list sends a cold session to.
+xref_targets:
+  - CLAUDE.md
+  - 1_Project/Memory/INDEX.md
+  - 2_Development/RoadMap/Roadmap.md
+  - 1_Project/Todos.md
+
+# --- Inbox -----------------------------------------------------------------
+# No inbox/ tree in this repo (consumer-vault mechanism). Buckets are declared
+# so the check is configured rather than accidentally absent; it finds nothing.
+inbox:
+  buckets:
+    - promotion
+    - hub-updates
+    - issues
+  overdue_days: 14
+
+markers:
+  attention_start: "<!-- DRIFT-ATTENTION-START -->"
+  attention_end:   "<!-- DRIFT-ATTENTION-END -->"
+  footer_start:    "<!-- DRIFT-FOOTER-START -->"
+  footer_end:      "<!-- DRIFT-FOOTER-END -->"
+
+# ---------------------------------------------------------------------------
+# Session hygiene — the working part of this config.
+# ---------------------------------------------------------------------------
+session_hygiene:
+  enabled: true
+
+  uncommitted_durable:
+    enabled: true
+    watch:                         # uncommitted state under these is a red flag
+      - 0_Product/                 # the shipped plugin
+      - 1_Project/                 # decisions, todos, log, memory
+      - 2_Development/             # roadmap, design, requirements
+      - CLAUDE.md                  # the router
+    ignore_untracked:
+      - 1_Project/Handoff/         # gitignored by design; never a source of truth
+
+  log_unlanded:
+    enabled: true
+    path: 1_Project/Log.md         # not process/Log.md — see header
+    placeholder: "uncommitted"
+
+  memory_path:
+    enabled: true
+    settings_file: .claude/settings.json
+    key: autoMemoryDirectory
+    must_be_inside_vault: true
+
+  managed_markers:
+    enabled: true
+    begin: "BEGIN WRITING-COWORK MANAGED:"
+    end: "END WRITING-COWORK MANAGED:"
+    project_begin: "BEGIN PROJECT-OWNED"
+    project_end: "END PROJECT-OWNED"
+    files:
+      # CLAUDE.md only. Two other files in this repo contain the marker strings
+      # as documentation rather than as live managed blocks —
+      # 0_Product/skills/pm-install-router/SKILL.md and
+      # 1_Project/Documents/information_architecture_spine_2026-07-24.md.
+      # Listing them would reproduce the log_unlanded-vs-schema-example false
+      # positive that drift_check 0.3.1 just fixed.
+      - CLAUDE.md
