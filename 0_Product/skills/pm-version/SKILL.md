@@ -8,8 +8,11 @@ description: >
   running anything. Use when the user asks "what version", "show plugin
   version", "verify the refresh", "did the update land", or any variant
   of confirming which writing-cowork build Cowork is currently using.
-  MAINTENANCE: bump the EXPECTED VERSION string in this description
-  every time `plugin.json` version is bumped (release-process step).
+  MAINTENANCE: on every `plugin.json` bump, update BOTH the EXPECTED
+  VERSION string in this description AND the `Expected for vX.Y.Z:`
+  block in the body — they drift independently, and a stale body block
+  makes a good install report STALE. Verified 2026-08-04 after all four
+  body values were found wrong.
 metadata:
   version: "0.1.2"
   role: pm
@@ -55,8 +58,9 @@ Read these from the plugin root:
 4. Sentinels (markers that flip across versions):
    - **pm-show-kanban default `--by`** — read
      `${CLAUDE_PLUGIN_ROOT}/skills/pm-show-kanban/SKILL.md` and grep for
-     the `--by=` argument's `default` value (should be `milestone` in
-     v0.1.8+, `status` in older).
+     the `--by=` argument's `default` value. Must equal whatever
+     `skills/pm-show-kanban/SKILL.md` actually declares — `status` as of
+     v0.1.14. Do not assert a value from memory; read the file.
    - **voice-* skills present** — `ls ${CLAUDE_PLUGIN_ROOT}/skills/`,
      check for any entry starting with `voice-` (Subset 3, v0.1.5+).
    - **kanban template uses dataviewjs** — grep for `dataviewjs` in
@@ -87,10 +91,10 @@ writing-cowork plugin version report
   pm-migrate-to-shared-tool present: <yes | no>
 
 Expected for v0.1.17:
-  version=0.1.15
-  skill count = 60
-  drift_check.py version >= 0.2.0
-  default --by = milestone
+  version=0.1.17
+  skill count = 66
+  drift_check.py version >= 0.5.1
+  default --by = status
   voice-* yes
   dataviewjs yes
   pm-version yes

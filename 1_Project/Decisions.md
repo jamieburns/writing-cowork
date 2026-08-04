@@ -118,10 +118,10 @@ Research complete; a prototype is running **in this dev repo** before anything i
 | §6c-4 memory / decision / charter-rule boundary | **RESOLVED 2026-07-26** (Jamie confirmed). See "Knowledge routing rule" below — this was the last item blocking the plugin port. |
 | §6c-5 trust in unprovenanced memory | Slightly improved: CLI v2.1.214+ stamps a `modified` frontmatter timestamp on memory writes, so there is a recency signal — still no why/inputs provenance like the §4 activity log. |
 | Chosen direction | **Make git the consent mechanism.** Put memory where an unapproved write shows up as an uncommitted change: `git status` is the surfacing §6c-3 asks for, `git diff` the review, `git checkout` the reject. Consent-on-write becomes consent-on-commit — weaker in theory, but achievable today **in both runtimes** with no new machinery. |
-| Option chosen | **B preferred** (redirect the auto-memory store into `1_Project/Memory/` so there is one pile, auto-loaded and git-visible), **A as fallback** (disable outright, vault-only by discipline). Contingent on the gating test. |
+| Option chosen | ~~**B preferred**~~ — **B is unreachable; A is the decision as of 2026-08-04.** The redirect mechanism B depends on (`autoMemoryDirectory`) has no jurisdiction over Cowork's memory store. Vault-only by discipline, with git as the consent mechanism. |
 | Load-bearing constraint | Every control found is documented for **Claude Code CLI**; Cowork memory runs through `mcp__remote-devices__project_memory_*`. Jamie develops in CLI but **consumer vaults run in Cowork** — so a settings-based control may protect the dev loop and protect nothing in the product. Controls built on **files + git** are runtime-independent; prefer those. |
 | §6e "split by kind" hypothesis | **Adjusted.** All 7 platform-store files were project-specific `writing-cowork` content; zero cross-project user facts. At *project* scope the platform store has no legitimate resident — the split may still hold at *user* scope, but it was doing no work here. |
-| Gating test | **Armed 2026-07-25, result pending.** `.claude/settings.json` now sets `autoMemoryEnabled: false` + `autoMemoryDirectory`. A fresh Cowork session distinguishes three outcomes (both bind / only directory binds / neither binds) and also checks whether Cowork loads repo-root `CLAUDE.md` at all. Procedure and outcome table: `memory_gating_test_2026-07-25.md`. **Record the result here when known.** |
+| Gating test | **RESOLVED 2026-08-04 — outcome row 3, replicated in two independent sessions.** Neither key binds; see the dedicated section below. Original arming note follows. Armed 2026-07-25. `.claude/settings.json` now sets `autoMemoryEnabled: false` + `autoMemoryDirectory`. A fresh Cowork session distinguishes three outcomes (both bind / only directory binds / neither binds) and also checks whether Cowork loads repo-root `CLAUDE.md` at all. Procedure and outcome table: `memory_gating_test_2026-07-25.md`. **Record the result here when known.** |
 | Shipped this pass | Two stores reconciled; repo-root `CLAUDE.md` Tier-1 router created (spine §5) with the marker convention below. |
 
 ### CLAUDE.md marker convention (new 2026-07-25, prototype — not yet in the plugin)
@@ -597,3 +597,59 @@ transcript** — the table is what the next session reads.
 
 A claim outliving its session is normal and expected; the fix is not to make
 forcing hard, it is to make it leave a mark.
+
+
+## Memory gating test — RESOLVED 2026-08-04 (outcome row 3)
+
+**Result: neither `autoMemoryEnabled: false` nor `autoMemoryDirectory` binds Cowork.**
+Replicated in two independent fresh Cowork sessions (2026-08-04, morning and this
+one). Evidence in both cases is *presence*: a memory index loaded that the settings
+should have suppressed, and its content was the hidden store's retirement note
+rather than `1_Project/Memory/INDEX.md`. Presence-evidence survives a truncated
+context, which is why this row stood while the row-4 claim was retracted. The
+second run made the observation on **turn one**.
+
+**The refinement, and it is the load-bearing part.** Cowork's memory is reached
+through `mcp__remote-devices__project_memory_read` — an MCP tool on the desktop
+bridge, a *different subsystem* from Claude Code's auto-memory. The two keys are
+not broken; they have no jurisdiction. Therefore:
+
+- **No value of either key will ever help.** The follow-up retest proposed in the
+  gating doc (flip `autoMemoryEnabled` back to `true` to test the redirect alone)
+  is struck — it would test a control that was never wired to this store.
+- **Word the plugin constraint as "no known setting-level control over Cowork's
+  memory store,"** not "these settings don't work." The second wording implies a
+  bug report might fix it. Only the first is supported.
+- **Option B is dead; Option A stands.** Vault-only by discipline, git as the
+  consent mechanism — which was already the chosen direction for being
+  runtime-independent, and is now the only available one.
+
+**Incidental:** the hidden store's index says "Zero memories," but seven topic
+files remain in it, already diverged from their vault counterparts. The
+retirement was applied to the index, not the contents — a banner is the only
+thing stopping a future session from pulling them. Same "reports as configured,
+does nothing" class as the hygiene-check failures. Whether `project_memory_write`
+is likewise ungated is untested.
+
+**Still open:** row 4 (does Cowork load repo-root `CLAUDE.md`?). Two absence-based
+attempts now; neither counts. Settle it with a positive probe on turn one — ask for
+a fact only `CLAUDE.md` contains, forbid a file read.
+
+## `pm-version` sentinels were wrong in four places (2026-08-04)
+
+Found while preparing the v0.1.17 refresh. The skill's `Expected for v0.1.17:`
+block claimed `version=0.1.15`, `skill count = 60`, `drift_check.py >= 0.2.0`,
+and `default --by = milestone`. Actual: **0.1.17, 66 skills, drift_check 0.5.1,
+and `--by` defaults to `status`** (pm-show-kanban has said `status` since
+v0.1.14). A correct v0.1.17 install would have reported `STALE — refresh did not
+land` for two independent reasons.
+
+**This already caused a wrong belief.** The 2026-08-04 morning session read
+`EXPECTED VERSION: v0.1.13` from the description and recorded "the plugin loaded
+in Cowork is v0.1.13" in the handoff. The synced package's own
+`.claude-plugin/plugin.json` reads **`0.1.14`**. The instrument misreported, and a
+session that trusted it wrote the wrong number down.
+
+**Rule added to the skill:** a version bump updates *both* the EXPECTED VERSION
+string in the description *and* the `Expected for` block in the body. They drift
+independently, and only the description was on the release checklist.
