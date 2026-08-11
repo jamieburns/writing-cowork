@@ -1,15 +1,9 @@
 ---
 name: personal-plugin-marketplace
-description: "Raw reference notes on Jamie's two-client plugin distribution setup. See 1_Project/Process/dev-workflow-and-release.md for the polished, current procedure."
+description: Raw reference notes on Jamie's  plugin distribution setup.
 type: reference
 originSessionId: 988852c3-1715-4f55-8d1f-6cfeedc2a4a6
 ---
-
-Jamie's plugin distribution is split between two clients that share the plugin format but have entirely separate plugin systems:
-
-- **Claude Code CLI** — the dev environment. All documented slash/CLI commands work as expected.
-- **Cowork** — the runtime where the plugin's skills get invoked in writing sessions. Limited and unreliable plugin management UI.
-
 **Catalog repo:** `github.com/jamieburns/cowork-plugins-marketplace` (public). Catalog name: `jamie-cowork-plugins`.
 **Plugin source repo:** `github.com/jamieburns/writing-cowork` (public).
 

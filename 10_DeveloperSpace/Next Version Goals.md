@@ -1,14 +1,11 @@
 
 # Version 0.15 tasks - input from projects and clean
-1. Acquire input from projects
-2. Build version plan from input
-3. File management (process, history, audit, etc)
-4. Add reseach and analysis folder with rules
-5. Add resources folder - read only - but stop downloading things over and over
+1. Add reseach and analysis folder with rules
+2. Add resources folder - read only - but stop downloading things over and over
 	1. Allow some to be stashed and some commited. - how to manage?
-6. Look at possible other skill consolidate.
-7. ==**Develop version update process.**==
-8. Roll out to current projects.
+3. Look at possible other skill consolidate.
+4. ==**Develop version update process.**==
+5. Roll out to current projects.
 
 # Version 0.16. -memory and role management
 1. Roll cowork-tools into skills or something

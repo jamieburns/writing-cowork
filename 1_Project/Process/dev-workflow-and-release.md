@@ -4,9 +4,6 @@ How we develop and ship writing-cowork. Distilled from `1_Project/Memory/referen
 
 ## Environments
 
-- **Claude Code CLI** — the dev environment. All documented commands work reliably.
-- **Cowork** — the runtime consumer. Limited, sometimes unreliable plugin-management UI. Never develop here; only install/verify.
-
 The `claude` binary lives at `~/.local/bin/claude` — **not** on the Homebrew path. Anything invoking it via `osascript` must export a PATH including `$HOME/.local/bin`, or it fails with `claude: command not found`.
 
 ## One-time setup (per machine)
