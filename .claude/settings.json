@@ -1,7 +1,4 @@
 {
-  "enabledPlugins": {
-    "writing-cowork@jamie-cowork-plugins": true
-  },
   "autoMemoryEnabled": false,
   "autoMemoryDirectory": "~/code/writing-cowork/1_Project/Memory"
 }
