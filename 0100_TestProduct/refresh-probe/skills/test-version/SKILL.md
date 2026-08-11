@@ -1,7 +1,7 @@
 ---
 name: test-version
 description: >
-  Report the loaded refresh-probe plugin version. **EXPECTED VERSION: v0.0.1**
+  Report the loaded refresh-probe plugin version. **EXPECTED VERSION: v0.0.2**
   — this string appears here so the loaded version is visible at a glance in
   the system-reminder skill listing, without running anything. Use when the
   user asks "what version is refresh-probe", "did the refresh land", "test
@@ -10,7 +10,7 @@ description: >
   string here every time plugin.json's version is bumped, as part of each
   test cycle.
 metadata:
-  version: "0.0.1"
+  version: "0.0.2"
   role: test
   temporary: true
 ---
