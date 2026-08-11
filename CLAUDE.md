@@ -80,5 +80,6 @@ This repo is the **plugin source**, not a writing vault: it has no `process/acti
 
 - **Active prototype (2026-07-25):** memory management is being prototyped in this repo before being ported to the plugin. If a memory-related setting or file looks unusual, read `1_Project/Documents/memory_gating_test_2026-07-25.md` before changing it — an experiment may be in flight.
 - `10_DeveloperSpace/` is Jamie's personal space, excluded from reads via `.claudeignore`. Do not read it.
+- **No `writing-cowork:pm-*` / `voice-*` skill runs without asking first (2026-08-11).** This repo is the plugin's own dev vault — those skills are built here for consumer vaults, not meant to operate on the repo itself. `router-skills` above already names the two exceptions (`pm-version`, `pm-close-session`); those two are pre-approved and don't need to ask each time. Every other `pm-*` / `voice-*` skill, even one that looks like an exact match for the request (e.g. "add a task" matching `pm-add-task`), requires a plain-language check with Jamie before it runs — name the skill and what it would do, and wait for a yes. Plain file edits and git operations are unaffected; this is about the packaged skills only.
 
 <!-- END PROJECT-OWNED -->
