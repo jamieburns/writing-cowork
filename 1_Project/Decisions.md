@@ -653,3 +653,66 @@ session that trusted it wrote the wrong number down.
 **Rule added to the skill:** a version bump updates *both* the EXPECTED VERSION
 string in the description *and* the `Expected for` block in the body. They drift
 independently, and only the description was on the release checklist.
+
+## `7c1b9e04` — Cowork plugin refresh retested and resolved, on a throwaway plugin (2026-08-12)
+
+The `dev-workflow-and-release.md` quit/relaunch/uninstall procedure (2026-07-21
+vintage) was built against a real, once-confirmed bug: Anthropic's Desktop
+changelog for v1.24012.0 (2026-07-21) reads "Added an option to keep custom
+plugin marketplaces up to date automatically, and fixed a marketplace refresh
+reporting success before the sync ran and re-adding an existing marketplace
+not refreshing its contents." That's the same failure shape the old procedure
+worked around. Worth retesting rather than assuming it still applies, since
+the app had moved 15 point-releases past that fix by the time this was
+checked (running v1.26832.0, 2026-08-11).
+
+**Retest method.** Rather than risk the real `writing-cowork` install or a
+working writing project, built a throwaway plugin+marketplace pair:
+`refresh-probe` (one skill, `test-version`, reports its own `plugin.json`
+version — lives at `0100_TestProduct/refresh-probe/` in this repo, clearly
+separated from `0_Product/`) served through a brand-new public repo,
+`jamieburns/refresh-probe-marketplace`, using a `git-subdir` source pointing
+back into this repo. Neither is shipped product; both are deletable once this
+question is settled for good.
+
+**Two independent version-bump cycles, both succeeded:**
+- `0.0.1` → `0.0.2`: plain version bump. `test-version` correctly reported
+  `MATCH` from a fresh context after the refresh.
+- `0.0.2` → `0.0.3` + a brand-new second skill (`this-day-in-history`, not
+  merely edited — a file that didn't exist in any prior cache at all).
+  Reproduced cleanly the same way.
+
+**The working procedure, and it is simpler than the old one:**
+1. Push the version bump to the plugin's source repo, as normal.
+2. **Update the marketplace first, not the plugin.** The plugin-level
+   "Update" control alone does not pick up a new version — the marketplace's
+   own refresh/update action has to run first. This is the one genuine
+   behavior change from the old assumption that "Update plugin" never works;
+   it works, but only after the marketplace catalog itself has been told to
+   refresh.
+3. Sync is not instant. A refresh attempted immediately after pushing may
+   see nothing new — wait and retry rather than concluding it failed.
+4. **Verify from a brand-new context, never the session that ran the
+   update.** A session that already has the plugin loaded keeps its own
+   loaded copy for its own lifetime; checking in-place after the update
+   under-reports.
+
+No quit/relaunch, no marketplace uninstall/reinstall, no zip re-upload. Full
+procedure now lives in `dev-workflow-and-release.md`; the old ritual is kept
+there under a collapsed "old procedure" note rather than deleted, in case the
+real plugin doesn't behave identically.
+
+**What this does not yet prove.** `refresh-probe` is structurally trivial —
+one or two skills, no hooks, no `drift_check`, no memory settings, a
+`git-subdir` source rather than `jamie-cowork-plugins`'s own shape (verified
+matching structurally, but not byte-identical). The real test is the next
+actual v0.1.17 release attempt. If the simplified procedure holds there too,
+`7c1b9e04` closes clean and the old 9-step ritual can be deleted outright
+rather than just collapsed. If the real plugin still needs the old procedure,
+that's a real and interesting difference — worth its own follow-up entry,
+not an assumption either way.
+
+**Cleanup deferred, not forgotten.** `0100_TestProduct/` in this repo and the
+`refresh-probe-marketplace` GitHub repo should both be deleted once the real
+release confirms (or disproves) that this transfers. Tracked so as not to
+accidentally ship test scaffolding.
