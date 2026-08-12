@@ -1,7 +1,7 @@
 {
   "name": "refresh-probe",
-  "version": "0.0.2",
-  "description": "Throwaway plugin for testing whether Cowork's marketplace/plugin refresh mechanism (7c1b9e04) actually picks up a version bump. Not a real tool. Safe to install, update, and delete freely. (v0.0.2)",
+  "version": "0.0.3",
+  "description": "Throwaway plugin for testing whether Cowork's marketplace/plugin refresh mechanism (7c1b9e04) actually picks up a version bump. Not a real tool. Safe to install, update, and delete freely. (v0.0.3)",
   "author": {
     "name": "Jamie Burns"
   },
